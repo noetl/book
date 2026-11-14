@@ -3,11 +3,11 @@
     "start",
     "done"
   ],
-  "final_result": "43",
+  "final_result": "42",
   "playbook_name": "hello",
   "status": "ok",
   "step_results": {
-    "done": "43",
+    "done": "42",
     "start": "hello world"
   }
 }

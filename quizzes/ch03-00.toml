@@ -1,0 +1,14 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Where is an execution's current state stored?"
+prompt.distractors = [
+  "In an `execution_status` row the server updates in place.",
+  "In the memory of the worker running it.",
+  "In the playbook, which records progress.",
+]
+answer.answer = "Nowhere as such: it is recomputed from the execution's events when needed."
+context = """
+NoETL is event-sourced. The orchestration drive is handed the events and the
+playbook and folds state from them (orchestrate plug-in input, v3.161.2).
+"""
+id = "6089d4e6-c077-42e8-8146-beec07fba1cf"

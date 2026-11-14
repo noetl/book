@@ -12,6 +12,8 @@ claims were checked against. Rows are added as chapters land.
 
 | Page | Badge | Verified against | Landed |
 |---|---|---|---|
+| [Ch. 3 What NoETL Is](ch03-00-what-noetl-is.md) (3.0–3.3) | REAL | server v3.161.2 (`983e36e`), worker v6.15.0; ai-meta execution-model rule | 2026-11-13 |
+| [3.4 Two Catalogs](ch03-04-two-catalogs.md) | PARTIAL | server v3.161.2: Postgres today, EHDB shadow + staged read | 2026-11-13 |
 | [Appendix B: Tool Kinds](appendix-02-tool-kinds.md) | REAL | generated at server v3.161.2 (`983e36e`); local column CLI v6.4.0 + CI examples | 2026-11-13 |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | REAL | generated at server v3.161.2 (`983e36e`) | 2026-11-13 |
 | [Appendix F: Myths](appendix-06-myths.md) | REAL | per row (each row names its release / commit) | 2026-11-13 |

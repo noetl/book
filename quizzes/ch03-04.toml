@@ -1,0 +1,30 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "At server v3.161.2 with default settings, where does `/api/catalog/*` read a playbook from?"
+prompt.distractors = [
+  "EHDB only.",
+  "EHDB, falling back to Postgres.",
+  "The worker's local cache.",
+]
+answer.answer = "The Postgres table `noetl.catalog`."
+context = """
+EHDB-only storage is the design target. Today the EHDB catalog log is a
+shadow write and serving from EHDB is staged behind
+`NOETL_CATALOG_READ_SOURCE` (default `postgres`).
+"""
+id = "b381c234-f226-46b9-addd-6ae0c729f715"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Where should a travel playbook's hotel inventory live?"
+prompt.distractors = [
+  "In NoETL's internal catalog, next to the playbook.",
+  "In NoETL's event log, as events.",
+  "In workload defaults inside the playbook.",
+]
+answer.answer = "In a business store (a database or API) that the playbook's steps read."
+context = """
+Business data never goes into the internal catalog or NoETL's event store.
+The playbook is the program that reads it.
+"""
+id = "562d9767-c5c9-4bb4-a65e-3241bd32a963"

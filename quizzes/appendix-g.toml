@@ -1,0 +1,26 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In NoETL, what is a *slot*?"
+prompt.distractors = [
+  "A position in the `workflow` list.",
+  "A named variable set by `set:`.",
+  "A reserved step name such as `start`.",
+]
+answer.answer = "A worker's unit of concurrency, held by a command from claim until its tool returns."
+context = """
+Capacity is replicas × slots per replica (`WORKER_MAX_CONCURRENT`, default 4).
+See Chapter 5.
+"""
+id = "9683bd5f-2b62-45e8-b143-a4a7b4111dd7"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What is a *back-edge*?"
+prompt.distractors = [
+  "An arc that returns a step's result to its parent playbook.",
+  "The default arc of a router.",
+  "A retry policy rule.",
+]
+answer.answer = "An arc to a step that has already run, forming a loop bounded only by its `when`."
+context = "Chapter 6.4: the server re-dispatches the target; nothing caps the repeats."
+id = "0c3d1026-5fe9-47cb-bc1d-7371a211100a"

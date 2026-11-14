@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**25 pages written, 109 not yet written** (of 134 in `SUMMARY.md`).
+**26 pages written, 108 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -155,7 +155,7 @@ this table is stale.
 | [Appendix D: The Resource Model, Annotated](appendix-04-resource-model.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57) |
 | [Appendix E: Status Ledger — REAL vs TARGET by Chapter](appendix-05-status-ledger.md) | **REAL** | written | generated from the pages | 2026-11-13 (#47) |
 | [Appendix F: Myths and Corrections](appendix-06-myths.md) | **REAL** | written | per row | 2026-11-13 (#61) |
-| Appendix G: Glossary | — | not written | | |
+| [Appendix G: Glossary](appendix-07-glossary.md) | **REAL** | written | terms as defined in their chapters | 2026-11-13 (#50) |
 | [Appendix H: Contributing to This Book](appendix-08-contributing.md) | **REAL** | written | book CI tooling | 2026-11-13 (#56) |
 
 <!-- ledger:end -->

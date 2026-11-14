@@ -141,7 +141,7 @@ wiki's Assignments page mirrors it.
 | Todo | Open, no assignee |
 | In progress | Assigned, plus a comment saying who/which agent and the branch name |
 | In review | A PR that says `Closes #N` is open |
-| Done | The PR is merged and the issue closed. The badge, Appendix E row and wiki Assignments are updated |
+| Done | The PR is merged and the issue closed. The badge, the Appendix E entry (`tools/ledger.json`, then `python3 tools/gen-ledger.py`) and wiki Assignments are updated |
 
 One active assignee per issue. To take over, comment and ask first.
 

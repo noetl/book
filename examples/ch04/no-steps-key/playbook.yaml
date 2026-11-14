@@ -1,0 +1,8 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: uses_steps
+steps:                 # wrong key: the step list is `workflow`
+  - step: start
+    tool:
+      kind: noop

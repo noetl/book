@@ -1,0 +1,52 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Why does NoETL refuse a playbook with a private key pasted into it?"
+prompt.distractors = [
+  "Private keys are too long for a YAML string.",
+  "It is a style rule, enforced only by code review.",
+  "The worker cannot read inline values.",
+]
+answer.answer = "The playbook and the commands built from it end up in an append-only event log that is never purged, so the secret could never be removed."
+context = """
+Registration is the last point where the answer can still be "no". The scan
+fires on PEM blocks, service-account JSON, JWTs and provider-prefixed tokens,
+and never echoes the value in its error.
+"""
+id = "067d9976-78b5-4b09-ac56-1a4b865f943e"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A header is `Authorization: "Bearer {{ keychain.example_api.api_key }}"` and
+the alias `example_api` does not exist. With default worker settings, what
+happens?
+"""
+prompt.distractors = [
+  "The step fails with 'alias not found'.",
+  "The server refuses to dispatch the step.",
+  "The template is sent literally, braces and all.",
+]
+answer.answer = "The template renders empty and the request goes out as `Bearer `, so the API answers 401."
+context = """
+Unresolved `keychain.*` templates render to an empty string unless the
+worker sets `NOETL_KEYCHAIN_STRICT=true` (off by default). That is why the
+failure shows up as a remote 401. (An unknown alias in `auth:` is different:
+it fails the step cleanly.)
+"""
+id = "4f15e054-6b58-43f5-928e-7a44238f2675"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "When is `{{ keychain.<alias>.<field> }}` rendered?"
+prompt.distractors = [
+  "When the playbook is registered.",
+  "When the server builds the step's command.",
+  "Never; the worker sends it to the API as is.",
+]
+answer.answer = "On the worker, just before the tool runs; the server deliberately leaves it unrendered."
+context = """
+The server renders every other template but defers `keychain.*`, so the
+secret is resolved only in the worker's memory and never written into the
+command or the event log.
+"""
+id = "42e62420-a10b-415c-bd63-cdaa48dab3cb"

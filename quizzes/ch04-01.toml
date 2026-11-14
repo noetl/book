@@ -1,0 +1,30 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A playbook is registered with `metadata.name: report` and no `path`. What is its catalog path?"
+prompt.distractors = [
+  "Registration fails: `path` is required.",
+  "A generated id such as `pbk_01J…`.",
+  "The file name it was loaded from.",
+]
+answer.answer = "`report`: the name is used as the path."
+context = """
+Registration takes `metadata.path`, or else `metadata.name`, and fails only
+if both are missing (`registration_identity`, server v3.161.2).
+"""
+id = "53f5de73-4409-4125-addc-c22eb80323ae"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A playbook sets `metadata.expose.mcp`. On a server with default settings, what happens?"
+prompt.distractors = [
+  "It is published as an MCP tool at `POST /api/mcp`.",
+  "Registration fails because the key is unknown.",
+  "It is published, but only to authenticated users.",
+]
+answer.answer = "Nothing: the key is read only when the server sets `NOETL_MCP_SERVER`, which is off by default."
+context = """
+The three `metadata` extensions are released but gated, and every gate is
+off by default. With the flag off the key is simply not acted on. Chapter 18
+covers turning it on.
+"""
+id = "5f9aa3bd-a06e-4704-af4d-9188b9c80b32"

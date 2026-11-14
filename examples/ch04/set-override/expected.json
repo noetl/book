@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "a=cli b={{workload.who}} c=CLI d=[{{ workload.missing }}]",
+  "playbook_name": "set_override",
+  "status": "ok",
+  "step_results": {
+    "start": "a=cli b={{workload.who}} c=CLI d=[{{ workload.missing }}]"
+  }
+}

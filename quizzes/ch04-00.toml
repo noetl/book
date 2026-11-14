@@ -1,0 +1,61 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which top-level key holds a playbook's list of steps?"
+prompt.distractors = ["`steps`", "`tasks`", "`workbook`"]
+answer.answer = "`workflow`"
+context = """
+`workflow` is the step list. There is no `steps:` key; a playbook that uses
+it fails with ``missing field `workflow` ``. `workbook` is something else:
+named, reusable tool definitions (section 4.5).
+"""
+id = "2dd625e8-1fc2-4d05-825f-c7d4f3441644"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which four top-level keys are required?"
+prompt.distractors = [
+  "`apiVersion`, `kind`, `metadata`, `workload`",
+  "`metadata`, `workload`, `workflow`, `keychain`",
+  "`kind`, `metadata`, `workflow`, `vars`",
+]
+answer.answer = "`apiVersion`, `kind`, `metadata`, `workflow`"
+context = """
+`playbook.schema.json` (server v3.161.2) requires exactly these four.
+`workload` is optional: a playbook with no inputs is fine.
+"""
+id = "7ff33485-d15e-4158-bfa1-70b31c065a04"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+You register a playbook with the server and registration succeeds. What does
+that tell you?
+"""
+prompt.distractors = [
+  "It will run: registration validated it.",
+  "Nothing; registration does no checks at all.",
+  "It has a `start` step, because registration requires one.",
+]
+answer.answer = "Its tool kinds exist and it has no inline secrets, but the validator (start step, unique names, next targets) has not run yet."
+context = """
+Registration checks tool kinds and scans for secret material. The semantic
+validator runs when an execution starts, so "a document can register and
+still be unexecutable" (src/handlers/dsl.rs).
+"""
+id = "a943354f-2c2b-4a77-a938-696d165b72e2"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "You misspell `workload` as `worklaod`. What happens?"
+prompt.distractors = [
+  "The schema check rejects the unknown key.",
+  "The server corrects it to `workload`.",
+  "The playbook fails to parse.",
+]
+answer.answer = "Nothing is reported: unknown keys are ignored, so the playbook just has no workload."
+context = """
+The grammar is permissive about unknown keys (its own description says so),
+so a typo in an optional key is silently ignored. Templates that read
+`{{ workload.… }}` will then find nothing.
+"""
+id = "90629c3f-5a3f-4021-88a7-655072515998"

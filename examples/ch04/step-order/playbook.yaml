@@ -1,0 +1,19 @@
+# Chapter 4.3: list position is not run order. The server starts at `start`;
+# the local runtime (CLI 6.4.0) starts at the first step in the list.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: step_order
+workflow:
+  - step: done
+    tool:
+      kind: rhai
+      code: |
+        "done"
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next:
+      - step: done

@@ -1,0 +1,13 @@
+# Chapter 4.2: --set overrides a workload value for one run.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: set_override
+workload:
+  who: book
+workflow:
+  - step: start
+    tool:
+      kind: shell
+      cmds:
+        - echo "a={{ workload.who }} b={{workload.who}} c={{ workload.who | upper }} d=[{{ workload.missing }}]"

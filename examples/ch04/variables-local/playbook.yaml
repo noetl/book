@@ -1,0 +1,26 @@
+# Chapter 4.2: which variable mechanisms the LOCAL runtime (CLI 6.4.0) honours.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: variables_local
+workload:
+  who: book
+vars:                     # top-level vars: parsed, not loaded locally
+  colour: blue
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        21 * 2
+    vars:                 # step vars: honoured locally (ignored by the server)
+      answer: "{{ start.result }}"
+    set:                  # step set: honoured by the server (ignored locally)
+      ctx.flag: "on"
+    next:
+      - step: report
+  - step: report
+    tool:
+      kind: shell
+      cmds:
+        - echo "workload={{ workload.who }} step_vars={{ vars.answer }} top_vars={{ vars.colour }} set={{ flag }} ctx_set={{ ctx.flag }}"

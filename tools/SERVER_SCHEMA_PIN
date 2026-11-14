@@ -1,0 +1,8 @@
+# The noetl/server commit Appendices A-D are generated from (T-04, #6).
+# Bump: change commit/tag/date, run `tools/gen-appendices.py --fetch`, review
+# the diff (every change is a grammar or resource-model change the chapters
+# may need to reflect), commit both together.
+repo = noetl/server
+tag = v3.161.2
+commit = 983e36e3ec4c60f5b2a03b4130b7d4fd388a3ec7
+date = 2026-11-12

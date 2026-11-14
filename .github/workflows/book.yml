@@ -94,3 +94,19 @@ jobs:
 
       - name: Run every example and diff against its expected output
         run: tools/run-examples.sh examples
+
+  appendices:
+    name: generated appendices are fresh (T-04)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pinned server commit
+        run: cat tools/SERVER_SCHEMA_PIN
+      - name: Regenerate Appendices A-D at the pin
+        run: python3 tools/gen-appendices.py --fetch
+      - name: Committed pages must equal the regenerated ones
+        run: |
+          if ! git diff --exit-code -- src/appendix-01-dsl-reference.md src/appendix-02-tool-kinds.md src/appendix-03-flags.md src/appendix-04-resource-model.md; then
+            echo "::error title=stale appendix::Appendices A-D differ from what tools/gen-appendices.py produces at the pin. Run: python3 tools/gen-appendices.py --fetch, and commit the result."
+            exit 1
+          fi

@@ -1,0 +1,5 @@
+{
+  "cli_version": "6.4.0",
+  "source": "the `Tool` enum in noetl/cli executor/src/playbook.rs plus the `noop` pass-through in src/playbook_runner.rs (`NOOP_KINDS`); any other kind is refused before the first step runs (`reject_unsupported_kinds`)",
+  "kinds": ["agent", "auth", "duckdb", "http", "mcp", "noop", "playbook", "provider", "rhai", "shell", "sink"]
+}

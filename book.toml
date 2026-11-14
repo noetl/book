@@ -54,6 +54,12 @@ enable = true
 # [preprocessor.noetl-trace]
 # [preprocessor.noetl-play]
 
-# Link checking in CI.
-# [output.linkcheck]
-# follow-web-links = false
+# Link checking (T-01, #3). Internal links on every build; external links
+# only on the weekly CI schedule (MDBOOK_OUTPUT__LINKCHECK__FOLLOW_WEB_LINKS).
+# `optional = true` lets a local `mdbook build` still work without the
+# binary installed; CI always installs it, so CI never skips the check.
+[output.linkcheck]
+optional = true
+follow-web-links = false
+warning-policy = "error"
+exclude = ['^https://github\.com/noetl/book/edit/']

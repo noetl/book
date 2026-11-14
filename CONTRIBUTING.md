@@ -158,9 +158,11 @@ mdbook build
 mdbook serve --open
 ```
 
-Link checking (`mdbook-linkcheck`) and the example runner
-(`examples/` → `noetl run`, outputs diffed) are added in Phase 0. Once
-they exist they are mandatory. Until then, run each example by hand
+`mdbook build` also runs `mdbook-linkcheck` (0.7.7) over every internal
+link; install it (see README) or the check is silently skipped. CI runs
+it on every PR, and checks external links weekly. The example runner
+(`examples/` → `noetl run`, outputs diffed) is added in Phase 0. Once
+it exists it is mandatory. Until then, run each example by hand
 with the CLI version you cite and paste the command and output into
 the PR.
 

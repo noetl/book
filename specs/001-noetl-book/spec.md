@@ -128,7 +128,7 @@ its own criteria below:
 3. Every number has a label; MEASURED numbers state where, when and n.
 4. Each section ends with a 2–5 question quiz with explained answers, once T-03 has landed. Before then, the quiz is drafted in the PR description.
 5. Examples are files in `examples/` and pass the runner, once T-02 has landed. Before then, the PR shows the manual run's command and output with the CLI version.
-6. Appendix E gains or updates the page's row; Appendix F gains any myth the page corrects; Appendix G gains new terms.
+6. The page's Appendix E entry is added or updated in `tools/ledger.json` (the ledger is generated; CI checks it); Appendix F gains any myth the page corrects; Appendix G gains new terms.
 7. `mdbook build` and the link check pass.
 8. The page states what exists today before what is planned.
 9. Nothing private or internal is published.

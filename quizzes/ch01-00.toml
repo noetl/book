@@ -1,0 +1,13 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What do you need installed to run this chapter's examples?"
+prompt.distractors = [
+  "A NoETL server and a Postgres database.",
+  "Docker and a local Kubernetes cluster.",
+  "Python 3.12 and the NoETL SDK.",
+]
+answer.answer = "Only the `noetl` CLI: its local runtime runs the playbook in-process."
+context = """
+The local runtime needs no server, database or cluster. Part III covers the
+daemon and distributed runtimes, which do.
+"""

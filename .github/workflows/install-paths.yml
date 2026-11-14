@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   homebrew:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: brew tap noetl/tap && brew install noetl

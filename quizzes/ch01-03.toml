@@ -1,0 +1,37 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "You run `noetl run hello.yaml` with no flags and no context set. Which runtime runs it?"
+prompt.distractors = ["distributed", "auto, which picks a server if one is reachable", "none: `-r` is required"]
+answer.answer = "local"
+context = """
+The order is: the `-r` flag, then the active context's runtime, then local.
+The first line of output names the runtime and where the choice came from.
+"""
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step runs `echo hello`. Where do you see `hello`?"
+prompt.distractors = [
+  "In the progress lines on stderr.",
+  "Nowhere: shell output is discarded.",
+  "Only in the server's logs.",
+]
+answer.answer = "In the step's result, for example in `step_results` with `--json`."
+context = """
+The CLI captures the command's output as the step result. The progress lines
+name the steps but do not print their output.
+"""
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What does `--event-buffer` add to a local run?"
+prompt.distractors = [
+  "It sends events to a NoETL server as they happen.",
+  "It prints each event to stderr.",
+  "It makes the run resumable after a crash.",
+]
+answer.answer = "It records the run's events (started, one step.exit per step, completed) in a local Feather file you can read with `noetl buffer cat` or ship later with `noetl push`."
+context = """
+The buffer lives under $NOETL_LOCAL_DIR (default ~/.noetl/local). Sending it
+to a server is a separate, explicit `noetl push`.
+"""

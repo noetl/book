@@ -1,3 +1,5 @@
+# Chapter 1.2: hello, with an input. The first step runs a shell command (local
+# runtime field `cmds:`), the second a Rhai expression.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

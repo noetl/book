@@ -21,5 +21,5 @@ binding. In short:
 6. **Public repo.** No secrets, internal hostnames, project IDs or
    customer data.
 
-The outline is `src/SUMMARY.md`, the order is `docs/ROADMAP.md`, and the
+Work items: `specs/001-noetl-book/tasks.md` (one GitHub issue each). The outline is `src/SUMMARY.md`, the order is `docs/ROADMAP.md`, and the
 goals and sources are in `docs/BOOK-PLAN.md`.

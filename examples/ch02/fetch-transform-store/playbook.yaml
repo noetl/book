@@ -1,0 +1,76 @@
+# Chapter 2 project: fetch two documents over HTTP, store them in DuckDB,
+# write a summary file. Local runtime (CLI 6.4.0), local kinds only.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: fetch_transform_store
+workload:
+  # Two of NoETL's own published files, at a pinned server commit, so the
+  # data never changes under the example.
+  base: https://raw.githubusercontent.com/noetl/server/983e36e3ec4c60f5b2a03b4130b7d4fd388a3ec7/orchestrate-core/schema
+  db: /tmp/noetl-book-ch02.duckdb
+  out: /tmp/noetl-book-ch02-summary.csv
+workflow:
+  - step: start                          # create (or reset) the table
+    tool:
+      kind: duckdb
+      db: "{{ workload.db }}"
+      query: "CREATE OR REPLACE TABLE docs (i INTEGER, name VARCHAR, doc JSON)"
+    vars:
+      i: "0"                             # the loop counter starts at 0
+    next:
+      - step: pick
+  - step: pick                           # which file is document number i?
+    tool:
+      kind: rhai
+      code: |
+        ["dsl-manifest.json", "playbook.schema.json"][{{ vars.i }}]
+    next:
+      - step: fetch
+  - step: fetch                          # HTTP GET it
+    tool:
+      kind: http
+      method: GET
+      url: "{{ workload.base }}/{{ pick.result }}"
+    next:
+      - step: load
+  - step: load                           # store the response, bound as a parameter
+    tool:
+      kind: duckdb
+      db: "{{ workload.db }}"
+      query: "INSERT INTO docs VALUES (?::INTEGER, ?, ?::JSON)"
+      params:
+        - "{{ vars.i }}"
+        - "{{ pick.result }}"
+        - "{{ fetch.result }}"
+    next:
+      - step: advance
+  - step: advance                        # i = i + 1
+    tool:
+      kind: rhai
+      code: |
+        {{ vars.i }} + 1
+    vars:
+      i: "{{ advance.result }}"
+    next:
+      - step: pick                       # the back-edge: go round again ...
+        when: "{{ vars.i != 2 }}"        # ... until i reaches 2
+      - step: report
+  - step: report                         # transform + write the file
+    tool:
+      kind: duckdb
+      db: "{{ workload.db }}"
+      query: >-
+        COPY (
+          SELECT i, name,
+                 doc->>'$.status' AS http_status,
+                 len(json_keys(doc->'$.body')) AS top_level_keys
+          FROM docs ORDER BY i
+        ) TO '{{ workload.out }}' (HEADER)
+    next:
+      - step: check
+  - step: check                          # read the file back
+    tool:
+      kind: duckdb
+      db: "{{ workload.db }}"
+      query: "SELECT * FROM read_csv_auto('{{ workload.out }}') ORDER BY i"

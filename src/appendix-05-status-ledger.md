@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**26 pages written, 108 not yet written** (of 134 in `SUMMARY.md`).
+**27 pages written, 107 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -31,7 +31,7 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Installation | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Hello, Playbook | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Running It Locally with the CLI | REAL | not written | | |
-| Project: Fetch, Transform, Store — Your First Real Playbook | REAL | not written | | |
+| [Project: Fetch, Transform, Store — Your First Real Playbook](ch02-00-project-first-playbook.md) | **REAL** | written | CLI v6.4.0 (run in CI); data pinned at server `983e36e` | 2026-11-13 (#12) |
 | What NoETL Is | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Declarative Orchestration | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Event Sourcing: The Log Is the Truth | REAL | not written | | |

@@ -1,5 +1,7 @@
 # How to Read This Book: Status Badges, Quizzes and Traces
 
+<span class="status status-real">REAL</span>
+
 ## Status badges
 
 NoETL moves fast, and some of what this book covers is designed but not

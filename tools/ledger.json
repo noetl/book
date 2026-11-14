@@ -1,0 +1,102 @@
+{
+  "appendix-01-dsl-reference.md": {
+    "landed": "2026-11-13 (#57, #62)",
+    "verified": "generated, server v3.161.2 (`983e36e`)"
+  },
+  "appendix-02-tool-kinds.md": {
+    "landed": "2026-11-13 (#57, #63)",
+    "verified": "generated, server v3.161.2 (`983e36e`); local: CLI v6.4.0"
+  },
+  "appendix-03-flags.md": {
+    "landed": "2026-11-13 (#57)",
+    "verified": "generated, server v3.161.2 (`983e36e`)"
+  },
+  "appendix-04-resource-model.md": {
+    "landed": "2026-11-13 (#57)",
+    "verified": "generated, server v3.161.2 (`983e36e`)"
+  },
+  "appendix-05-status-ledger.md": {
+    "landed": "2026-11-13 (#47)",
+    "verified": "generated from the pages"
+  },
+  "appendix-06-myths.md": {
+    "landed": "2026-11-13 (#61)",
+    "verified": "per row"
+  },
+  "appendix-08-contributing.md": {
+    "landed": "2026-11-13 (#56)",
+    "verified": "book CI tooling"
+  },
+  "ch00-01-how-to-read.md": {
+    "landed": "2026-11-13 (#65)",
+    "verified": "resource model `labels`, server v3.161.2"
+  },
+  "ch04-00-anatomy-of-a-playbook.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch04-01-header.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch04-02-workload-and-templating.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch04-03-steps.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch04-04-keychain.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch04-05-workbook.md": {
+    "landed": "2026-11-13 (#58)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch05-00-tools.md": {
+    "landed": "2026-11-13 (#59)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+  },
+  "ch05-01-tool-kinds.md": {
+    "landed": "2026-11-13 (#59)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+  },
+  "ch05-02-ordered-tool-list.md": {
+    "landed": "2026-11-13 (#59)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+  },
+  "ch05-03-results-and-references.md": {
+    "landed": "2026-11-13 (#59)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+  },
+  "ch06-00-control-flow.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch06-01-next-and-routers.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch06-02-when-guards.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch06-03-loop.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch06-04-back-edges.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "ch06-05-errors-timeouts-retries.md": {
+    "landed": "2026-11-13 (#60)",
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+  },
+  "title-page.md": {
+    "landed": "2026-11-13 (#1)",
+    "verified": "\u2014"
+  }
+}

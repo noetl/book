@@ -1,0 +1,59 @@
+[book]
+title = "The NoETL Book"
+description = "Declarative, event-sourced orchestration: the NoETL ecosystem from first playbook to distributed, edge and agent runtimes."
+authors = ["The NoETL contributors"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false   # SUMMARY.md is the contract; a missing file is a build error, not a silent stub
+
+[output.html]
+git-repository-url = "https://github.com/noetl/book"
+edit-url-template = "https://github.com/noetl/book/edit/main/{path}"
+additional-css = ["theme/status.css"]
+mathjax-support = false
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.search]
+enable = true
+
+# ---------------------------------------------------------------------------
+# Interactive preprocessors — PLANNED, not yet enabled.
+#
+# They are commented out so a plain `mdbook build` works today with only
+# mdbook installed. Each is enabled in the same PR that adds its first real
+# use (a quiz file, a diagram, a trace) and adds the binary to CI.
+# See docs/BOOK-PLAN.md §4 "Interactive tooling".
+# ---------------------------------------------------------------------------
+
+# Brown CEL's quiz plugin: {{#quiz ../quizzes/<file>.toml}}
+# [preprocessor.quiz]
+# fullscreen = false
+# cache-answers = true
+
+# Mermaid diagrams for architecture and flow figures.
+# [preprocessor.mermaid]
+# command = "mdbook-mermaid"
+
+# REAL / TARGET / note callouts.
+# [preprocessor.admonish]
+# command = "mdbook-admonish"
+# assets_version = "3.0.2"
+
+# NoETL-specific (to be built in this repo under tools/):
+#   mdbook-noetl-trace  — renders a recorded event log as a step-through
+#                         state visualization ({{#trace ../traces/<file>.json}})
+#   mdbook-noetl-play   — embeds a runnable playbook backed by the WASM
+#                         local runner ({{#playbook ../examples/<file>.yaml}})
+# [preprocessor.noetl-trace]
+# [preprocessor.noetl-play]
+
+# Link checking in CI.
+# [output.linkcheck]
+# follow-web-links = false

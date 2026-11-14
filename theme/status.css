@@ -1,0 +1,6 @@
+/* Status badges used at the top of every chapter. See docs/BOOK-PLAN.md §3. */
+.status { display: inline-block; padding: 0.1em 0.6em; border-radius: 0.3em; font-size: 0.8em; font-weight: 600; letter-spacing: 0.02em; }
+.status-real    { background: #1f7a3a; color: #fff; }
+.status-partial { background: #a86b00; color: #fff; }
+.status-target  { background: #3b4fa3; color: #fff; }
+.status-stub    { background: #777;    color: #fff; }

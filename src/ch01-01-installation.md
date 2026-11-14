@@ -15,7 +15,7 @@ then ran `noetl --version` and the Chapter 1 example. Results as of
 |---|---|---|---|
 | APT (Ubuntu 24.04) | see below | **6.4.0** (package `6.4.0-1`) | yes |
 | PyPI | `pip install noetl` | **5.3.2** | yes |
-| Homebrew (macOS) | `brew tap noetl/tap && brew install noetl` | HOMEBREW_RESULT | HOMEBREW_RAN |
+| Homebrew (macOS) | `brew tap noetl/tap`, `brew trust noetl/tap`, `brew install noetl` | **6.4.0** (built from source) | yes |
 
 The latest CLI release is **v6.4.0** (2026-11-11). The book's examples
 are tested against it.
@@ -61,13 +61,25 @@ or Homebrew.
 
 ```console
 $ brew tap noetl/tap
+$ brew trust noetl/tap
 $ brew install noetl
 $ noetl --version
+noetl 6.4.0
+```
+
+```admonish warning title="`brew trust` is needed with current Homebrew"
+The tap's own instructions say only `brew tap noetl/tap` and
+`brew install noetl`. With **Homebrew 7.0.11** (the CI runner's version
+on 2026-11-14), that fails: "Refusing to load formula noetl/tap/noetl
+from untrusted tap noetl/tap." Homebrew's suggested fix,
+`brew trust noetl/tap`, makes it work.
 ```
 
 The formula (`noetl/homebrew-tap`, `Formula/noetl.rb`) builds the CLI
-from the **v6.4.0** source tarball, so the first install compiles it
-and takes several minutes.
+from the **v6.4.0** source tarball, so the first install compiles Rust
+code. On a `macos-latest` GitHub runner it took **16 minutes**
+(MEASURED: 2026-11-14, n = 1, including installing the Rust
+toolchain).
 
 ## Check it works
 

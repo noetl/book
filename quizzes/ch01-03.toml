@@ -7,6 +7,7 @@ context = """
 The order is: the `-r` flag, then the active context's runtime, then local.
 The first line of output names the runtime and where the choice came from.
 """
+id = "0d96f045-b12d-4ed2-b9c9-21eca33f2d6c"
 
 [[questions]]
 type = "MultipleChoice"
@@ -21,6 +22,7 @@ context = """
 The CLI captures the command's output as the step result. The progress lines
 name the steps but do not print their output.
 """
+id = "98a94b6b-8114-4ecd-bf7b-902378c82de1"
 
 [[questions]]
 type = "MultipleChoice"
@@ -35,3 +37,4 @@ context = """
 The buffer lives under $NOETL_LOCAL_DIR (default ~/.noetl/local). Sending it
 to a server is a separate, explicit `noetl push`.
 """
+id = "557e5a25-8012-415a-9dd7-a42c31ecbeae"

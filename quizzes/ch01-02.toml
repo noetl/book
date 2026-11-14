@@ -10,6 +10,7 @@ answer.answer = "`apiVersion: noetl.io/v2`, `kind: Playbook`, `metadata.name`, a
 context = """
 All four keys are required, and the step list is `workflow`, not `steps`.
 """
+id = "148b947d-bc8e-49d3-ba44-2460d9716c0d"
 
 [[questions]]
 type = "MultipleChoice"
@@ -24,3 +25,4 @@ context = """
 The local runtime starts at the first step in the list, whatever its name.
 Naming it `start` makes the playbook work in both places.
 """
+id = "fd0d545c-8e13-4783-ae0b-e080da16a817"

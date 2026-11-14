@@ -1,0 +1,15 @@
+# Chapter 8.3: iterate inside ONE step with a Rhai loop (local runtime, CLI 6.4.0).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: iterate_rhai
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        let out = [];
+        for city in ["Lisbon", "Oslo", "Quito"] {
+          out.push(city + ":" + city.len());
+        }
+        out

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "You need a value computed for each of 10,000 rows. Locally, what is the best approach?"
+prompt.distractors = [
+  "`loop:` over the rows.",
+  "A back-edge that processes one row per pass.",
+  "A `shell` step per row.",
+]
+answer.answer = "One `duckdb` step with set-based SQL over all the rows."
+context = "`loop:` runs once locally; a back-edge pays a full step per pass. SQL lets the database iterate."
+id = "d316d154-8e7c-42ce-bc21-b10b55dfbb62"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step with `loop: {in: '{{ workload.items }}', iterator: x}` runs locally. What happens?"
+prompt.distractors = [
+  "It runs once per item.",
+  "The run is refused: `loop` is not supported.",
+  "It runs once per item, but sequentially only.",
+]
+answer.answer = "It runs once, as if `loop:` were not there, and the run ends `ok`."
+context = "`Step.loop_config` has no reader in CLI v6.4.0 (`examples/ch08/loop-runs-once`)."
+id = "05044b90-335d-4e91-ae6c-2cbb18bd6474"

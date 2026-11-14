@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**31 pages written, 103 not yet written** (of 134 in `SUMMARY.md`).
+**36 pages written, 98 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -56,11 +56,11 @@ this table is stale.
 | Composition: Sub-Playbooks | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;`kind: playbook` and Child Executions | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;What a Hop Costs | REAL | not written | | |
-| The Local Runtime: `noetl run` | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;One Process, One Interpreter | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Local Tool Kinds and Their Limits | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Iterating Without `loop:` — Arcs, SQL and Rhai | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;The Local Event Buffer and `noetl push` | REAL | not written | | |
+| [The Local Runtime: `noetl run`](ch08-00-local-runtime.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[One Process, One Interpreter](ch08-01-in-process-interpreter.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Local Tool Kinds and Their Limits](ch08-02-local-kinds.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Iterating Without `loop:` — Arcs, SQL and Rhai](ch08-03-local-iteration.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Local Event Buffer and `noetl push`](ch08-04-event-buffer.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
 | The Daemon: `noetl subscribe` and `noetl serve` | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Subscriptions: NATS, Pub/Sub, Kafka | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Spooling and the Event Trail | REAL | not written | | |

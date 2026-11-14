@@ -2,6 +2,7 @@
 /book/
 # mdbook-quiz / preprocessor caches
 /.quiz-cache/
+/src/quiz/
 # editor / OS noise
 .DS_Store
 *.swp

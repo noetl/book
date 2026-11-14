@@ -17,3 +17,5 @@ the CI job log prints it (`noetl --version`).
 | NoETL CLI (`noetl run`, local runtime) | **6.4.0** (released 2026-11-11) | `examples/NOETL_CLI_VERSION` |
 | mdBook | 0.4.40 | `.github/workflows/book.yml` |
 | mdbook-linkcheck | 0.7.7 | `.github/workflows/book.yml` |
+| mdbook-quiz | 0.3.12 | `.github/workflows/book.yml` |
+| mdbook-admonish | 1.20.0 | `.github/workflows/book.yml` |

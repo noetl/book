@@ -1,0 +1,60 @@
+:root {
+  --md-admonition-icon--admonish-myth: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.24 12.83-1.41 1.41L12 13.41l-2.83 2.83-1.41-1.41L10.59 12 7.76 9.17l1.41-1.41L12 10.59l2.83-2.83 1.41 1.41L13.41 12z'/></svg>");
+}
+
+:is(.admonition):is(.admonish-myth) {
+  border-color: #c0392b;
+}
+
+:is(.admonish-myth) > :is(.admonition-title, summary.admonition-title) {
+  background-color: rgba(192, 57, 43, 0.1);
+}
+:is(.admonish-myth) > :is(.admonition-title, summary.admonition-title)::before {
+  background-color: #c0392b;
+  mask-image: var(--md-admonition-icon--admonish-myth);
+  -webkit-mask-image: var(--md-admonition-icon--admonish-myth);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+:root {
+  --md-admonition-icon--admonish-not-yet: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h-2V6h2zm0 4h-2v-2h2z' fill-opacity='.9'/><path d='M12 6v7l5 3' stroke='currentColor' fill='none'/></svg>");
+}
+
+:is(.admonition):is(.admonish-not-yet) {
+  border-color: #7f8c8d;
+}
+
+:is(.admonish-not-yet) > :is(.admonition-title, summary.admonition-title) {
+  background-color: rgba(127, 140, 141, 0.1);
+}
+:is(.admonish-not-yet) > :is(.admonition-title, summary.admonition-title)::before {
+  background-color: #7f8c8d;
+  mask-image: var(--md-admonition-icon--admonish-not-yet);
+  -webkit-mask-image: var(--md-admonition-icon--admonish-not-yet);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+:root {
+  --md-admonition-icon--admonish-partial: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2v16a8 8 0 0 1 0-16z'/></svg>");
+}
+
+:is(.admonition):is(.admonish-partial) {
+  border-color: #d68910;
+}
+
+:is(.admonish-partial) > :is(.admonition-title, summary.admonition-title) {
+  background-color: rgba(214, 137, 16, 0.1);
+}
+:is(.admonish-partial) > :is(.admonition-title, summary.admonition-title)::before {
+  background-color: #d68910;
+  mask-image: var(--md-admonition-icon--admonish-partial);
+  -webkit-mask-image: var(--md-admonition-icon--admonish-partial);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}

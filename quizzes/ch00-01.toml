@@ -1,0 +1,59 @@
+# Sample quiz for "How to Read This Book" (T-03, #5).
+# Distractors are real misreadings of the badge system; every answer explains itself.
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A feature's code is merged and released, but it ships behind a flag that is
+**off by default** and no documented deployment turns it on. Which badge does
+its page carry?
+"""
+prompt.distractors = [
+  "REAL, because the code is merged and released.",
+  "TARGET, because nobody can use it yet.",
+  "STUB, because the page has nothing to show.",
+]
+answer.answer = "PARTIAL"
+context = """
+A badge describes the **subject**, not the code's state in git. Released code
+behind an off-by-default flag is PARTIAL: some of it is real (you could turn it
+on), the rest is not the default. TARGET is reserved for designs that are not
+built at all; STUB is about the page, not the feature.
+"""
+id = "54a6b58b-13b0-45a9-a9de-a12c556ae3db"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A page says a step costs "about 0.95 s" and labels the number **MEASURED**.
+What else must the page tell you?
+"""
+prompt.distractors = [
+  "Nothing; MEASURED means it is always true.",
+  "Only the NoETL version it applies to.",
+  "Which RFC proposed the number.",
+]
+answer.answer = "Where it was measured, when, and over how many runs (n)."
+context = """
+A MEASURED number is only as good as its conditions. The book requires the
+place, the date and n for every MEASURED number, so you can tell whether it
+still applies to your cluster. A designed-but-unmeasured number is labelled
+TARGET or NOT_YET_MEASURED instead.
+"""
+id = "29d0010e-1d7f-439c-8fc1-722a3cd71398"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "You answer a quiz question wrong. What happens to your answer?"
+prompt.distractors = [
+  "It is sent to the authors to grade you.",
+  "It is reported anonymously to improve the book.",
+  "The page locks until you answer correctly.",
+]
+answer.answer = "It stays in your browser; you see an explanation of the misconception."
+context = """
+The quizzes are for learning. They have no telemetry: nothing is sent
+anywhere. Your answers are cached only in your own browser's local storage,
+so a reload keeps them.
+"""
+id = "0c6a7af9-cff1-47b7-a104-a62f8b6e6204"

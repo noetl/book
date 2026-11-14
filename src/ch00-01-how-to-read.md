@@ -40,3 +40,9 @@ compiled to WebAssembly. Every other example names the runtime it needs:
 ## Where the book is going
 
 The [roadmap](https://github.com/noetl/book/blob/main/docs/ROADMAP.md) shows every chapter, its status and when it will be written. To help write it, see [Appendix H](appendix-08-contributing.md).
+
+## Try it
+
+This is what an end-of-section quiz looks like. It checks the three ideas above.
+
+{{#quiz ../quizzes/ch00-01.toml}}

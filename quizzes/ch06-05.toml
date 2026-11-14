@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step sets `spec: {on_error: retry, timeout: 30s}`. At server v3.161.2, what do these do?"
+prompt.distractors = [
+  "Retry the step up to 3 times, each limited to 30 s.",
+  "Retry once; the timeout is applied by the worker.",
+  "Only the timeout is applied.",
+]
+answer.answer = "Nothing: neither key has a reader in the server, worker or tools."
+context = """
+Both are parsed into `StepSpec` and never consulted. Retries that work are
+`spec.policy.rules` inside a tool list; timeouts that work are each tool's own
+(`timeout_seconds`, http's 30 s default).
+"""
+id = "264b2a08-eb82-481a-9a7b-058970206be5"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which mechanism actually retries work at these versions?"
+prompt.distractors = [
+  "`tool.eval` with `do: retry`.",
+  "The tool library's `retry` config (3 tries, x2 backoff).",
+  "`spec.on_error: retry`.",
+]
+answer.answer = "`spec.policy.rules` with `do: retry` on a sub-task of a tool list, or a back-edge you write."
+context = """
+task_sequence evaluates policy rules after each sub-task (default 3 attempts,
+1.0 s delay). `tool.eval` is validated and copied into the command but no
+worker code reads it; the library retry config is inert.
+"""
+id = "c2ec3c54-ddde-452e-ba44-225c2f1e36a1"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step fails on a server and its router has a default arc to `cleanup`. Does `cleanup` run?"
+prompt.distractors = [
+  "Yes: the default arc catches failures.",
+  "Yes, if the failure was a timeout.",
+  "Only with `spec.on_error: continue`.",
+]
+answer.answer = "No: a failed step's arcs are not evaluated."
+context = """
+On `command.failed` the orchestrator waits for running siblings and then
+fails the execution. There is no failure arc; handle expected errors inside
+the step (policy rules) so it completes.
+"""
+id = "8aca4125-92fe-4f7a-aaf0-d232ecce1460"

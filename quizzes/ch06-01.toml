@@ -1,0 +1,33 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On a server, which steps run after `next: [{step: a}, {step: b}]`?"
+prompt.distractors = ["`a` and `b`, in parallel.", "`a`, then `b`.", "Neither: targets need `when`."]
+answer.answer = "Only `a`."
+context = """
+A list of TARGETS is exclusive by default, and a target without `when` always
+matches, so the first wins and `b` is skipped. `next: [a, b]` (a list of
+NAMES) would run both.
+"""
+id = "120d7a7d-513e-4c63-8989-9105531e3686"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A router omits `spec.mode`. Which mode applies?"
+prompt.distractors = ["inclusive", "parallel", "It is a validation error."]
+answer.answer = "exclusive, unless the step's `spec.next_mode` says otherwise"
+context = """
+`NextMode` defaults to Exclusive, and any string other than `inclusive`
+(including a typo) parses as exclusive (orchestrate-core `evaluator.rs`).
+"""
+id = "352b820e-b4bd-4d60-ac18-948a02cf9026"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On the local runtime (CLI v6.4.0), a step has `next: [a, b]`. What runs after it?"
+prompt.distractors = ["`a` and `b`.", "`a` only.", "The run fails to parse."]
+answer.answer = "Nothing: the bare-name forms are ignored locally and the run ends `ok`."
+context = """
+Locally only target lists and routers are implemented. CI asserts this
+(`examples/ch06/next-names-ignored-local`).
+"""
+id = "2d031a66-6c9d-442e-8e8d-8c0c2befe8ef"

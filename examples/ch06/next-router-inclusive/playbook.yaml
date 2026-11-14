@@ -1,0 +1,27 @@
+# Chapter 6.1 (local, CLI 6.4.0): a router with mode inclusive runs every matching arc (locally one after another).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: next_router_local
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next:
+      spec:
+        mode: inclusive
+      arcs:
+        - step: a
+        - step: b
+  - step: a
+    tool:
+      kind: rhai
+      code: |
+        "a"
+  - step: b
+    tool:
+      kind: rhai
+      code: |
+        "b"

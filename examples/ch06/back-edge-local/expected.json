@@ -1,0 +1,15 @@
+{
+  "executed_steps": [
+    "start",
+    "count",
+    "done"
+  ],
+  "final_result": "finished at 3",
+  "playbook_name": "back_edge_local",
+  "status": "ok",
+  "step_results": {
+    "count": "3",
+    "done": "finished at 3",
+    "start": "0"
+  }
+}

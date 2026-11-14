@@ -1,0 +1,41 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A parallel loop over 400 items sets `max_in_flight: 10`. How many iteration
+commands does the server dispatch in the first pass?
+"""
+prompt.distractors = ["10", "1", "As many as there are free slots."]
+answer.answer = "400"
+context = """
+Parallel mode dispatches every item at once, and `max_in_flight` has no
+reader at server v3.161.2. Slots then decide how many RUN at once, but all
+400 are queued.
+"""
+id = "623e6c5d-c981-49c2-8942-de68d1737040"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In what order are a parallel loop's results in its aggregated list?"
+prompt.distractors = [
+  "The order of the `in:` collection.",
+  "Sorted by item value.",
+  "Random, reshuffled on each read.",
+]
+answer.answer = "The order the iterations completed."
+context = """
+Results are appended in arrival order, which "may not match dispatch index in
+parallel mode" (`state.rs`). Return an index or key from each iteration if
+order matters.
+"""
+id = "9e6dbfb4-10c1-49e1-9ebb-eda84344db2a"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "How does a loop body refer to the current item when `iterator: city`?"
+prompt.distractors = ["`{{ loop.item }}`", "`{{ loop.city }}`", "`{{ item }}`"]
+answer.answer = "`{{ iter.city }}` (or plain `{{ city }}`)"
+context = """
+The server binds the item both under `iter.` and at the top level, with
+`_index` and `_total`. There is no `loop.*` namespace.
+"""
+id = "1c466bf2-1891-480f-8fd1-e0928364a79a"

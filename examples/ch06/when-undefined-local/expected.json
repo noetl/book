@@ -1,0 +1,13 @@
+{
+  "executed_steps": [
+    "start",
+    "a"
+  ],
+  "final_result": "a",
+  "playbook_name": "when_undefined_local",
+  "status": "ok",
+  "step_results": {
+    "a": "a",
+    "start": "start"
+  }
+}

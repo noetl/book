@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "start",
+  "playbook_name": "when_skip_local",
+  "status": "ok",
+  "step_results": {
+    "start": "start"
+  }
+}

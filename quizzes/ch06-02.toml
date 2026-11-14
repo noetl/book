@@ -1,0 +1,48 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "When is an ARC's `when` evaluated on the server?"
+prompt.distractors = [
+  "Before the source step runs.",
+  "When the playbook is registered.",
+  "Once, when the execution starts.",
+]
+answer.answer = "After the source step completes, so it can read the step's `output`."
+context = """
+Arc guards are evaluated in orchestration passes triggered by completion
+events. A STEP's own `when`, in contrast, is checked just before that step is
+dispatched.
+"""
+id = "df89939b-0edb-457a-9648-9bdc63bac660"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+On a server, `a -> b -> c`, and `b` has `when: "{{ false }}"`. What runs?
+"""
+prompt.distractors = [
+  "`a` only: the branch ends at `b`.",
+  "`a`, `b` and `c`: guards are advisory.",
+  "Nothing: the validator rejects a constant guard.",
+]
+answer.answer = "`a` and `c`: `b` is skipped and its `next` is followed."
+context = """
+A false step guard records `step.skipped` and follows the skipped step's
+first matching arc. (The local runtime differs: there the branch ends at `b`.)
+"""
+id = "ccbf02a1-e7de-470f-85e6-9167f3f246ad"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A guard is `{{ workload.retries_left }}` but the workload has no such key. What does it evaluate to?"
+prompt.distractors = [
+  "An error on both runtimes.",
+  "false on both runtimes.",
+  "true on both runtimes.",
+]
+answer.answer = "false on a server (renders empty), true locally (the token stays as text)."
+context = """
+The server's minijinja renders undefined as empty, which is false-like. The
+local runtime leaves unknown tokens in place, and non-empty text is truthy
+(`examples/ch06/when-undefined-local`).
+"""
+id = "dfeb1adb-8949-4bb1-8fb0-95b837a85c77"

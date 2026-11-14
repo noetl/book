@@ -1,0 +1,22 @@
+# Chapter 6.1 (local, CLI 6.4.0): `next: <name>` and `next: [names]` are IGNORED locally; the run stops after `start` and still ends ok.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: next_names_local
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next: [a, b]
+  - step: a
+    tool:
+      kind: rhai
+      code: |
+        "a"
+  - step: b
+    tool:
+      kind: rhai
+      code: |
+        "b"

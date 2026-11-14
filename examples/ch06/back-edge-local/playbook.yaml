@@ -1,0 +1,33 @@
+# Chapter 6.4 (local, CLI 6.4.0): a back-edge loop. `count` re-runs until its
+# guard fails. Locally the counter travels in step `vars:` (the server ignores
+# those; see examples/ch06/back-edge for the server form).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: back_edge_local
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        0
+    vars:
+      n: "{{ start.result }}"
+    next:
+      - step: count
+  - step: count
+    tool:
+      kind: rhai
+      code: |
+        {{ vars.n }} + 1
+    vars:
+      n: "{{ count.result }}"
+    next:
+      - step: count
+        when: "{{ vars.n != 3 }}"
+      - step: done
+  - step: done
+    tool:
+      kind: rhai
+      code: |
+        "finished at {{ vars.n }}"

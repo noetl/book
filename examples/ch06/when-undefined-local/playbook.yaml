@@ -1,0 +1,25 @@
+# Chapter 6.2 (local, CLI 6.4.0): an undefined name in a condition is left in place, so the guard is TRUE locally. On a server it renders empty: FALSE.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: when_undefined_local
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next:
+      - step: a
+        when: "{{ workload.not_set }}"
+      - step: b
+  - step: a
+    tool:
+      kind: rhai
+      code: |
+        "a"
+  - step: b
+    tool:
+      kind: rhai
+      code: |
+        "b"

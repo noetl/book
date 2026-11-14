@@ -1,0 +1,39 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Every five minutes, poll a sensor API on a Raspberry Pi with no internet-facing services, and append readings to a local DuckDB file."
+prompt.distractors = ["The distributed runtime.", "A cron job running `noetl run -r distributed`.", "The local runtime, started by hand."]
+answer.answer = "The daemon: `noetl subscribe` with a `timer` source and `--dispatch local`."
+context = "http + duckdb are local kinds; the timer source gives a schedule with no cron and no server (Ch. 9)."
+id = "de368df7-b32d-4fd3-83e6-a83661bb3548"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Fan out 300 `python` scoring tasks over a list and collect the results."
+prompt.distractors = ["The local runtime with `loop:`.", "The daemon.", "The local runtime with a back-edge."]
+answer.answer = "The distributed runtime: a parallel `loop:` over `python` steps."
+context = "Locally `python` is refused and `loop:` runs once. Remember that 300 parallel items need 300 slots, or the rest queue."
+id = "29c311ab-7596-473e-a76b-9e074982ca66"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In CI, check that a playbook's routing takes the right branch for three inputs."
+prompt.distractors = ["Spin up a kind cluster per PR.", "The daemon with `--once`.", "Register it on prod and run it."]
+answer.answer = "The local runtime with `--set` and `--json`, if it uses only local kinds and local-compatible routing."
+context = "That is how this book tests its examples. Check the local-vs-server differences table first."
+id = "24cf0e00-27fe-4bad-be3d-9447f8891bea"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Consume Kafka messages at a remote site whose link to the cluster drops for hours, and process them with `postgres` steps."
+prompt.distractors = ["The local runtime.", "The daemon with `--dispatch local`.", "Point the workers at the remote Kafka directly."]
+answer.answer = "The daemon with a spool and `--dispatch server`: messages are stored on disk during outages and sent to the cluster later."
+context = "`postgres` needs the distributed runtime; the daemon's local_disk spool provides store-and-forward at the edge."
+id = "fb48ae11-4ace-4795-88b0-723d18c43ec4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Publish a playbook as an MCP tool for a local AI assistant, no server."
+prompt.distractors = ["The distributed runtime with NOETL_MCP_SERVER.", "The local runtime.", "It is not possible without a server."]
+answer.answer = "`noetl serve`, with `metadata.expose.mcp` on the playbook."
+context = "`noetl serve` publishes opted-in playbooks at POST /mcp on loopback by default (Ch. 9.3)."
+id = "edddd4c5-f067-4178-836e-34b4250dad88"

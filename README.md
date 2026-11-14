@@ -28,8 +28,27 @@ step-through visualizations of execution state, and runnable examples.
 
 ```bash
 cargo install mdbook --version 0.4.40 --locked
+cargo install mdbook-linkcheck --version 0.7.7 --locked
 mdbook serve --open
 ```
+
+### Running the CI checks locally
+
+CI (`.github/workflows/book.yml`) runs exactly this, with the same pinned
+versions (mdbook 0.4.40, mdbook-linkcheck 0.7.7):
+
+```bash
+mdbook build          # html + internal link check; fails on any broken link
+```
+
+```bash
+MDBOOK_OUTPUT__LINKCHECK__FOLLOW_WEB_LINKS=true mdbook build   # also external links (CI: weekly)
+```
+
+With more than one renderer the HTML lands in `book/html/`, not `book/`.
+`mdbook-linkcheck` is marked `optional` in `book.toml`, so a machine
+without it still builds, but **skips the link check silently**. Install
+it before you open a PR.
 
 The book builds with plain `mdbook` today. The interactive preprocessors
 (`mdbook-quiz`, `mdbook-admonish`, `mdbook-mermaid`, and the NoETL-specific

@@ -1,0 +1,60 @@
+name: book
+
+# T-01 (#3): build the book and check its links on every PR and on main.
+# External links are checked on a weekly schedule only, so a flaky
+# third-party site can never block a PR.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1"   # Mondays 06:17 UTC: external-link sweep
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MDBOOK_VERSION: "0.4.40"
+  LINKCHECK_VERSION: "0.7.7"
+
+jobs:
+  build:
+    name: mdbook build + linkcheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned mdbook + mdbook-linkcheck (release binaries)
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          curl -sSfL "https://github.com/rust-lang/mdBook/releases/download/v${MDBOOK_VERSION}/mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar -xz -C "$HOME/.local/bin"
+          curl -sSfL -o /tmp/linkcheck.zip \
+            "https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/download/v${LINKCHECK_VERSION}/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip"
+          unzip -o -q /tmp/linkcheck.zip -d "$HOME/.local/bin"
+          chmod +x "$HOME/.local/bin/mdbook" "$HOME/.local/bin/mdbook-linkcheck"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Tool versions
+        run: |
+          mdbook --version
+          mdbook-linkcheck --version
+
+      - name: Enable external links (scheduled / manual runs only)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: echo "MDBOOK_OUTPUT__LINKCHECK__FOLLOW_WEB_LINKS=true" >> "$GITHUB_ENV"
+
+      - name: mdbook build (html + linkcheck)
+        run: mdbook build
+
+      - name: Upload rendered book
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-html
+          path: book/html
+          if-no-files-found: ignore
+          retention-days: 7

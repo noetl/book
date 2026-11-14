@@ -12,6 +12,7 @@ claims were checked against. Rows are added as chapters land.
 
 | Page | Badge | Verified against | Landed |
 |---|---|---|---|
+| [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | REAL | generated at server v3.161.2 (`983e36e`) | 2026-11-13 |
 | [Appendix F: Myths](appendix-06-myths.md) | REAL | per row (each row names its release / commit) | 2026-11-13 |
 | [Ch. 6 Control Flow](ch06-00-control-flow.md) (6.0–6.4) | REAL | server v3.161.2 (`983e36e`) orchestrate-core, worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 |
 | [6.5 Errors, Timeouts, Retries](ch06-05-errors-timeouts-retries.md) | PARTIAL | same; most keys parsed, not applied | 2026-11-13 |

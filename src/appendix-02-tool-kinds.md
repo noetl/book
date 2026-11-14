@@ -19,35 +19,35 @@ The **Accepted locally** column is not from the server: it is the local runtime'
 
 ## Summary
 
-| Kind | Parser accepts by default | Gate | Accepted locally | Execution (worker) | Holds a slot | Default timeout |
-|---|---|---|---|---|---|---|
-| [`agent`](#kind-agent) | **no** | `NOETL_TOOL_KIND_AGENT` | yes | in-process loop; every model call is a remote HTTP request; mcp_servers / agents entries are answered inside the loop | the whole loop, including every model call and every awaited playbook-bound child | 300 s (DEFAULT) |
-| [`artifact`](#kind-artifact) | yes |  |  |  |  |  |
-| [`container`](#kind-container) | yes |  |  | remote Kubernetes Job; returns at once with a pending callback | no: the slot is freed after the Job is created (the callback pattern) | none (DEFAULT) |
-| [`duckdb`](#kind-duckdb) | yes |  | yes | in-process (spawn_blocking) | whole query | none (DEFAULT) |
-| [`ducklake`](#kind-ducklake) | yes |  |  |  |  |  |
-| [`gateway`](#kind-gateway) | yes |  |  |  |  |  |
-| [`gcs`](#kind-gcs) | yes |  |  |  |  |  |
-| [`http`](#kind-http) | yes |  | yes | in-process (reqwest) | whole request | 30 s (DEFAULT) |
-| [`iterator`](#kind-iterator) | yes |  |  |  |  |  |
-| [`mcp`](#kind-mcp) | **no** | `NOETL_TOOL_KIND_MCP` | yes | remote JSON-RPC over HTTP | whole call | 60 s (DEFAULT), `NOETL_MCP_REQUEST_TIMEOUT_SECONDS` |
-| [`nats`](#kind-nats) | yes |  |  |  |  |  |
-| [`noop`](#kind-noop) | yes |  | yes | in-process | briefly; it still pays the per-step orchestration cost |  |
-| [`playbook`](#kind-playbook) | yes |  | yes | remote: POST /api/execute starts a separate child execution on whatever pool its steps target | only for the start request by default (async: returns {status, execution_id}); with return_result: true or return_step the parent's slot is held, polling every 2 s, until the child finishes | 30 s (DEFAULT) |
-| [`playbooks`](#kind-playbooks) | yes |  |  |  |  |  |
-| [`postgres`](#kind-postgres) | yes |  |  | in-process (deadpool-postgres, a pool per connection string) | whole query | none (DEFAULT) |
-| [`python`](#kind-python) | yes |  |  | subprocess | whole run | none (DEFAULT) |
-| [`rhai`](#kind-rhai) | yes |  | yes | in-process (spawn_blocking) | whole script | none (DEFAULT) |
-| [`script`](#kind-script) | yes |  |  | remote Kubernetes Job, polled inline every 2 s | until the Job finishes | 600 s (DEFAULT) |
-| [`secrets`](#kind-secrets) | yes |  |  |  |  |  |
-| [`shell`](#kind-shell) | yes |  | yes | subprocess | whole run | none (DEFAULT) |
-| [`snowflake`](#kind-snowflake) | yes |  |  | remote REST | whole statement | 60 s (DEFAULT) |
-| [`snowflake_transfer`](#kind-snowflake-transfer) | yes |  |  |  |  |  |
-| [`subscription`](#kind-subscription) | yes |  |  | in-process bounded drain (nats / pubsub / kafka / timer) | one bounded drain | 1000 ms (DEFAULT) |
-| [`task_sequence`](#kind-task-sequence) | yes |  |  | in-process; runs its sub-tasks in order through a fresh default registry (so no worker mcp override and no agent) | all sub-tasks | none (DEFAULT) |
-| [`transfer`](#kind-transfer) | yes |  |  | in-process (snowflake / postgres / http / duckdb) | whole transfer | none (DEFAULT) |
-| [`wasm`](#kind-wasm) | yes |  |  | in-process (wasmtime); one module runs at a time per worker process (the dispatcher sits behind a mutex) | whole invocation, plus any wait for the per-process wasm lock | 30000 ms (DEFAULT), `NOETL_WASM_TIMEOUT_MS` |
-| [`workbook`](#kind-workbook) | yes |  |  |  |  |  |
+| Kind | Parser accepts by default | Gate | Accepted locally | Local CI evidence | Execution (worker) | Holds a slot | Default timeout |
+|---|---|---|---|---|---|---|---|
+| [`agent`](#kind-agent) | **no** | `NOETL_TOOL_KIND_AGENT` | yes |  | in-process loop; every model call is a remote HTTP request; mcp_servers / agents entries are answered inside the loop | the whole loop, including every model call and every awaited playbook-bound child | 300 s (DEFAULT) |
+| [`artifact`](#kind-artifact) | yes |  | no |  |  |  |  |
+| [`container`](#kind-container) | yes |  | no |  | remote Kubernetes Job; returns at once with a pending callback | no: the slot is freed after the Job is created (the callback pattern) | none (DEFAULT) |
+| [`duckdb`](#kind-duckdb) | yes |  | yes |  | in-process (spawn_blocking) | whole query | none (DEFAULT) |
+| [`ducklake`](#kind-ducklake) | yes |  | no |  |  |  |  |
+| [`gateway`](#kind-gateway) | yes |  | no |  |  |  |  |
+| [`gcs`](#kind-gcs) | yes |  | no |  |  |  |  |
+| [`http`](#kind-http) | yes |  | yes |  | in-process (reqwest) | whole request | 30 s (DEFAULT) |
+| [`iterator`](#kind-iterator) | yes |  | no |  |  |  |  |
+| [`mcp`](#kind-mcp) | **no** | `NOETL_TOOL_KIND_MCP` | yes |  | remote JSON-RPC over HTTP | whole call | 60 s (DEFAULT), `NOETL_MCP_REQUEST_TIMEOUT_SECONDS` |
+| [`nats`](#kind-nats) | yes |  | no |  |  |  |  |
+| [`noop`](#kind-noop) | yes |  | yes | examples/ch04/step-order (runs) | in-process | briefly; it still pays the per-step orchestration cost |  |
+| [`playbook`](#kind-playbook) | yes |  | yes |  | remote: POST /api/execute starts a separate child execution on whatever pool its steps target | only for the start request by default (async: returns {status, execution_id}); with return_result: true or return_step the parent's slot is held, polling every 2 s, until the child finishes | 30 s (DEFAULT) |
+| [`playbooks`](#kind-playbooks) | yes |  | no |  |  |  |  |
+| [`postgres`](#kind-postgres) | yes |  | no | examples/ch08/postgres-refused (refused) | in-process (deadpool-postgres, a pool per connection string) | whole query | none (DEFAULT) |
+| [`python`](#kind-python) | yes |  | no | examples/ch08/python-refused (refused) | subprocess | whole run | none (DEFAULT) |
+| [`rhai`](#kind-rhai) | yes |  | yes | examples/ch04/anatomy (runs) | in-process (spawn_blocking) | whole script | none (DEFAULT) |
+| [`script`](#kind-script) | yes |  | no |  | remote Kubernetes Job, polled inline every 2 s | until the Job finishes | 600 s (DEFAULT) |
+| [`secrets`](#kind-secrets) | yes |  | no |  |  |  |  |
+| [`shell`](#kind-shell) | yes |  | yes | examples/ch01/hello (runs, `cmds:`) | subprocess | whole run | none (DEFAULT) |
+| [`snowflake`](#kind-snowflake) | yes |  | no |  | remote REST | whole statement | 60 s (DEFAULT) |
+| [`snowflake_transfer`](#kind-snowflake-transfer) | yes |  | no |  |  |  |  |
+| [`subscription`](#kind-subscription) | yes |  | no |  | in-process bounded drain (nats / pubsub / kafka / timer) | one bounded drain | 1000 ms (DEFAULT) |
+| [`task_sequence`](#kind-task-sequence) | yes |  | no |  | in-process; runs its sub-tasks in order through a fresh default registry (so no worker mcp override and no agent) | all sub-tasks | none (DEFAULT) |
+| [`transfer`](#kind-transfer) | yes |  | no |  | in-process (snowflake / postgres / http / duckdb) | whole transfer | none (DEFAULT) |
+| [`wasm`](#kind-wasm) | yes |  | no |  | in-process (wasmtime); one module runs at a time per worker process (the dispatcher sits behind a mutex) | whole invocation, plus any wait for the per-process wasm lock | 30000 ms (DEFAULT), `NOETL_WASM_TIMEOUT_MS` |
+| [`workbook`](#kind-workbook) | yes |  | no | examples/ch08/workbook-refused (refused) |  |  |  |
 
 Kinds the local runtime accepts that the server's parser does not: `auth`, `provider`, `sink`.
 
@@ -271,3 +271,11 @@ Kinds the local runtime accepts that the server's parser does not: `auth`, `prov
 ### kind-workbook
 
 `kind: workbook`
+
+## Same kind, different fields
+
+A kind both runtimes accept can still take different fields. At these versions `shell` reads `command:` on a worker and `cmds:` locally, and each ignores or rejects the other's field ([Ch. 5.1](ch05-01-tool-kinds.md#local-kinds-and-fields-that-differ)). A tool list (`task_sequence`) cannot be parsed locally at all ([Ch. 5.2](ch05-02-ordered-tool-list.md)).
+
+## Check your understanding
+
+{{#quiz ../quizzes/appendix-b.toml}}

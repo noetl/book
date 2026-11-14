@@ -1,0 +1,25 @@
+# Chapter 5.2: an ordered tool list. The server sends this whole list to ONE
+# worker as ONE `task_sequence` command; it holds one slot for all three.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: ordered_tools
+workload:
+  base: 20
+workflow:
+  - step: start
+    tool:
+      - name: fetch                 # flat form: `name` is the label
+        kind: python
+        args:
+          base: "{{ workload.base }}"
+        code: |
+          result = {"value": int(args["base"]) + 1}
+      - double:                     # nested form: the map key is the label
+          kind: python
+          args:
+            value: "{{ fetch.value }}"
+          code: |
+            result = {"value": int(args["value"]) * 2}
+      - name: report
+        kind: noop

@@ -1,0 +1,45 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which statement about Python in NoETL is true at server v3.161.2 / CLI v6.4.0?"
+prompt.distractors = [
+  "Python was removed; `kind: python` no longer exists.",
+  "`kind: python` runs everywhere, including the local runtime.",
+  "Python steps run inside the server process.",
+]
+answer.answer = "`kind: python` runs as a subprocess on a worker; only the old Python platform was retired, and the local runtime refuses the kind."
+context = """
+The Python server, worker and tools were removed from noetl/noetl and
+rewritten in Rust. The `python` tool kind remains (tools v4.6.0
+`python.rs`). The local CLI has no Python and refuses the kind up front.
+"""
+id = "1fe63d83-bddd-4e16-a106-be5ca7451ce9"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On a server with default flags, a playbook uses `kind: mcp`. What happens?"
+prompt.distractors = [
+  "It runs; MCP is a core kind.",
+  "It runs, but only on the system pool.",
+  "It is accepted but skipped at run time.",
+]
+answer.answer = "It is refused like an unknown kind, because `NOETL_TOOL_KIND_MCP` is off by default."
+context = """
+`mcp` and `agent` are the two gated kinds in the v3.161.2 manifest. With the
+flag off the parser refuses them. `agent` also needs a worker flag.
+"""
+id = "a11e9b2c-998e-4f01-9292-29f0a3112ade"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A `shell` step written with `command: ls` runs on the local runtime (CLI v6.4.0). What happens?"
+prompt.distractors = [
+  "It runs `ls`.",
+  "The run fails: `cmds` is required.",
+  "The local runtime converts `command` to `cmds`.",
+]
+answer.answer = "Nothing runs, the step is not recorded, and the run still ends `ok`."
+context = """
+The local shell tool reads `cmds:` and ignores `command:`, which is the
+worker's field. CI asserts this silent no-op (`examples/ch05/shell-command-local`).
+"""
+id = "82fd8248-85ca-4255-b1dc-93e1afa75559"

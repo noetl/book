@@ -1,0 +1,31 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step awaits a sub-playbook that takes 40 seconds. What happens to the worker slot meanwhile?"
+prompt.distractors = [
+  "It is released and reclaimed when the child finishes.",
+  "It is released after the worker's 30 s command timeout.",
+  "The server moves the step to a waiting pool.",
+]
+answer.answer = "The step keeps holding it for the whole 40 seconds."
+context = """
+A command holds its slot from claim until its tool returns, and waiting
+inside a tool keeps it (resource model `slot_rule`, worker v6.15.0). There is
+no worker-wide command timeout either.
+"""
+id = "f4cffc9f-fa4a-4568-a0c6-bdf27fbb7f96"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A `python` step hangs forever on a network call. With default settings, what stops it?"
+prompt.distractors = [
+  "The worker's per-command timeout.",
+  "The tool library's automatic retry.",
+  "The server's step `spec.timeout` default.",
+]
+answer.answer = "Nothing: python has no default timeout and the worker sets none, so the slot stays held."
+context = """
+The worker sets no wall-clock timeout per command (`no_global_timeout`), and
+python's default is none unless the step sets one. The tool library's retry
+config is inert, and `spec.timeout` has no reader (Chapter 6.5).
+"""
+id = "6e5b4b04-e34f-478b-957b-60d68daa3d30"

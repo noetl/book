@@ -1,0 +1,15 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: loop_local
+workload:
+  items: [1, 2, 3]
+workflow:
+  - step: start
+    loop:
+      in: "{{ workload.items }}"
+      iterator: n
+    tool:
+      kind: rhai
+      code: |
+        "x"

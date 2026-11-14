@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "x",
+  "playbook_name": "loop_local",
+  "status": "ok",
+  "step_results": {
+    "start": "x"
+  }
+}

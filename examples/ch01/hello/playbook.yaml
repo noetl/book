@@ -1,0 +1,19 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: hello
+workload:
+  who: world
+workflow:
+  - step: start
+    tool:
+      kind: shell
+      cmds:
+        - echo "hello {{ workload.who }}"
+    next:
+      - step: done
+  - step: done
+    tool:
+      kind: rhai
+      code: |
+        40 + 2

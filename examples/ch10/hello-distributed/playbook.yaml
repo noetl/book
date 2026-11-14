@@ -1,0 +1,10 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: hello_distributed
+workflow:
+  - step: start
+    tool:
+      kind: python
+      code: |
+        result = 1

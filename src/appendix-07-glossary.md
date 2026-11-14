@@ -20,3 +20,9 @@ glossary is [#50](https://github.com/noetl/book/issues/50).
 | `set:` | Server-side step mutations, persisted as a `ctx.updated` event | [4.2](ch04-02-workload-and-templating.md) |
 | keychain alias | The name a playbook uses for a credential; resolved by the worker at run time | [4.4](ch04-04-keychain.md) |
 | workbook | Named, reusable tool definitions a step references with `kind: workbook` | [4.5](ch04-05-workbook.md) |
+| tool / kind | What a step runs; `kind` names the tool (`http`, `python`, …) | [Ch. 5](ch05-00-tools.md) |
+| gated kind | A kind refused unless a server flag turns it on (`agent`, `mcp`) | [5.1](ch05-01-tool-kinds.md) |
+| slot | A worker's unit of concurrency; a command holds one from claim until its tool returns | [Ch. 5](ch05-00-tools.md) |
+| `task_sequence` | The single command a `tool:` list becomes; runs its sub-tasks in order on one worker | [5.2](ch05-02-ordered-tool-list.md) |
+| label | A sub-task's name in a tool list; later items read its result as `{{ <label>.field }}` | [5.2](ch05-02-ordered-tool-list.md) |
+| result store | Where a step result above 100 KiB is spilled; the event then carries a reference | [5.3](ch05-03-results-and-references.md) |

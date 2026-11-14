@@ -1,0 +1,31 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On a server, step `fetch_user` returned `{\"email\": \"a@b.c\"}`. Which template reads the email in a later step?"
+prompt.distractors = [
+  "`{{ fetch_user.result.email }}`",
+  "`{{ result.email }}`",
+  "`{{ vars.fetch_user.email }}`",
+]
+answer.answer = "`{{ fetch_user.email }}` (or `{{ fetch_user.data.email }}`)"
+context = """
+The server unwraps a step's data and exposes it under the step's name, with
+`.data` as an alias. `.result` is the LOCAL runtime's form and renders empty
+on a server.
+"""
+id = "81a79195-8adb-4e91-be9b-a1591499a0f2"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step returns a 300 KiB JSON document. What does a later step that reads it pay, with default settings?"
+prompt.distractors = [
+  "Nothing extra: results always travel inline.",
+  "The step fails: results are capped at 100 KiB.",
+  "The server truncates it to 100 KiB.",
+]
+answer.answer = "A fetch: above 100 KiB the result is spilled to the result store and replaced by a reference."
+context = """
+`NOETL_EVENT_RESULT_CONTEXT_MAX_BYTES` defaults to 102,400 bytes (DEFAULT,
+worker). Above it the result goes to the result store, and reading it means
+fetching it back. Return only what later steps need.
+"""
+id = "00c70c6d-60a7-45c2-a816-04aba0d526f0"

@@ -1,0 +1,18 @@
+# Chapter 5.2: the local runtime (CLI 6.4.0) cannot parse a tool list at all.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: ordered_tools_local
+workload:
+  base: 20
+workflow:
+  - step: start
+    tool:
+      - name: fetch                 # flat form: `name` is the label
+        kind: rhai
+        code: "21"
+      - double:                     # nested form: the map key is the label
+          kind: rhai
+          code: "42"
+      - name: report
+        kind: noop

@@ -1,0 +1,12 @@
+# Chapter 5.1: the worker's shell tool takes `command:`; the local runtime
+# (CLI 6.4.0) takes `cmds:`. Locally, `command:` is ignored: the step runs
+# nothing, is not recorded, and the run still ends `ok`.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: shell_command_local
+workflow:
+  - step: start
+    tool:
+      kind: shell
+      command: echo "this never runs locally"

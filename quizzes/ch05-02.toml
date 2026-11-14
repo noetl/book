@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step's `tool:` is a list of three tools. How many worker slots does the step hold while it runs?"
+prompt.distractors = [
+  "Three, one per tool, in parallel.",
+  "Three, one after another.",
+  "Zero: lists run on the server.",
+]
+answer.answer = "One: the whole list is a single `task_sequence` command on one worker."
+context = """
+The server turns a tool list into ONE `task_sequence` command
+(orchestrate-core `commands.rs`). One worker claims it and runs the sub-tasks
+sequentially inside it, holding one slot throughout.
+"""
+id = "c705dc62-ca10-448f-80d0-9d317355a508"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Inside a tool list, how does the second item read the first item's result?"
+prompt.distractors = [
+  "Through `{{ steps.<step>.result }}`, after the step completes.",
+  "It can't; items are isolated.",
+  "Through `{{ result }}`, which always holds the previous item.",
+]
+answer.answer = "By the first item's label, for example `{{ fetch.value }}`."
+context = """
+task_sequence stores each finished sub-task's data under its label in the
+running context, so later items can use `{{ <label>.field }}` or
+`{{ <label>.data.field }}`.
+"""
+id = "c56c9f21-0d20-4cc4-8ded-433e007ddacf"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What bounds a `do: jump` loop inside a tool list that never reaches `do: break`?"
+prompt.distractors = [
+  "Nothing; it runs until the worker restarts.",
+  "The server's loop iteration cap of 1,000.",
+  "The step's `spec.timeout`.",
+]
+answer.answer = "`NOETL_TASK_SEQUENCE_MAX_ITERATIONS`, default 1,000,000 sub-task executions, after which it fails with `max_iterations_exceeded`."
+context = """
+This counter in tools v4.6.0 `task_sequence.rs` is the only iteration cap in
+step execution. Loops between steps have no server cap, and `spec.timeout`
+has no reader.
+"""
+id = "97a6b839-e807-4c19-858c-5860ff4304b7"

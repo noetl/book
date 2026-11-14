@@ -1,0 +1,17 @@
+# Chapter 5.1: `kind: python` runs as a subprocess on a worker (distributed
+# runtime). The local runtime refuses it (see examples/ch08/python-refused).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: python_step
+workload:
+  items: [3, 1, 2]
+workflow:
+  - step: start
+    tool:
+      kind: python
+      args:
+        items: "{{ workload.items }}"
+      code: |
+        # `args` is a dict of the tool's args; set `result` (or `return` at top level)
+        result = {"sorted": sorted(args["items"]), "count": len(args["items"])}

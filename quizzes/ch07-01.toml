@@ -1,0 +1,27 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A `kind: playbook` step sets no `return_result`. What is its result?"
+prompt.distractors = [
+  "The child's final result.",
+  "Nothing until the child finishes.",
+  "An error: the field is required.",
+]
+answer.answer = "`{status, execution_id}` as soon as the child starts; the parent does not wait."
+context = "Async is the default; awaiting is opt-in with `return_result` (or legacy `return_step`)."
+id = "0c2b45fa-e036-4cb6-aea9-9db33cb7d8a7"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "With `return_result: true`, how many worker slots does one awaiting parent tie up while its child runs?"
+prompt.distractors = ["None; awaiting is free.", "One, the child's.", "One, the parent's, which is released while waiting."]
+answer.answer = "Two: the parent's (held, polling every 2 s) and the child's."
+context = "Budget two slots per awaiting parent; on one small pool, awaiting parents can starve their own children (deadlock_note)."
+id = "006a9544-14ba-4e34-a72b-5df93ba6b43f"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "An awaited child takes longer than the step's `timeout`. With `return_result`, what does the parent step get?"
+prompt.distractors = ["An empty result.", "The child's partial result.", "The status payload."]
+answer.answer = "It fails with a timeout."
+context = "The tool refuses to hand back synthetic empty data on timeout so the parent fails loudly (tools v4.6.0)."
+id = "ab9417d6-aa5c-41b3-801a-27ceb4bacbca"

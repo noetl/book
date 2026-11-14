@@ -1,0 +1,11 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On a cluster, where does a `kind: playbook` child run?"
+prompt.distractors = [
+  "Inside the parent step, on the same worker.",
+  "On the server, which runs children directly.",
+  "In the parent's slot, after the parent step ends.",
+]
+answer.answer = "As a separate execution, started through `POST /api/execute`, on whatever pool its own steps target."
+context = "The tool starts a child execution with the parent's id as `parent_execution_id` (tools v4.6.0)."
+id = "746a83ab-e215-443d-86ab-05599ecb04cc"

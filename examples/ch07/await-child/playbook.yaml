@@ -1,0 +1,27 @@
+# Chapter 7: a parent that awaits a child playbook's result (distributed runtime).
+# The child is a separate execution; with return_result the parent's slot is held,
+# polling every 2 s, until the child finishes.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: parent
+  path: book/ch07/parent
+workflow:
+  - step: start
+    tool:
+      kind: playbook
+      path: book/ch07/child          # the child's catalog path
+      args:
+        city: Lisbon
+      return_result: true            # wait, and make the child's result this step's result
+      result_step: start             # which child step's result to return
+      timeout: 60                    # seconds to wait (default 180 with return_result)
+    next:
+      - step: use_it
+  - step: use_it
+    tool:
+      kind: python
+      args:
+        weather: "{{ start.forecast }}"
+      code: |
+        result = {"summary": "Lisbon: " + str(args["weather"])}

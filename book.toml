@@ -13,7 +13,7 @@ create-missing = false   # SUMMARY.md is the contract; a missing file is a build
 [output.html]
 git-repository-url = "https://github.com/noetl/book"
 edit-url-template = "https://github.com/noetl/book/edit/main/{path}"
-additional-css = ["theme/status.css"]
+additional-css = ["theme/status.css", "./mdbook-admonish.css", "theme/mdbook-admonish-custom.css"]
 mathjax-support = false
 
 [output.html.fold]
@@ -32,19 +32,46 @@ enable = true
 # See docs/BOOK-PLAN.md §4 "Interactive tooling".
 # ---------------------------------------------------------------------------
 
-# Brown CEL's quiz plugin: {{#quiz ../quizzes/<file>.toml}}
-# [preprocessor.quiz]
-# fullscreen = false
-# cache-answers = true
+# Brown CEL's quiz plugin (T-03, #5): {{#quiz ../quizzes/<file>.toml}}
+# No telemetry is configured: answers stay in the reader's browser
+# (cache-answers = localStorage only). See wiki Decisions.
+[preprocessor.quiz]
+fullscreen = false
+cache-answers = true
 
 # Mermaid diagrams for architecture and flow figures.
 # [preprocessor.mermaid]
 # command = "mdbook-mermaid"
 
-# REAL / TARGET / note callouts.
-# [preprocessor.admonish]
-# command = "mdbook-admonish"
-# assets_version = "3.0.2"
+# Callouts (T-03, #5). Built-ins (note, tip, warning, ...) plus three book
+# types: `myth` (a common belief that is wrong, and the fact), `not-yet`
+# (a TARGET subject: designed, not built) and `partial` (built, but off by
+# default or only partly real). See Appendix H for when to use each.
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "3.1.0" # do not edit: managed by `mdbook-admonish install`
+after = ["links"]
+
+[[preprocessor.admonish.custom]]
+directive = "myth"
+icon = "./theme/admonish/myth.svg"
+color = "#c0392b"
+title = "Myth"
+
+[[preprocessor.admonish.custom]]
+directive = "not-yet"
+icon = "./theme/admonish/not-yet.svg"
+color = "#7f8c8d"
+title = "Not built yet (TARGET)"
+
+[[preprocessor.admonish.custom]]
+directive = "partial"
+icon = "./theme/admonish/partial.svg"
+color = "#d68910"
+title = "Partial"
+
+[preprocessor.admonish.renderer.test]
+render_mode = "strip"
 
 # NoETL-specific (to be built in this repo under tools/):
 #   mdbook-noetl-trace  — renders a recorded event log as a step-through

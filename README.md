@@ -29,13 +29,18 @@ step-through visualizations of execution state, and runnable examples.
 ```bash
 cargo install mdbook --version 0.4.40 --locked
 cargo install mdbook-linkcheck --version 0.7.7 --locked
+cargo install mdbook-quiz --version 0.3.12 --locked
+cargo install mdbook-admonish --version 1.20.0 --locked
 mdbook serve --open
 ```
 
 ### Running the CI checks locally
 
 CI (`.github/workflows/book.yml`) runs exactly this, with the same pinned
-versions (mdbook 0.4.40, mdbook-linkcheck 0.7.7):
+versions (mdbook 0.4.40, mdbook-linkcheck 0.7.7, mdbook-quiz 0.3.12,
+mdbook-admonish 1.20.0). `mdbook-quiz` and `mdbook-admonish` are
+required: without them `mdbook build` fails. mdbook-admonish prints a
+harmless "built against 0.4.51" warning.
 
 ```bash
 mdbook build          # html + internal link check; fails on any broken link
@@ -50,8 +55,8 @@ With more than one renderer the HTML lands in `book/html/`, not `book/`.
 without it still builds, but **skips the link check silently**. Install
 it before you open a PR.
 
-The book builds with plain `mdbook` today. The interactive preprocessors
-(`mdbook-quiz`, `mdbook-admonish`, `mdbook-mermaid`, and the NoETL-specific
+`mdbook-quiz` and `mdbook-admonish` are enabled. The other planned
+preprocessors (`mdbook-mermaid` and the NoETL-specific
 `mdbook-noetl-trace` / `mdbook-noetl-play`) are enabled one at a time, as
 their first real uses land. See `book.toml` and `docs/BOOK-PLAN.md` §4.
 

@@ -26,9 +26,11 @@ not written yet have not added their terms.
 | result store | Where a step result above 100 KiB is spilled; the event then carries a reference | [5.3](ch05-03-results-and-references.md) |
 | `set:` | Server-side step mutations, persisted as a `ctx.updated` event | [4.2](ch04-02-workload-and-templating.md) |
 | slot | A worker's unit of concurrency; a command holds one from claim until its tool returns | [Ch. 5](ch05-00-tools.md) |
+| spool | Store-and-forward buffer (local_disk in the daemon) that keeps messages while the downstream is down | [9.2](ch09-02-spool-and-trail.md) |
 | `start` | The step every server execution begins with; the validator requires it | [4.3](ch04-03-steps.md) |
 | step | One named entry of `workflow`: runs one tool, then routes with `next` | [4.3](ch04-03-steps.md) |
 | `step.skipped` | The event recorded for a target not taken, or a step whose guard was false | [6.2](ch06-02-when-guards.md) |
+| subscription | A `kind: Subscription` document: a message source plus the playbook to run per message | [9.1](ch09-01-subscriptions.md) |
 | `task_sequence` | The single command a `tool:` list becomes; runs its sub-tasks in order on one worker | [5.2](ch05-02-ordered-tool-list.md) |
 | template | A `{{ … }}` expression in a string; minijinja on the server, token substitution locally | [4.2](ch04-02-workload-and-templating.md) |
 | tool / kind | What a step runs; `kind` names the tool (`http`, `python`, …) | [Ch. 5](ch05-00-tools.md) |

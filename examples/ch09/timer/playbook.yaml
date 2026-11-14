@@ -1,0 +1,13 @@
+# Chapter 9: the playbook a timer subscription runs once per tick.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: greet
+workload:
+  who: nobody
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "hello, {{ workload.who }}"

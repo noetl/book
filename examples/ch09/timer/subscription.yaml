@@ -1,0 +1,13 @@
+# Chapter 9: a timer subscription. Run it with:
+#   noetl subscribe examples/ch09/timer/subscription.yaml --events ./trail.jsonl --max-messages 2
+apiVersion: noetl.io/v1
+kind: Subscription
+metadata:
+  name: ticker
+spec:
+  source: timer
+  every: 1s
+  immediate: true
+  payload: { who: daemon }
+  dispatch:
+    playbook: ./playbook.yaml

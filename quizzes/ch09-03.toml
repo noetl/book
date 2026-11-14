@@ -1,0 +1,15 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "`noetl serve` restarts while an agent task is working. Without `--task-db`, what happens to the task?"
+prompt.distractors = ["It resumes from where it stopped.", "It is rerun automatically.", "It is moved to a server."]
+answer.answer = "It is lost: tasks are kept in memory by default."
+context = "With `--task-db <file>` (CLI v6.3.0+) tasks live in SQLite: finished ones stay readable and working ones rerun."
+id = "d7825da2-6ae1-4884-bcfe-0e2b31cedeb8"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "You start `noetl serve --listen 0.0.0.0:8765`. What else is required?"
+prompt.distractors = ["Nothing.", "A NoETL server URL.", "`--task-db`."]
+answer.answer = "`--token-file`: any non-loopback address needs a bearer token."
+context = "Loopback is the default; exposing it beyond the machine requires a token on every route but /healthz."
+id = "be9eb0f9-5bc2-4dbb-905d-f86089ede81a"

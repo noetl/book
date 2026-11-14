@@ -21,9 +21,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: brew tap noetl/tap && brew install noetl
+      - name: brew tap noetl/tap && brew trust noetl/tap && brew install noetl
         run: |
+          brew --version
           brew tap noetl/tap
+          # Current Homebrew refuses formulae from an untrusted third-party tap:
+          # "Refusing to load formula noetl/tap/noetl from untrusted tap noetl/tap."
+          brew trust noetl/tap
           brew install noetl
       - name: Version
         run: noetl --version

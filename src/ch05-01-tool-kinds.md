@@ -1,6 +1,6 @@
 # The Tool Kinds
 
-<span class="status status-partial">PARTIAL</span>
+<span class="status status-real">REAL</span>
 
 The server publishes the list of kinds it accepts in its DSL manifest,
 `orchestrate-core/schema/dsl-manifest.json`. At **server v3.161.2**

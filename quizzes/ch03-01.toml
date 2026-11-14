@@ -1,0 +1,29 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What does the orchestrator do when a step completes?"
+prompt.distractors = [
+  "Runs the next step's tool itself.",
+  "Calls the next step like a function and waits.",
+  "Nothing until the playbook's script resumes.",
+]
+answer.answer = "Computes, from the playbook and the event history, which commands to dispatch next."
+context = """
+The orchestrator does no work and keeps no state of its own. Workers run
+tools; the orchestrator decides what runs next.
+"""
+id = "555b497f-c89a-48fe-8669-5635120b6aa5"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A key is listed in the playbook grammar. Does that mean NoETL acts on it?"
+prompt.distractors = [
+  "Yes: declarative means every key is honoured.",
+  "Yes, unless the validator rejects it.",
+  "No, but only gated keys are ignored.",
+]
+answer.answer = "No: some keys are parsed and never read (e.g. `max_in_flight`, `spec.on_error`)."
+context = """
+The grammar says what parses. Chapter 6.5 lists keys with no reader at server
+v3.161.2.
+"""
+id = "0fc8f84d-086f-4c35-9684-cd63b2902325"

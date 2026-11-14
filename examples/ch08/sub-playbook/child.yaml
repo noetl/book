@@ -1,0 +1,13 @@
+# Chapter 8.2: the child of examples/ch08/sub-playbook (not run on its own).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: child
+workload:
+  name: nobody
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "hello from the child, {{ workload.name }}"

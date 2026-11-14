@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "[\n  {\n    \"city\": \"Lisbon\",\n    \"letters\": 6\n  },\n  {\n    \"city\": \"Oslo\",\n    \"letters\": 4\n  },\n  {\n    \"city\": \"Quito\",\n    \"letters\": 5\n  }\n]",
+  "playbook_name": "iterate_sql",
+  "status": "ok",
+  "step_results": {
+    "start": "[\n  {\n    \"city\": \"Lisbon\",\n    \"letters\": 6\n  },\n  {\n    \"city\": \"Oslo\",\n    \"letters\": 4\n  },\n  {\n    \"city\": \"Quito\",\n    \"letters\": 5\n  }\n]"
+  }
+}

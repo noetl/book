@@ -1,0 +1,11 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What does `noetl push` do with a local run's events on the server?"
+prompt.distractors = [
+  "Resumes the execution on the cluster.",
+  "Re-runs the playbook on a worker.",
+  "Replaces the server's copy of the playbook.",
+]
+answer.answer = "Appends them to the server's event log, without orchestrating them."
+context = "`/api/events/batch` records the history; nothing is resumed or re-run."
+id = "e20b5f1b-7ff2-43f7-bd91-2faac6ccbe27"

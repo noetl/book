@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "hello from the child, parent",
+  "playbook_name": "parent",
+  "status": "ok",
+  "step_results": {
+    "start": "hello from the child, parent"
+  }
+}

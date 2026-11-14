@@ -35,7 +35,7 @@ a correction gets into the book.
 | The local runtime can run `postgres` steps. | It refuses `kind: postgres` (and `python`) before any step runs: "Run it on a cluster instead". | CLI v6.4.0 `reject_unsupported_kinds` (`src/playbook_runner.rs`) | `examples/ch08/postgres-refused` (CI) | [Ch. 8](ch08-00-local-runtime.md) |
 | Worker autoscaling (KEDA) reads NATS consumer lag. | NATS was removed. The deployed trigger is `ehdb_feed_subject_lag{subject="commands.shared.shard.0"}` from the command-bus writer, `replicas ≈ ceil(lag / 2)`, 2–20 replicas. | server v3.161.2 resource model `concurrency.autoscaling.deployed` (DEPLOYED, as of 2026-11-11) | resource-model read | [Ch. 10.4](ch10-04-slots-and-keda.md) |
 | ehgraph stores its graphs in EHDB. | It does not: EHDB is a design reference for its change-log format only, and no ehgraph crate depends on EHDB. | noetl/ehgraph `f200516` README ("never stores graph data in an EHDB dataset"), `Cargo.toml` (no ehdb dependency) | code read | [Ch. 15](ch15-00-ehgraph.md) |
-| The local runtime runs a `loop:` step once per item. | It parses `loop:` and runs the step **once**; the run ends `ok` with no warning. | CLI v6.4.0: `Step.loop_config` (`executor/src/playbook.rs`) has no reader | `examples/ch08/loop-runs-once` (CI) | [Appendix H](appendix-08-contributing.md) |
+| The local runtime runs a `loop:` step once per item. | It parses `loop:` and runs the step **once**; the run ends `ok` with no warning. | CLI v6.4.0: `Step.loop_config` (`executor/src/playbook.rs`) has no reader | `examples/ch08/loop-runs-once` (CI) | [Ch. 8.3](ch08-03-local-iteration.md) |
 
 Not yet added: the edge-compilation myth (planned for Ch. 23), which needs its source verified first.
 

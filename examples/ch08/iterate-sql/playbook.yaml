@@ -1,0 +1,19 @@
+# Chapter 8.3: iterate inside ONE step with set-based SQL (local runtime, CLI 6.4.0).
+# One duckdb query processes every item; no loop, no extra steps.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: iterate_sql
+workload:
+  cities: '["Lisbon", "Oslo", "Quito"]'
+workflow:
+  - step: start
+    tool:
+      kind: duckdb
+      db: /tmp/noetl-book-ch08.duckdb
+      query: >-
+        SELECT city, length(city) AS letters
+        FROM (SELECT unnest(from_json(?, '["VARCHAR"]')) AS city)
+        ORDER BY city
+      params:
+        - "{{ workload.cities }}"

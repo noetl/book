@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which of these playbooks runs on the local runtime (CLI v6.4.0)?"
+prompt.distractors = [
+  "One `python` step that sorts a list.",
+  "A `postgres` query followed by an `http` call.",
+  "A `workbook` reference to a shared `http` task.",
+]
+answer.answer = "An `http` call followed by a `duckdb` step that stores the response."
+context = "Local kinds: shell, http, playbook, duckdb, auth, sink, rhai, provider, agent, mcp, noop. python, postgres and workbook are refused before any step runs."
+id = "adfbd0dc-2384-4d2b-a11e-0df769637ede"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A local `kind: playbook` step calls a child but the parent's `{{ step.result }}` is empty. Why?"
+prompt.distractors = [
+  "Local sub-playbooks run asynchronously.",
+  "The child's result is only available on a server.",
+  "Children cannot return strings.",
+]
+answer.answer = "The step has no result unless it sets `return_result: true`."
+context = "Same opt-in as the cluster's `kind: playbook`; `examples/ch08/sub-playbook` sets it."
+id = "47a62a57-fece-4079-a3b5-070a2ed66912"

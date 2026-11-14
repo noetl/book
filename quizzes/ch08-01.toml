@@ -1,0 +1,19 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "An inclusive router takes arcs to `a` and `b`. How do they run locally?"
+prompt.distractors = ["In parallel threads.", "Only `a` runs.", "In parallel worker slots."]
+answer.answer = "One after another, in the CLI process."
+context = "The local interpreter calls each taken target in turn; there are no workers or slots."
+id = "abe07f1e-8d48-4aee-9a44-5fc0c8270323"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which local difference does NOT fail silently?"
+prompt.distractors = [
+  "`next: [a, b]` being ignored.",
+  "`loop:` running the step once.",
+  "`shell` with `command:` running nothing.",
+]
+answer.answer = "A tool list (`tool:` as a YAML list), which fails to parse."
+context = "The other three all end the run `ok` with no warning; CI examples assert each one."
+id = "cc591fa1-52ff-4680-a3c7-0b441189334e"

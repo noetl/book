@@ -1,0 +1,14 @@
+# Chapter 8.2: `kind: playbook` locally runs the child in the same process.
+# Without `return_result: true` the step has no result (same opt-in as on a cluster).
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: parent
+workflow:
+  - step: start
+    tool:
+      kind: playbook
+      path: ./child.yaml
+      input:
+        name: parent
+      return_result: true

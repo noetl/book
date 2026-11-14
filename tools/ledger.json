@@ -119,6 +119,26 @@
     "landed": "2026-11-13 (#60)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
   },
+  "ch08-00-local-runtime.md": {
+    "landed": "2026-11-14 (#18)",
+    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+  },
+  "ch08-01-in-process-interpreter.md": {
+    "landed": "2026-11-14 (#18)",
+    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+  },
+  "ch08-02-local-kinds.md": {
+    "landed": "2026-11-14 (#18)",
+    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+  },
+  "ch08-03-local-iteration.md": {
+    "landed": "2026-11-14 (#18)",
+    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+  },
+  "ch08-04-event-buffer.md": {
+    "landed": "2026-11-14 (#18)",
+    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+  },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",
     "verified": "\u2014"

@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "[\"Lisbon:6\",\"Oslo:4\",\"Quito:5\"]",
+  "playbook_name": "iterate_rhai",
+  "status": "ok",
+  "step_results": {
+    "start": "[\"Lisbon:6\",\"Oslo:4\",\"Quito:5\"]"
+  }
+}

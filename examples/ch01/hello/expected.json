@@ -1,0 +1,13 @@
+{
+  "executed_steps": [
+    "start",
+    "done"
+  ],
+  "final_result": "42",
+  "playbook_name": "hello",
+  "status": "ok",
+  "step_results": {
+    "done": "42",
+    "start": "hello world"
+  }
+}

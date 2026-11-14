@@ -1,0 +1,10 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: py_local
+workflow:
+  - step: start
+    tool:
+      kind: python
+      code: |
+        result = 1

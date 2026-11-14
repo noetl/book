@@ -58,3 +58,31 @@ jobs:
           path: book/html
           if-no-files-found: ignore
           retention-days: 7
+
+  examples:
+    name: example playbooks (noetl run, pinned CLI)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the pinned NoETL CLI (release tarball, sha256-checked)
+        run: |
+          set -euo pipefail
+          V="$(tr -d '[:space:]' < examples/NOETL_CLI_VERSION)"
+          T="noetl-v${V}-linux-x86_64.tar.gz"
+          cd /tmp
+          curl -sSfLO "https://github.com/noetl/cli/releases/download/v${V}/${T}"
+          curl -sSfLO "https://github.com/noetl/cli/releases/download/v${V}/checksums.txt"
+          # checksums.txt lists paths as dist/<dir>/<file>; check by basename.
+          SUM="$(grep "/${T}\$" checksums.txt | cut -d' ' -f1)"
+          test -n "$SUM"
+          echo "${SUM}  ${T}" | sha256sum -c -
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf "$T" -C "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: CLI version (cited by Appendix E)
+        run: noetl --version
+
+      - name: Run every example and diff against its expected output
+        run: tools/run-examples.sh examples

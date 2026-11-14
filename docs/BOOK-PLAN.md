@@ -1,8 +1,11 @@
 # The NoETL Book — Plan
 
-**Status of this plan:** v1, 2026-11-13. The outline lives in
-[`src/SUMMARY.md`](../src/SUMMARY.md); this document explains why it is
-shaped that way and what each chapter must achieve. The book is an
+**Status of this plan:** v1.1, 2026-11-13. The outline lives in
+[`src/SUMMARY.md`](../src/SUMMARY.md). The per-chapter descriptions,
+badges and phases are in [`docs/ROADMAP.md`](ROADMAP.md). How to
+contribute (spec-kit, issues, wiki, AI agents) is in
+[`CONTRIBUTING.md`](../CONTRIBUTING.md). This document explains why the
+book is shaped the way it is and what each chapter must achieve. The book is an
 **iterative** project: the plan, the outline and the status of every
 chapter are expected to change as NoETL changes.
 
@@ -310,12 +313,12 @@ feature lands.
 
 | Phase | Chapters | Why now | Exit criteria |
 |---|---|---|---|
-| **0 Tooling** | `book.toml`, CI (build + linkcheck), `examples/` test harness, Appendix H | Every later chapter depends on tested examples and badge rules | `mdbook build` and the example tests run green in CI |
-| **1 Foundations** | Ch. 1, 3, 4, 5, 6, Appendix F seed | The concepts everything else uses, all REAL | Each section has a quiz; Appendix F has ≥10 entries |
-| **2 First project + local** | Ch. 2, 8, 7, 9, 11 | The tutorial track's first leg; local mode needs no cluster | Ch. 2 runs end to end in CI |
+| **0 Tooling** | `book.toml`, CI (build + linkcheck), `examples/` test harness, the spec (`specs/001-noetl-book/`), labels + one issue per chapter, Appendix H / `CONTRIBUTING.md` | Every later chapter depends on tested examples and badge rules | `mdbook build` and the example tests run green in CI |
+| **1 Foundations** | Ch. 3, 4, 5, 6, How to Read; Appendices A, B (generated) and F (myths seed) | The concepts everything else uses, all REAL | Each section has a quiz; Appendix F has ≥10 entries |
+| **2 Getting started + local** | Ch. 1, 2, 8, 7, 9, 11, then the Introduction | The tutorial track's first leg; local mode needs no cluster | Ch. 2 runs end to end in CI |
 | **3 Distributed + the trace visualizer** | Build `mdbook-noetl-trace`; Ch. 10, 12 | Ch. 10.5 is the book's flagship visualization | One recorded execution steps through correctly, folded by orchestrate-core |
 | **4 Substrate and resources** | Ch. 13, 21, 22 (measurements), 30, 27–29, 31 | REAL internals and operations; resource model numbers already labelled | Appendices C and D generated |
-| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15 | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
+| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today) | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
 | **6 Edge** | Build `mdbook-noetl-play`; Ch. 23, 24 | Needs the WASM runner; the kuksin.us proof is real | One ▶ example runs in the browser |
 | **7 TARGET and applied** | Ch. 14, 20, 22.3, 25, 26, 32 | In-flight designs: write them last, short, and tied to their RFCs | Each page states what exists today first |
 | **Continuous** | Status ledger, myths, regenerated appendices | §8 | |

@@ -12,30 +12,56 @@ yet built, or built but switched off. Every page opens with a badge:
 | <span class="status status-target">TARGET</span> | Designed, usually in an RFC, but not built. These pages describe intent and are rewritten when the code lands. |
 | <span class="status status-stub">STUB</span> | The page is planned but not written yet. |
 
-Inside a page, individual claims carry the same labels the NoETL
-resource model uses: **MEASURED**, **DEPLOYED**, **DEFAULT**,
-**GUIDANCE**, **TARGET** and **NOT_YET_MEASURED**. A number without a
-label is a bug in the book.
+Inside a page, individual claims, numbers above all, carry one of the
+six labels the NoETL resource model defines. The meanings below are
+quoted from it (`labels`, `resource-model.json`, server v3.161.2):
+
+| Label | Meaning |
+|---|---|
+| **MEASURED** | observed on a cluster or harness; read environment/date/source before reusing it |
+| **DEPLOYED** | read off the production cluster on as_of; configuration, not code |
+| **DEFAULT** | a code default (env var + value); a deployment may override it |
+| **GUIDANCE** | a planning rule derived from the figures; not a measurement |
+| **TARGET** | a goal or budget; not a measurement |
+| **NOT_YET_MEASURED** | a real question with no number; do not invent one |
+
+A MEASURED number in this book also says where, when and over how many
+runs it was measured. A number without a label is a bug in the book.
 
 ## Quizzes
 
 Most sections end with a short quiz. The quizzes are there to help you
-learn, not to grade you: answers are not reported anywhere, and a wrong
+learn, not to grade you: answers are not reported anywhere (the book has
+no quiz telemetry), and a wrong
 answer shows an explanation of the misconception behind it. If a
 question is confusing, that is a bug in the book. Please report it.
 
-## Traces
+## Examples
 
-NoETL is event-sourced: an execution *is* its event log. Where it
-helps, the book shows a recorded event log as a step-through trace.
-You move through the events one at a time and watch the execution's
-state change after each one.
+Every playbook in this book is a file under `examples/` in the book's
+repository, and CI checks it on every change:
 
-## Runnable examples
+- **local** examples are run with the pinned NoETL CLI, and their
+  output must match what the page shows;
+- **distributed** examples are checked against the server's schema,
+  but not run, because they need a cluster. The page says so where it
+  shows one.
 
-Examples marked ▶ can be run in the page by the NoETL local runtime
-compiled to WebAssembly. Every other example names the runtime it needs:
-`local`, `daemon` or `distributed`.
+The CLI version the examples are tested against is in
+[Appendix E](appendix-05-status-ledger.md).
+
+```admonish not-yet
+Two interactive features are planned and not built yet:
+
+- **Traces** ([#7](https://github.com/noetl/book/issues/7)): a recorded
+  event log shown as a step-through, with the execution's state after
+  each event.
+- **▶ runnable examples** ([#8](https://github.com/noetl/book/issues/8)):
+  examples that run in the page, on the local runtime compiled to
+  WebAssembly.
+
+Until they exist, no page shows a trace widget or a ▶ button.
+```
 
 ## Where the book is going
 

@@ -1,0 +1,15 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A child playbook does one 400 ms API call. What did a hop like that cost on prod in 2026-08?"
+prompt.distractors = ["About 400 ms plus a few milliseconds.", "About 1 s.", "Nothing; children run in parallel."]
+answer.answer = "About 9–15 s, almost all orchestration."
+context = "MEASURED 2026-08 (travel itinerary planner): a 369 ms read took 11.4 s as a child. Hence: inline one-call children."
+id = "5d71420c-a94c-4cfa-9a4c-549f73307215"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "The latency plan says an awaited hop is '~3–5 s'. Which label does this book give that number?"
+prompt.distractors = ["MEASURED", "DEPLOYED", "DEFAULT"]
+answer.answer = "NOT_YET_MEASURED: the plan itself calls it predicted."
+context = "Only measured figures get MEASURED, with where, when and n. The plan (ai-meta PR #556) is open and design-only."
+id = "51b1f5da-f736-413e-a44c-8b3beba43f3b"

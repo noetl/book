@@ -14,6 +14,7 @@ a correction gets into the book.
 
 | Myth | Truth | Source | Checked by | Chapter |
 |---|---|---|---|---|
+| A sub-playbook call is about as cheap as a function call. | Each hop is a whole child execution: MEASURED ~9–15 s of orchestration on prod (2026-08); inlining provider children cut a planner turn 44%. | resource model `step_kinds` (playbook), server v3.161.2 | resource-model read | [Ch. 7.2](ch07-02-what-a-hop-costs.md) |
 | `brew tap noetl/tap && brew install noetl` installs NoETL. | With current Homebrew (7.0.11) it fails on an untrusted tap; `brew trust noetl/tap` is needed first. | book `install-paths` workflow run 43568552091 (2026-11-14, macos-latest) | CI run (weekly) | [Ch. 1.1](ch01-01-installation.md) |
 | `pip install noetl` gives the current CLI. | As of 2026-11-14 PyPI's newest is 5.3.2 (uploaded 2026-10-17); the CLI is at 6.4.0. | PyPI JSON API; `install-paths` run 43568552091 | CI run (weekly) | [Ch. 1.1](ch01-01-installation.md) |
 | The local event trail records every run of every step. | It records one `step.exit` per step, at its first run; a back-edge loop's later passes are missing (as are they from `executed_steps`). | CLI v6.4.0 (`ExecutionContext::set_step_result`, `src/playbook_runner.rs`) | run of `examples/ch02/fetch-transform-store` with `--event-buffer` | [Ch. 2](ch02-00-project-first-playbook.md) |

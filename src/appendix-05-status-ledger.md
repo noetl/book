@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**36 pages written, 98 not yet written** (of 134 in `SUMMARY.md`).
+**39 pages written, 95 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -53,9 +53,9 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[`loop:` — Sequential, Parallel, Cursor](ch06-03-loop.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Back-Edges: Loops as Goto](ch06-04-back-edges.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Errors, Timeouts and Retries — What Is Enforced](ch06-05-errors-timeouts-retries.md) | **PARTIAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| Composition: Sub-Playbooks | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;`kind: playbook` and Child Executions | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;What a Hop Costs | REAL | not written | | |
+| [Composition: Sub-Playbooks](ch07-00-sub-playbooks.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`kind: playbook` and Child Executions](ch07-01-child-executions.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[What a Hop Costs](ch07-02-what-a-hop-costs.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
 | [The Local Runtime: `noetl run`](ch08-00-local-runtime.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[One Process, One Interpreter](ch08-01-in-process-interpreter.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Local Tool Kinds and Their Limits](ch08-02-local-kinds.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |

@@ -119,6 +119,18 @@
     "landed": "2026-11-13 (#60)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
   },
+  "ch07-00-sub-playbooks.md": {
+    "landed": "2026-11-14 (#17)",
+    "verified": "tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open)"
+  },
+  "ch07-01-child-executions.md": {
+    "landed": "2026-11-14 (#17)",
+    "verified": "tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open)"
+  },
+  "ch07-02-what-a-hop-costs.md": {
+    "landed": "2026-11-14 (#17)",
+    "verified": "tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open)"
+  },
   "ch08-00-local-runtime.md": {
     "landed": "2026-11-14 (#18)",
     "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"

@@ -11,10 +11,12 @@ not written yet have not added their terms.
 |---|---|---|
 | arc | One outgoing transition in `next`, optionally guarded by `when` | [6.1](ch06-01-next-and-routers.md) |
 | back-edge | An arc to a step that has already run; forms a loop bounded only by its `when` | [6.4](ch06-04-back-edges.md) |
+| child execution | The separate execution a `kind: playbook` step starts, linked by `parent_execution_id` | [7.1](ch07-01-child-executions.md) |
 | context | A named CLI configuration (`noetl context`) that can pin a runtime and server | [Ch. 8](ch08-00-local-runtime.md) |
 | event buffer | A local run's recorded events, `$NOETL_LOCAL_DIR/<id>/events.feather`; shipped with `noetl push` | [8.4](ch08-04-event-buffer.md) |
 | exclusive / inclusive | Routing modes: first matching arc vs every matching arc (default exclusive) | [6.1](ch06-01-next-and-routers.md) |
 | gated kind | A kind refused unless a server flag turns it on (`agent`, `mcp`) | [5.1](ch05-01-tool-kinds.md) |
+| hop | One `kind: playbook` call; costs a whole child execution | [Ch. 7](ch07-02-what-a-hop-costs.md) |
 | keychain alias | The name a playbook uses for a credential; resolved by the worker at run time | [4.4](ch04-04-keychain.md) |
 | label | A sub-task's name in a tool list; later items read its result as `{{ <label>.field }}` | [5.2](ch05-02-ordered-tool-list.md) |
 | local runtime | The CLI's in-process interpreter (`noetl run -r local`); a separate implementation from the server | [Ch. 8](ch08-00-local-runtime.md) |

@@ -55,6 +55,9 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: echo "MDBOOK_OUTPUT__LINKCHECK__FOLLOW_WEB_LINKS=true" >> "$GITHUB_ENV"
 
+      - name: Appendix E ledger matches the pages (AP-E)
+        run: python3 tools/gen-ledger.py --check
+
       - name: mdbook build (html + linkcheck)
         run: mdbook build
 

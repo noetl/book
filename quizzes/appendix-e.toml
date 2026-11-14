@@ -1,0 +1,29 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A page in this ledger says *REAL, verified against server v3.150.0*, and the current server is v3.161.2. What should you assume?"
+prompt.distractors = [
+  "Nothing: REAL pages never change.",
+  "The page is wrong and should be ignored.",
+  "The badge has been re-checked automatically since.",
+]
+answer.answer = "The page was true at v3.150.0; behaviour may have changed since, so check anything important against the newer release."
+context = """
+A badge is true at the release named. The ledger exists so you can see how
+old that check is.
+"""
+id = "85617e9e-d13c-435a-966e-5c60f87f7d46"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "How does this ledger stay in step with the book?"
+prompt.distractors = [
+  "Authors update it by hand when they remember.",
+  "A weekly job rewrites it from the wiki.",
+  "It is not kept in step; it is a snapshot.",
+]
+answer.answer = "It is generated from each page's own badge, and CI fails if it is stale or a written page has no entry."
+context = """
+`tools/gen-ledger.py --check` runs on every pull request, so the ledger cannot
+silently disagree with the pages it describes.
+"""
+id = "984aac18-2f1d-4965-be28-d7833c86df43"

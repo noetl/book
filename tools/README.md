@@ -17,3 +17,10 @@ Regenerate the appendices (CI fails if the committed pages differ):
 ```bash
 python3 tools/gen-appendices.py --fetch
 ```
+
+Appendix E's ledger is generated too (CI fails if it is stale, or if a
+written page has no entry in `tools/ledger.json`):
+
+```bash
+python3 tools/gen-ledger.py
+```

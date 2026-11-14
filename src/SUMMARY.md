@@ -1,5 +1,10 @@
 # Summary
 
+<!-- This is the book's table of contents and its contract: every page listed here must exist.
+     Per-chapter descriptions, badges and authoring phases: docs/ROADMAP.md
+     Pedagogy, per-chapter goals and sources: docs/BOOK-PLAN.md
+     How to contribute (spec-kit, issues, wiki, AI agents): CONTRIBUTING.md -->
+
 [The NoETL Book](title-page.md)
 [Foreword](foreword.md)
 [Introduction](ch00-00-introduction.md)

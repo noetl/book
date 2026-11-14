@@ -15,8 +15,14 @@ step-through visualizations of execution state, and runnable examples.
 **STUB** (not written yet).
 
 - Outline: [`src/SUMMARY.md`](src/SUMMARY.md)
-- Plan (pedagogy, per-chapter goals, tooling, authoring order):
+- Roadmap (every chapter: what it covers, its badge, when it gets written):
+  [`docs/ROADMAP.md`](docs/ROADMAP.md)
+- Plan (pedagogy, per-chapter goals, tooling, sources):
   [`docs/BOOK-PLAN.md`](docs/BOOK-PLAN.md)
+- **Contributing** (spec-kit, issues, wiki, and the rules for AI agents):
+  [`CONTRIBUTING.md`](CONTRIBUTING.md). Agents also read [`AGENTS.md`](AGENTS.md).
+- Coordination (assignments, style guide, decisions): the
+  [wiki](https://github.com/noetl/book/wiki)
 
 ## Building
 
@@ -37,6 +43,10 @@ book.toml          mdBook config (planned preprocessors commented out)
 src/SUMMARY.md     the table of contents — the contract for the book
 src/*.md           chapters (chNN-MM-slug.md), appendices
 docs/BOOK-PLAN.md  the plan
+docs/ROADMAP.md    chapter-by-chapter roadmap
+specs/             spec-kit spec (Phase 0, not created yet)
+CONTRIBUTING.md    workflow + AI-agent rules
+AGENTS.md          short rules auto-read by coding agents
 examples/          example playbooks, tested in CI
 quizzes/           mdbook-quiz TOML files
 traces/            recorded event logs for the trace visualizer

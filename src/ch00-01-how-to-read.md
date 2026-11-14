@@ -36,3 +36,7 @@ state change after each one.
 Examples marked ▶ can be run in the page by the NoETL local runtime
 compiled to WebAssembly. Every other example names the runtime it needs:
 `local`, `daemon` or `distributed`.
+
+## Where the book is going
+
+The [roadmap](https://github.com/noetl/book/blob/main/docs/ROADMAP.md) shows every chapter, its status and when it will be written. To help write it, see [Appendix H](appendix-08-contributing.md).

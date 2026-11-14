@@ -9,7 +9,7 @@
 Generated from `noetl/server` **v3.161.2** (commit `983e36e3ec4c`, 2026-11-12), file `orchestrate-core/schema/playbook.schema.json`. The server's own tests fail if these files drift from the code that defines the grammar, so this page is as current as the pin.
 ```
 
-HAND EDIT. Every key of a NoETL playbook (`https://noetl.ai/schema/v2/playbook.schema.json`), as the grammar defines it. Chapters 4–6 teach these keys; the *Taught in* column links to the chapter.
+Every key of a NoETL playbook (`https://noetl.ai/schema/v2/playbook.schema.json`), as the grammar defines it. Chapters 4–6 teach these keys; the *Taught in* column links to the chapter.
 
 > NoETL playbook grammar (noetl.io/v2), generated from the Rust authoring types in noetl-orchestrate-core 0.1.0. Permissive like the parser (unknown keys are not rejected); `tool.kind` is closed to the kinds this server accepts. Semantic rules (a `start` step, unique step names, existing `next` targets) are enforced by the server's validator, not by this schema.
 

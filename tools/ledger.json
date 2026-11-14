@@ -35,6 +35,10 @@
     "landed": "2026-11-13 (#65)",
     "verified": "resource model `labels`, server v3.161.2"
   },
+  "ch02-00-project-first-playbook.md": {
+    "landed": "2026-11-13 (#12)",
+    "verified": "CLI v6.4.0 (run in CI); data pinned at server `983e36e`"
+  },
   "ch04-00-anatomy-of-a-playbook.md": {
     "landed": "2026-11-13 (#58)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"

@@ -1,0 +1,73 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Why does `load` pass the HTTP body as a parameter instead of writing `'{{ fetch.result }}'` inside the SQL?"
+prompt.distractors = [
+  "Parameters are faster in DuckDB.",
+  "The local runtime cannot template SQL.",
+  "It is only a style preference.",
+]
+answer.answer = "The body contains quotes; pasted into SQL text it would break the statement (or inject SQL), while a bound parameter is never parsed as SQL."
+context = "Templates are substituted as raw text. Use `?` and `params:` for data."
+id = "524db3e0-96f4-46a7-9d4a-7877a20c06d1"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "`advance` is changed to add 3 instead of 1. What happens?"
+prompt.distractors = [
+  "The loop runs once and exits.",
+  "NoETL stops it after its iteration limit.",
+  "The validator rejects the playbook.",
+]
+answer.answer = "It never terminates: i goes 0, 3, 6, … and never equals 2."
+context = """
+There is no iteration cap between steps; the guard is the only bound. A `!=`
+guard is safe only if the counter is guaranteed to hit the value exactly.
+"""
+id = "16ae6cd3-0725-4877-8411-e2fec1a404e6"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In `advance`'s `next`, why is the arc to `pick` listed BEFORE the arc to `report`?"
+prompt.distractors = [
+  "Arcs run in parallel, so order is irrelevant.",
+  "YAML lists are unordered.",
+  "The last arc always wins.",
+]
+answer.answer = "A list of targets is exclusive: the first arc whose `when` holds is taken; `report` (no `when`) is the fallback."
+context = "If `report` came first, its missing `when` would always match and the loop would never repeat."
+id = "40cca519-b5b6-48cb-9262-26a460eae3f5"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "How many times does `fetch` run, and how many `step.exit` events for it does the LOCAL buffer record?"
+prompt.distractors = ["Twice and twice.", "Once and once.", "Twice and zero."]
+answer.answer = "Twice, but the local buffer records it once."
+context = """
+At CLI v6.4.0 the local trail (and `executed_steps`) lists each step at its
+first run only. A server records every pass.
+"""
+id = "cb35304d-d5e2-4dd7-bb6d-b00dacf407b3"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A `duckdb` step has no `db:`. Where does its data go, locally?"
+prompt.distractors = [
+  "An in-memory database that disappears after the step.",
+  "`~/.noetl/local/state.duckdb`.",
+  "The current working directory's `noetl.duckdb`.",
+]
+answer.answer = "`.noetl/state.duckdb` next to the playbook file."
+context = "`default_duckdb_path` is `.noetl/state.duckdb`, resolved against the playbook's directory (CLI v6.4.0)."
+id = "72e8f149-a6fe-40f9-80f3-699940896a25"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "To run this playbook on a NoETL server, what must change first?"
+prompt.distractors = [
+  "Nothing; it is portable as written.",
+  "Only `-r local` becomes `-r distributed`.",
+  "The `http` step, which servers do not support.",
+]
+answer.answer = "The variable passing: step `vars:` and `{{ <step>.result }}` are local-runtime forms; a server uses `set:` and `{{ <step>.<field> }}`."
+context = "Chapter 4.2: the two runtimes do not share a variable model at these versions."
+id = "237cccfc-d4fe-4d24-ae39-c3eed1f9a94f"

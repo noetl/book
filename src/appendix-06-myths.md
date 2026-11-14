@@ -14,6 +14,7 @@ a correction gets into the book.
 
 | Myth | Truth | Source | Checked by | Chapter |
 |---|---|---|---|---|
+| The local event trail records every run of every step. | It records one `step.exit` per step, at its first run; a back-edge loop's later passes are missing (as are they from `executed_steps`). | CLI v6.4.0 (`ExecutionContext::set_step_result`, `src/playbook_runner.rs`) | run of `examples/ch02/fetch-transform-store` with `--event-buffer` | [Ch. 2](ch02-00-project-first-playbook.md) |
 | The step list goes under `steps:`. | There is no `steps:` key; `workflow` is the step list. A playbook with `steps:` fails: ``missing field `workflow` ``. | server v3.161.2 `playbook.schema.json` (required: `workflow`); CLI v6.4.0 | `examples/ch04/no-steps-key` (CI) | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | Registering a playbook validates it. | Registration checks tool kinds and inline secrets only; the validator (`start` step, unique names, `next` targets) runs when an execution starts. | server v3.161.2 `src/handlers/dsl.rs:227`, `src/services/catalog.rs` `registration_checks` | code read | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | Use step `vars:` to pass a value to the next step. | Only the local runtime reads step `vars:`. On a server nothing reads step or top-level `vars:`; use `set:`. | server v3.161.2 (no reader of `Step.vars`); CLI v6.4.0 | `examples/ch04/variables-local` (CI, local side) | [Ch. 4.2](ch04-02-workload-and-templating.md) |

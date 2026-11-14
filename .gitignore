@@ -11,3 +11,5 @@
 node_modules/
 # T-04 fetched server schema files
 /.schema-cache/
+# local runtime default DuckDB files
+.noetl/

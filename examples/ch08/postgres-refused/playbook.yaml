@@ -1,0 +1,11 @@
+# Chapter 8: `kind: postgres` is refused by the local runtime (CLI 6.4.0) before any step runs.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: postgres_local
+workflow:
+  - step: start
+    tool:
+      kind: postgres
+      auth: pg_main
+      query: "SELECT 1"

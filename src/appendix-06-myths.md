@@ -1,18 +1,19 @@
 # Appendix F: Myths and Corrections
 
-<span class="status status-stub">STUB</span>
+<span class="status status-real">REAL</span>
 
-> Not yet written. Goals, sources and the quiz plan for this section are in
-> [`docs/BOOK-PLAN.md`](https://github.com/noetl/book/blob/main/docs/BOOK-PLAN.md).
+Each row is a belief about NoETL that is wrong, or was true once, and
+the fact that replaces it. Every **Truth** was checked at the source
+named, and the **Checked by** column says how: a CI example (re-run on
+every pull request, so the row breaks if the behaviour changes), or a
+reading of the code at that release. Rows are grouped by the chapter
+that teaches the truth.
 
-## Corrections recorded so far
+Found a myth that is not here? Open an issue; Appendix H explains how
+a correction gets into the book.
 
-Rows are added as each page that corrects a myth lands. The full
-appendix is written in [#45](https://github.com/noetl/book/issues/45).
-
-| Myth | Fact | Verified at | Checked by | Page |
+| Myth | Truth | Source | Checked by | Chapter |
 |---|---|---|---|---|
-| The local runtime runs a `loop:` step once per item. | It parses `loop:` and runs the step **once**; the run ends `ok` with no warning. | CLI v6.4.0: `Step.loop_config` (`executor/src/playbook.rs`) has no reader | `examples/ch08/loop-runs-once` (CI) | [Appendix H](appendix-08-contributing.md) |
 | The step list goes under `steps:`. | There is no `steps:` key; `workflow` is the step list. A playbook with `steps:` fails: ``missing field `workflow` ``. | server v3.161.2 `playbook.schema.json` (required: `workflow`); CLI v6.4.0 | `examples/ch04/no-steps-key` (CI) | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | Registering a playbook validates it. | Registration checks tool kinds and inline secrets only; the validator (`start` step, unique names, `next` targets) runs when an execution starts. | server v3.161.2 `src/handlers/dsl.rs:227`, `src/services/catalog.rs` `registration_checks` | code read | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | Use step `vars:` to pass a value to the next step. | Only the local runtime reads step `vars:`. On a server nothing reads step or top-level `vars:`; use `set:`. | server v3.161.2 (no reader of `Step.vars`); CLI v6.4.0 | `examples/ch04/variables-local` (CI, local side) | [Ch. 4.2](ch04-02-workload-and-templating.md) |
@@ -28,3 +29,13 @@ appendix is written in [#45](https://github.com/noetl/book/issues/45).
 | The server caps loop iterations / back-edge re-runs. | No cap exists; the playbook's `when` is the only bound. The only iteration cap is inside one tool list. | server v3.161.2, worker v6.15.0, tools v4.6.0 (grep for limits) | code read | [Ch. 6.4](ch06-04-back-edges.md) |
 | If no arc matches, the execution just ends. | A step that has arcs, none taken, is not an ending: the execution stalls with no terminal event (sweep off by default). | server v3.161.2 `check_completion`; `src/handlers/nonconvergence_sweep.rs` | code read | [Ch. 6.0](ch06-00-control-flow.md) |
 | The local runtime routes like the server. | Locally `next: name` and `next: [names]` are ignored, a false step `when` ends the branch, and an undefined name in a guard is truthy. | CLI v6.4.0 | `examples/ch06/next-names-ignored-local`, `when-skip-local`, `when-undefined-local` (CI) | [Ch. 6.1](ch06-01-next-and-routers.md), [6.2](ch06-02-when-guards.md) |
+| The local runtime can run `postgres` steps. | It refuses `kind: postgres` (and `python`) before any step runs: "Run it on a cluster instead". | CLI v6.4.0 `reject_unsupported_kinds` (`src/playbook_runner.rs`) | `examples/ch08/postgres-refused` (CI) | [Ch. 8](ch08-00-local-runtime.md) |
+| Worker autoscaling (KEDA) reads NATS consumer lag. | NATS was removed. The deployed trigger is `ehdb_feed_subject_lag{subject="commands.shared.shard.0"}` from the command-bus writer, `replicas ≈ ceil(lag / 2)`, 2–20 replicas. | server v3.161.2 resource model `concurrency.autoscaling.deployed` (DEPLOYED, as of 2026-11-11) | resource-model read | [Ch. 10.4](ch10-04-slots-and-keda.md) |
+| ehgraph stores its graphs in EHDB. | It does not: EHDB is a design reference for its change-log format only, and no ehgraph crate depends on EHDB. | noetl/ehgraph `f200516` README ("never stores graph data in an EHDB dataset"), `Cargo.toml` (no ehdb dependency) | code read | [Ch. 15](ch15-00-ehgraph.md) |
+| The local runtime runs a `loop:` step once per item. | It parses `loop:` and runs the step **once**; the run ends `ok` with no warning. | CLI v6.4.0: `Step.loop_config` (`executor/src/playbook.rs`) has no reader | `examples/ch08/loop-runs-once` (CI) | [Appendix H](appendix-08-contributing.md) |
+
+Not yet added: the edge-compilation myth (planned for Ch. 23), which needs its source verified first.
+
+## Check your understanding
+
+{{#quiz ../quizzes/appendix-f.toml}}

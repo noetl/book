@@ -1,0 +1,29 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Why do many rows in this appendix name a CI example under *Checked by*?"
+prompt.distractors = [
+  "So readers can run the myth themselves.",
+  "Because examples are easier to write than code citations.",
+  "Because the appendix is generated from the examples.",
+]
+answer.answer = "The example re-runs on every pull request, so if the behaviour changes, CI fails and the row must be revisited."
+context = """
+A correction checked once can go stale silently. An example that asserts the
+behaviour turns a change in the runtime into a red build.
+"""
+id = "e22b72c6-082f-4915-b756-251acf60ab16"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which of these is a myth, according to this appendix?"
+prompt.distractors = [
+  "A tool list runs as one command in one slot.",
+  "`max_in_flight` is parsed but not read.",
+  "Workers autoscale on EHDB command-bus lag.",
+]
+answer.answer = "The server stops a runaway back-edge loop after a fixed number of iterations."
+context = """
+There is no iteration or re-entry cap between steps; the playbook's own
+`when` is the only bound. The other three statements are the truths.
+"""
+id = "0a7eb1b7-8c1e-4d6f-aa2c-56a2ed8f4073"

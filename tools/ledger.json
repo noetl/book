@@ -31,6 +31,10 @@
     "landed": "2026-11-13 (#56)",
     "verified": "book CI tooling"
   },
+  "ch00-00-introduction.md": {
+    "landed": "2026-11-14 (#10)",
+    "verified": "claims linked to Ch. 1\u201311; no version-specific numbers"
+  },
   "ch00-01-how-to-read.md": {
     "landed": "2026-11-13 (#65)",
     "verified": "resource model `labels`, server v3.161.2"

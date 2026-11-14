@@ -1,0 +1,15 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In NoETL, what is the source of truth for what an execution did?"
+prompt.distractors = ["The playbook file.", "The worker's logs.", "A status row the server updates."]
+answer.answer = "Its events, which are recorded as it runs and never edited."
+context = "Chapter 3: state is computed from the event log; the playbook is the blueprint, not the record."
+id = "c12f5b79-4224-4f51-aba5-c47b8db932c8"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A playbook ran fine with `noetl run`. Will it behave the same on a cluster?"
+prompt.distractors = ["Yes: it is the same engine.", "Yes, if it passes the schema.", "No: clusters cannot run local playbooks."]
+answer.answer = "Not necessarily: the three runtimes are separate implementations, and this book lists where they differ."
+context = "See the differences table in Chapter 8.1."
+id = "2e2a0690-c624-4c08-a497-96814f560e74"

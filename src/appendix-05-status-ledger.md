@@ -19,13 +19,13 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**44 pages written, 90 not yet written** (of 134 in `SUMMARY.md`).
+**45 pages written, 89 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
 | [The NoETL Book](title-page.md) | **—** | written | — | 2026-11-13 (#1) |
 | Foreword | — | not written | | |
-| Introduction | REAL | not written | | |
+| [Introduction](ch00-00-introduction.md) | **REAL** | written | claims linked to Ch. 1–11; no version-specific numbers | 2026-11-14 (#10) |
 | [How to Read This Book: Status Badges, Quizzes and Traces](ch00-01-how-to-read.md) | **REAL** | written | resource model `labels`, server v3.161.2 | 2026-11-13 (#65) |
 | [Getting Started](ch01-00-getting-started.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Installation](ch01-01-installation.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |

@@ -1,0 +1,28 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which of these is a complete, valid playbook?"
+prompt.distractors = [
+  "`apiVersion`, `kind`, `metadata` and `steps:` with one step.",
+  "`kind`, `metadata` and `workflow` (`apiVersion` defaults to v2).",
+  "`apiVersion`, `kind` and `workflow` (`metadata` is optional).",
+]
+answer.answer = "`apiVersion: noetl.io/v2`, `kind: Playbook`, `metadata.name`, and `workflow` with one step."
+context = """
+All four keys are required, and the step list is `workflow`, not `steps`.
+"""
+id = "148b947d-bc8e-49d3-ba44-2460d9716c0d"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Why is the first step named `start`?"
+prompt.distractors = [
+  "The local runtime requires it.",
+  "It is a naming convention only.",
+  "YAML requires a first key called start.",
+]
+answer.answer = "A NoETL server begins every execution at the step named `start` (and its validator requires one)."
+context = """
+The local runtime starts at the first step in the list, whatever its name.
+Naming it `start` makes the playbook work in both places.
+"""
+id = "fd0d545c-8e13-4783-ae0b-e080da16a817"

@@ -1,0 +1,67 @@
+name: install-paths
+
+# CH-01 (#11): verify that each documented install channel really installs a
+# working `noetl`, and record the version it gives. Runs on clean runners, never
+# on a contributor's machine. Not a PR gate for content: external channels can
+# change at any time, so it runs weekly, on demand, and when this file changes.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 6 * * 1"
+  pull_request:
+    paths:
+      - ".github/workflows/install-paths.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  homebrew:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: brew tap noetl/tap && brew trust noetl/tap && brew install noetl
+        run: |
+          brew --version
+          brew tap noetl/tap
+          # Current Homebrew refuses formulae from an untrusted third-party tap:
+          # "Refusing to load formula noetl/tap/noetl from untrusted tap noetl/tap."
+          brew trust noetl/tap
+          brew install noetl
+      - name: Version
+        run: noetl --version
+      - name: Run the Chapter 1 example
+        run: noetl run examples/ch01/hello/playbook.yaml -r local --json
+
+  apt:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add the NoETL APT source (noble) and install
+        run: |
+          echo 'deb [trusted=yes] https://noetl.github.io/apt noble main' | sudo tee /etc/apt/sources.list.d/noetl.list
+          sudo apt-get update -o Dir::Etc::sourcelist=sources.list.d/noetl.list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+          apt-cache policy noetl
+          sudo apt-get install -y noetl
+      - name: Version
+        run: noetl --version
+      - name: Run the Chapter 1 example
+        run: noetl run examples/ch01/hello/playbook.yaml -r local --json
+
+  pypi:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: pip install noetl (in a venv)
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet noetl
+          .venv/bin/pip show noetl | head -3
+      - name: Version
+        run: .venv/bin/noetl --version
+      - name: Run the Chapter 1 example
+        run: .venv/bin/noetl run examples/ch01/hello/playbook.yaml -r local --json

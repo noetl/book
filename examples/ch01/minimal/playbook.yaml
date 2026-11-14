@@ -1,0 +1,11 @@
+# Chapter 1.2: the smallest valid playbook. Four required keys, one step.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: minimal
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "hello, playbook"

@@ -35,6 +35,22 @@
     "landed": "2026-11-13 (#65)",
     "verified": "resource model `labels`, server v3.161.2"
   },
+  "ch01-00-getting-started.md": {
+    "landed": "2026-11-14 (#11)",
+    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+  },
+  "ch01-01-installation.md": {
+    "landed": "2026-11-14 (#11)",
+    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+  },
+  "ch01-02-hello-playbook.md": {
+    "landed": "2026-11-14 (#11)",
+    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+  },
+  "ch01-03-running-locally.md": {
+    "landed": "2026-11-14 (#11)",
+    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+  },
   "ch02-00-project-first-playbook.md": {
     "landed": "2026-11-13 (#12)",
     "verified": "CLI v6.4.0 (run in CI); data pinned at server `983e36e`"

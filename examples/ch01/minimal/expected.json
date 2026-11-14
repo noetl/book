@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "hello, playbook",
+  "playbook_name": "minimal",
+  "status": "ok",
+  "step_results": {
+    "start": "hello, playbook"
+  }
+}

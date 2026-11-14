@@ -14,6 +14,8 @@ a correction gets into the book.
 
 | Myth | Truth | Source | Checked by | Chapter |
 |---|---|---|---|---|
+| `brew tap noetl/tap && brew install noetl` installs NoETL. | With current Homebrew (7.0.11) it fails on an untrusted tap; `brew trust noetl/tap` is needed first. | book `install-paths` workflow run 43568552091 (2026-11-14, macos-latest) | CI run (weekly) | [Ch. 1.1](ch01-01-installation.md) |
+| `pip install noetl` gives the current CLI. | As of 2026-11-14 PyPI's newest is 5.3.2 (uploaded 2026-10-17); the CLI is at 6.4.0. | PyPI JSON API; `install-paths` run 43568552091 | CI run (weekly) | [Ch. 1.1](ch01-01-installation.md) |
 | The local event trail records every run of every step. | It records one `step.exit` per step, at its first run; a back-edge loop's later passes are missing (as are they from `executed_steps`). | CLI v6.4.0 (`ExecutionContext::set_step_result`, `src/playbook_runner.rs`) | run of `examples/ch02/fetch-transform-store` with `--event-buffer` | [Ch. 2](ch02-00-project-first-playbook.md) |
 | The step list goes under `steps:`. | There is no `steps:` key; `workflow` is the step list. A playbook with `steps:` fails: ``missing field `workflow` ``. | server v3.161.2 `playbook.schema.json` (required: `workflow`); CLI v6.4.0 | `examples/ch04/no-steps-key` (CI) | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | Registering a playbook validates it. | Registration checks tool kinds and inline secrets only; the validator (`start` step, unique names, `next` targets) runs when an execution starts. | server v3.161.2 `src/handlers/dsl.rs:227`, `src/services/catalog.rs` `registration_checks` | code read | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |

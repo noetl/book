@@ -1,0 +1,25 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "As of 2026-11-14, which install channel gives the oldest CLI?"
+prompt.distractors = ["APT", "Homebrew", "They all give v6.4.0."]
+answer.answer = "PyPI (5.3.2, versus 6.4.0)"
+context = """
+The book's install-paths workflow installed each channel on a clean runner.
+PyPI's newest release was uploaded 2026-10-17.
+"""
+id = "253b6900-c021-4525-955b-85eb420cef77"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What is `pip install noetl`?"
+prompt.distractors = [
+  "A Python reimplementation of the CLI.",
+  "The retired Python server and worker.",
+  "A client library that calls a NoETL server.",
+]
+answer.answer = "The Rust CLI compiled as a Python extension, with no runtime dependencies."
+context = """
+The Python platform was retired; the PyPI package wraps the Rust CLI
+(noetl/noetl README).
+"""
+id = "99e6170e-ae9d-45eb-859d-d75c71d356cd"

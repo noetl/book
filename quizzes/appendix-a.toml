@@ -1,0 +1,30 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "This appendix lists `loop.spec.max_in_flight` as a valid key. What does that tell you?"
+prompt.distractors = [
+  "That the server throttles parallel loops with it.",
+  "That it is required for parallel loops.",
+  "Nothing; it is generated, so it may be wrong.",
+]
+answer.answer = "Only that the grammar accepts it; whether anything reads it is a separate question (Ch. 6.3: nothing does)."
+context = """
+The schema says what parses. Chapters 4–6 say what each key does at run
+time, and several parsed keys (max_in_flight, spec.on_error, spec.timeout,
+tool.eval) are not applied.
+"""
+id = "40fab571-a41a-4d9d-9d03-bec476215eb2"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Why can this page be trusted to match the server it names?"
+prompt.distractors = [
+  "An author checks it by hand each release.",
+  "It is copied from the server's README.",
+  "Readers report errors in issues.",
+]
+answer.answer = "It is generated from playbook.schema.json, which the server's tests regenerate from its Rust types; CI fails if this page drifts from the pin."
+context = """
+Two drift guards chain together: the server's dsl_artifacts test (types →
+schema file) and this book's appendices job (schema file → this page).
+"""
+id = "af939589-1bc2-4b4d-a423-c813e2c6fc89"

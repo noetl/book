@@ -195,14 +195,15 @@ def appendix_a(schema, pin, links):
         props = d.get("properties")
         if props:
             dreq = set(d.get("required", []))
-            L += ["| Key | Type | Required | Default | Description |",
-                  "|---|---|---|---|---|"]
+            L += ["| Key | Type | Required | Default | Description | Taught in |",
+                  "|---|---|---|---|---|---|"]
             for k in sorted(props):
                 p = props[k]
                 dflt = p.get("default", None)
                 dflt_s = "" if dflt is None else code(json.dumps(dflt))
+                taught = link_for(links, f"{name}.{k}") or link_for(links, name)
                 L.append(f"| `{k}` | {jtype(p)} | {'yes' if k in dreq else ''} | "
-                         f"{dflt_s} | {esc(first_para(p.get('description')))} |")
+                         f"{dflt_s} | {esc(first_para(p.get('description')))} | {taught} |")
             L.append("")
         for alt in ("oneOf", "anyOf"):
             if alt in d and not props:
@@ -213,6 +214,7 @@ def appendix_a(schema, pin, links):
                 L.append("")
         if "enum" in d:
             L += ["Values: " + ", ".join(f"`{e}`" for e in d["enum"]), ""]
+    L += ["## Check your understanding", "", "{{#quiz ../quizzes/appendix-a.toml}}", ""]
     return L
 
 

@@ -36,11 +36,11 @@ Legacy target for transition (deprecated, use NextArc).
 
 Taught in [Ch. 6.1](ch06-01-next-and-routers.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `args` | object \| null |  |  | Arguments to pass to target step. |
-| `step` | string | yes |  | Target step name. |
-| `when` | string \| null |  |  | Transition guard expression (Jinja2). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `args` | object \| null |  |  | Arguments to pass to target step. | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `step` | string | yes |  | Target step name. | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `when` | string \| null |  |  | Transition guard expression (Jinja2). | [Ch. 6.2](ch06-02-when-guards.md) |
 
 ### CursorClaim
 
@@ -48,11 +48,11 @@ The claim block of a `mode: cursor` loop — a SQL tool that atomically leases a
 
 Taught in [Ch. 6.3](ch06-03-loop.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `auth` | string \| null |  |  | Credential alias for the claim tool. |
-| `claim` | string | yes |  | The claim SQL (atomic lease, e.g. `... FOR UPDATE SKIP LOCKED ... RETURNING ...`). |
-| `kind` | string |  | `"postgres"` | Tool kind running the claim (default `postgres`). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `auth` | string \| null |  |  | Credential alias for the claim tool. | [Ch. 6.3](ch06-03-loop.md) |
+| `claim` | string | yes |  | The claim SQL (atomic lease, e.g. `... FOR UPDATE SKIP LOCKED ... RETURNING ...`). | [Ch. 6.3](ch06-03-loop.md) |
+| `kind` | string |  | `"postgres"` | Tool kind running the claim (default `postgres`). | [Ch. 6.3](ch06-03-loop.md) |
 
 ### EvalCondition
 
@@ -60,15 +60,15 @@ Eval condition for per-task flow control. Evaluated after each tool execution.
 
 Taught in [Ch. 6.5](ch06-05-errors-timeouts-retries.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `attempts` | integer \| null |  |  | Retry attempts (for do: retry). |
-| `backoff` | string \| null |  |  | Retry backoff strategy: linear or exponential. |
-| `delay` | number \| null |  |  | Retry delay in seconds. |
-| `do` | string | yes |  | Action to take: continue, retry, break, jump, fail |
-| `expr` | string \| null |  |  | Jinja2 expression to evaluate. Access outcome object: outcome.status, outcome.error, outcome.result |
-| `set_vars` | object \| null |  |  | Variables to set (step-scoped). |
-| `target` | string \| null |  |  | Target step (for do: jump). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `attempts` | integer \| null |  |  | Retry attempts (for do: retry). | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `backoff` | string \| null |  |  | Retry backoff strategy: linear or exponential. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `delay` | number \| null |  |  | Retry delay in seconds. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `do` | string | yes |  | Action to take: continue, retry, break, jump, fail | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `expr` | string \| null |  |  | Jinja2 expression to evaluate. Access outcome object: outcome.status, outcome.error, outcome.result | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `set_vars` | object \| null |  |  | Variables to set (step-scoped). | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `target` | string \| null |  |  | Target step (for do: jump). | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
 
 ### EvalElse
 
@@ -76,10 +76,10 @@ Else clause for eval conditions.
 
 Taught in [Ch. 6.5](ch06-05-errors-timeouts-retries.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `do` | string | yes |  | Action to take. |
-| `set_vars` | object \| null |  |  | Variables to set. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `do` | string | yes |  | Action to take. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `set_vars` | object \| null |  |  | Variables to set. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
 
 ### EvalEntry
 
@@ -98,15 +98,15 @@ Frame sizing / leasing policy for a `mode: cursor` loop.
 
 Taught in [Ch. 6.3](ch06-03-loop.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `heartbeat_seconds` | number \| null |  |  |  |
-| `lease_seconds` | number \| null |  |  |  |
-| `max_bytes` | integer \| null |  |  |  |
-| `max_rows` | integer \| null |  |  | Max rows claimed per frame (the claim SQL's `LIMIT { { __frame_max_rows } }`). |
-| `max_seconds` | number \| null |  |  |  |
-| `process` | string \| null |  |  | `row` (default) binds `iter.<name>` to one row; `frame` is reserved. |
-| `row_concurrency` | integer \| null |  |  | Rows of one frame to dispatch concurrently (1 = sequential within frame). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `heartbeat_seconds` | number \| null |  |  |  | [Ch. 6.3](ch06-03-loop.md) |
+| `lease_seconds` | number \| null |  |  |  | [Ch. 6.3](ch06-03-loop.md) |
+| `max_bytes` | integer \| null |  |  |  | [Ch. 6.3](ch06-03-loop.md) |
+| `max_rows` | integer \| null |  |  | Max rows claimed per frame (the claim SQL's `LIMIT { { __frame_max_rows } }`). | [Ch. 6.3](ch06-03-loop.md) |
+| `max_seconds` | number \| null |  |  |  | [Ch. 6.3](ch06-03-loop.md) |
+| `process` | string \| null |  |  | `row` (default) binds `iter.<name>` to one row; `frame` is reserved. | [Ch. 6.3](ch06-03-loop.md) |
+| `row_concurrency` | integer \| null |  |  | Rows of one frame to dispatch concurrently (1 = sequential within frame). | [Ch. 6.3](ch06-03-loop.md) |
 
 ### KeychainDef
 
@@ -114,20 +114,20 @@ Keychain entry for credential/token definitions.
 
 Taught in [Ch. 4.4](ch04-04-keychain.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `allowed_regions` | array of string |  | `[]` | Secrets Wallet Phase 6c — extra regions (besides the entry's own `region`) from which resolution is allowed when `residency` is `strict` or `advisory`.  Empty by default. |
-| `auth` | string \| null |  |  | Credential alias used to authenticate to `provider` (e.g. a service account). On a provider that authenticates by ambient identity (GCP Workload Identity), this is unused. |
-| `auto_renew` | boolean |  | `false` | Auto-renew flag. |
-| `credential` | string \| null |  |  | Credential reference. |
-| `map` | map of string \| null |  |  | Output-key → secret-reference map. Each value is a secret-path template (rendered against the workload at resolution time); the resolved entry is the object `{ <key>: <secret-value>, ... }` — the "auth object as a map" shape. Absent for single-value entries. |
-| `name` | string | yes |  | Keychain entry name. |
-| `no_broker_fallback` | boolean |  | `false` | Secrets Wallet Phase 6e — opt-out for the cross-region broker fallback.  When `true`, a strict-mode residency denial bubbles up as `ResidencyViolation` even if a broker is configured for the entry's region — used for credentials whose policy says "this data physically cannot leave its home region, full stop." Default `false` (broker fallback honoured when registered). |
-| `provider` | string \| null |  |  | Secret-source backend that resolves this entry: `gcp` (Google Secret Manager), `aws`, `azure`, `vault`, `k8s`. When set, the server-side keychain resolver fetches the value(s) from this provider on a cache miss (Secrets Wallet Phase 3b). `None` means the entry is supplied by other means (pre-registered credential, minted token). |
-| `region` | string \| null |  |  | Secrets Wallet Phase 6a — home region of this secret (e.g. `us-east-1`, `europe-west4`).  When set, the resolver passes it to the chosen `crate::secrets::SecretProvider`: AWS uses it as the regional endpoint host; Azure / Vault use it for vault / cluster routing; GCP uses it as part of the resource id.  `None` falls back to the server's `NOETL_SERVER_REGION` env.  Per `agents/rules/safety.md`, the region is a routing hint, not a secret — public-safe. |
-| `residency` | Residency |  | `"none"` | Secrets Wallet Phase 6c — residency policy.  Controls whether a server in a different region than this entry's `region` is allowed to resolve it.  See `crate::secrets::residency::Residency`. |
-| `scope` | string \| null |  |  | Scope type. |
-| `token_type` | string \| null |  |  | Token type. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `allowed_regions` | array of string |  | `[]` | Secrets Wallet Phase 6c — extra regions (besides the entry's own `region`) from which resolution is allowed when `residency` is `strict` or `advisory`.  Empty by default. | [Ch. 4.4](ch04-04-keychain.md) |
+| `auth` | string \| null |  |  | Credential alias used to authenticate to `provider` (e.g. a service account). On a provider that authenticates by ambient identity (GCP Workload Identity), this is unused. | [Ch. 4.4](ch04-04-keychain.md) |
+| `auto_renew` | boolean |  | `false` | Auto-renew flag. | [Ch. 4.4](ch04-04-keychain.md) |
+| `credential` | string \| null |  |  | Credential reference. | [Ch. 4.4](ch04-04-keychain.md) |
+| `map` | map of string \| null |  |  | Output-key → secret-reference map. Each value is a secret-path template (rendered against the workload at resolution time); the resolved entry is the object `{ <key>: <secret-value>, ... }` — the "auth object as a map" shape. Absent for single-value entries. | [Ch. 4.4](ch04-04-keychain.md) |
+| `name` | string | yes |  | Keychain entry name. | [Ch. 4.4](ch04-04-keychain.md) |
+| `no_broker_fallback` | boolean |  | `false` | Secrets Wallet Phase 6e — opt-out for the cross-region broker fallback.  When `true`, a strict-mode residency denial bubbles up as `ResidencyViolation` even if a broker is configured for the entry's region — used for credentials whose policy says "this data physically cannot leave its home region, full stop." Default `false` (broker fallback honoured when registered). | [Ch. 4.4](ch04-04-keychain.md) |
+| `provider` | string \| null |  |  | Secret-source backend that resolves this entry: `gcp` (Google Secret Manager), `aws`, `azure`, `vault`, `k8s`. When set, the server-side keychain resolver fetches the value(s) from this provider on a cache miss (Secrets Wallet Phase 3b). `None` means the entry is supplied by other means (pre-registered credential, minted token). | [Ch. 4.4](ch04-04-keychain.md) |
+| `region` | string \| null |  |  | Secrets Wallet Phase 6a — home region of this secret (e.g. `us-east-1`, `europe-west4`).  When set, the resolver passes it to the chosen `crate::secrets::SecretProvider`: AWS uses it as the regional endpoint host; Azure / Vault use it for vault / cluster routing; GCP uses it as part of the resource id.  `None` falls back to the server's `NOETL_SERVER_REGION` env.  Per `agents/rules/safety.md`, the region is a routing hint, not a secret — public-safe. | [Ch. 4.4](ch04-04-keychain.md) |
+| `residency` | Residency |  | `"none"` | Secrets Wallet Phase 6c — residency policy.  Controls whether a server in a different region than this entry's `region` is allowed to resolve it.  See `crate::secrets::residency::Residency`. | [Ch. 4.4](ch04-04-keychain.md) |
+| `scope` | string \| null |  |  | Scope type. | [Ch. 4.4](ch04-04-keychain.md) |
+| `token_type` | string \| null |  |  | Token type. | [Ch. 4.4](ch04-04-keychain.md) |
 
 ### Loop
 
@@ -135,12 +135,12 @@ Step-level loop configuration (canonical format).
 
 Taught in [Ch. 6.3](ch06-03-loop.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `cursor` | CursorClaim \| null |  |  | Claim block for `mode: cursor` loops. |
-| `in` | string \| null |  |  | Jinja expression for collection to iterate over.  Required for `sequential` / `parallel`; absent for `cursor` (which claims work). |
-| `iterator` | string | yes |  | Variable name for each item. |
-| `spec` | LoopSpec \| null |  |  | Loop spec with mode (canonical format). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `cursor` | CursorClaim \| null |  |  | Claim block for `mode: cursor` loops. | [Ch. 6.3](ch06-03-loop.md) |
+| `in` | string \| null |  |  | Jinja expression for collection to iterate over.  Required for `sequential` / `parallel`; absent for `cursor` (which claims work). | [Ch. 6.3](ch06-03-loop.md) |
+| `iterator` | string | yes |  | Variable name for each item. | [Ch. 6.3](ch06-03-loop.md) |
+| `spec` | LoopSpec \| null |  |  | Loop spec with mode (canonical format). | [Ch. 6.3](ch06-03-loop.md) |
 
 ### LoopMode
 
@@ -159,11 +159,11 @@ Loop runtime specification (canonical format).
 
 Taught in [Ch. 6.3](ch06-03-loop.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `frame` | FrameSpec \| null |  |  | Frame sizing/leasing policy (cursor mode only). |
-| `max_in_flight` | integer \| null |  |  | Maximum concurrent iterations in parallel mode / frames in cursor mode. |
-| `mode` | LoopMode |  | `"sequential"` | Execution mode: sequential, parallel, or cursor. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `frame` | FrameSpec \| null |  |  | Frame sizing/leasing policy (cursor mode only). | [Ch. 6.3](ch06-03-loop.md) |
+| `max_in_flight` | integer \| null |  |  | Maximum concurrent iterations in parallel mode / frames in cursor mode. | [Ch. 6.3](ch06-03-loop.md) |
+| `mode` | LoopMode |  | `"sequential"` | Execution mode: sequential, parallel, or cursor. | [Ch. 6.3](ch06-03-loop.md) |
 
 ### Metadata
 
@@ -171,12 +171,12 @@ Playbook metadata.
 
 Taught in [Ch. 4.1](ch04-01-header.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `description` | string \| null |  |  | Description. |
-| `labels` | map of string \| null |  |  | Labels for filtering. |
-| `name` | string | yes |  | Playbook name (required). |
-| `path` | string \| null |  |  | Resource path. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `description` | string \| null |  |  | Description. | [Ch. 4.1](ch04-01-header.md) |
+| `labels` | map of string \| null |  |  | Labels for filtering. | [Ch. 4.1](ch04-01-header.md) |
+| `name` | string | yes |  | Playbook name (required). | [Ch. 4.1](ch04-01-header.md) |
+| `path` | string \| null |  |  | Resource path. | [Ch. 4.1](ch04-01-header.md) |
 
 ### NextArc
 
@@ -184,11 +184,11 @@ Arc specification for v10 next router format. Canonical format: next.arcs\[\].wh
 
 Taught in [Ch. 6.1](ch06-01-next-and-routers.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `set` | object \| null |  |  | Arc-level variable mutations to apply to execution context before dispatching the downstream step.  Mirrors Python's `set:` on arcs. Scope-prefixed keys (`ctx.x`, `iter.x`, `step.x`) are stripped to the bare key; bare keys and unknown-scope dotted keys are written as-is.  Values are Jinja2 templates rendered against the producing step's completion context before being applied. |
-| `step` | string | yes |  | Target step name. |
-| `when` | string \| null |  |  | Transition guard expression (Jinja2). Evaluated by server after step completion. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `set` | object \| null |  |  | Arc-level variable mutations to apply to execution context before dispatching the downstream step.  Mirrors Python's `set:` on arcs. Scope-prefixed keys (`ctx.x`, `iter.x`, `step.x`) are stripped to the bare key; bare keys and unknown-scope dotted keys are written as-is.  Values are Jinja2 templates rendered against the producing step's completion context before being applied. | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `step` | string | yes |  | Target step name. | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `when` | string \| null |  |  | Transition guard expression (Jinja2). Evaluated by server after step completion. | [Ch. 6.2](ch06-02-when-guards.md) |
 
 ### NextRouter
 
@@ -196,10 +196,10 @@ Canonical v10 next router format with spec and arcs.
 
 Taught in [Ch. 6.1](ch06-01-next-and-routers.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `arcs` | array of NextArc |  | `[]` | List of arcs (outgoing transitions). |
-| `spec` | NextRouterSpec \| null |  |  | Router specification (mode: exclusive/inclusive). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `arcs` | array of NextArc |  | `[]` | List of arcs (outgoing transitions). | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `spec` | NextRouterSpec \| null |  |  | Router specification (mode: exclusive/inclusive). | [Ch. 6.1](ch06-01-next-and-routers.md) |
 
 ### NextRouterSpec
 
@@ -207,9 +207,9 @@ Next router spec for v10 format.
 
 Taught in [Ch. 6.1](ch06-01-next-and-routers.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `mode` | string \| null |  |  | Routing mode: exclusive (first match) or inclusive (all matches). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `mode` | string \| null |  |  | Routing mode: exclusive (first match) or inclusive (all matches). | [Ch. 6.1](ch06-01-next-and-routers.md) |
 
 ### NextSpec
 
@@ -253,18 +253,18 @@ Workflow step with canonical format control flow.
 
 Taught in [Ch. 4.3](ch04-03-steps.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `args` | object \| null |  |  | Input arguments for this step. |
-| `desc` | string \| null |  |  | Step description. |
-| `loop` | Loop \| null |  |  | Loop configuration with spec.mode. |
-| `next` | NextSpec \| null |  |  | Next step(s) with optional when conditions for routing. |
-| `set` | object \| null |  |  | Step-level `set:` mutations — template expressions rendered against the producing step's completion context, then applied via scope-prefix stripping (`ctx.x` → `x`) exactly like arc-level `set:`.  Mirrors Python's step-level `set:` in `noetl/core/dsl/engine/executor/transitions.py`. |
-| `spec` | StepSpec \| null |  |  | Step behavior configuration. |
-| `step` | string | yes |  | Step name (unique identifier). |
-| `tool` | ToolDefinition | yes |  | Tool configuration - single tool or pipeline. |
-| `vars` | object \| null |  |  | Variables to extract from step result. |
-| `when` | string \| null |  |  | Transition enable guard (canonical format). Jinja2 expression evaluated by server before step runs. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `args` | object \| null |  |  | Input arguments for this step. | [Ch. 5.3](ch05-03-results-and-references.md) |
+| `desc` | string \| null |  |  | Step description. | [Ch. 4.3](ch04-03-steps.md) |
+| `loop` | Loop \| null |  |  | Loop configuration with spec.mode. | [Ch. 6.3](ch06-03-loop.md) |
+| `next` | NextSpec \| null |  |  | Next step(s) with optional when conditions for routing. | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `set` | object \| null |  |  | Step-level `set:` mutations — template expressions rendered against the producing step's completion context, then applied via scope-prefix stripping (`ctx.x` → `x`) exactly like arc-level `set:`.  Mirrors Python's step-level `set:` in `noetl/core/dsl/engine/executor/transitions.py`. | [Ch. 4.2](ch04-02-workload-and-templating.md) |
+| `spec` | StepSpec \| null |  |  | Step behavior configuration. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `step` | string | yes |  | Step name (unique identifier). | [Ch. 4.3](ch04-03-steps.md) |
+| `tool` | ToolDefinition | yes |  | Tool configuration - single tool or pipeline. | [Ch. 5](ch05-00-tools.md) |
+| `vars` | object \| null |  |  | Variables to extract from step result. | [Ch. 4.2](ch04-02-workload-and-templating.md) |
+| `when` | string \| null |  |  | Transition enable guard (canonical format). Jinja2 expression evaluated by server before step runs. | [Ch. 6.2](ch06-02-when-guards.md) |
 
 ### StepSpec
 
@@ -272,11 +272,11 @@ Step-level behavior configuration.
 
 Taught in [Ch. 6.5](ch06-05-errors-timeouts-retries.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `next_mode` | string \| null |  |  | Next evaluation mode: exclusive (first match) or inclusive (all matches). |
-| `on_error` | string \| null |  |  | Error handling: fail, continue, or retry. |
-| `timeout` | string \| null |  |  | Step timeout (e.g., "30s", "5m"). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `next_mode` | string \| null |  |  | Next evaluation mode: exclusive (first match) or inclusive (all matches). | [Ch. 6.1](ch06-01-next-and-routers.md) |
+| `on_error` | string \| null |  |  | Error handling: fail, continue, or retry. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `timeout` | string \| null |  |  | Step timeout (e.g., "30s", "5m"). | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
 
 ### ToolDefinition
 
@@ -307,22 +307,22 @@ Tool specification with tool.kind pattern. All execution-specific fields live un
 
 Taught in [Ch. 5.1](ch05-01-tool-kinds.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `args` | any |  |  | Default arguments / inputs passed to the tool runtime. |
-| `auth` | any |  |  | Authentication configuration. |
-| `code` | string \| null |  |  | Python code (for python tool). |
-| `command` | any |  |  | Command for the tool runtime. |
-| `connection` | string \| null |  |  | Connection string or credential reference. |
-| `eval` | array of EvalEntry \| null |  |  | Tool-level flow control (canonical format). Evaluated after tool execution. |
-| `headers` | map of string \| null |  |  | HTTP headers. |
-| `kind` | ToolKind | yes |  | Tool type. Authored, so flag-gated kinds are refused while their flag is off (`ToolKindGates`). |
-| `libs` | any |  |  | Libraries/dependencies. |
-| `method` | string \| null |  |  | HTTP method (for http tool). |
-| `output_select` | any |  |  | Output selection strategy (for result externalization). |
-| `params` | any |  |  | Tool params. A raw `Value`, for the same reason `command` above is one. |
-| `query` | string \| null |  |  | Query/SQL (for database tools). |
-| `url` | string \| null |  |  | URL (for http tool). |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `args` | any |  |  | Default arguments / inputs passed to the tool runtime. | [Ch. 5.3](ch05-03-results-and-references.md) |
+| `auth` | any |  |  | Authentication configuration. | [Ch. 4.4](ch04-04-keychain.md) |
+| `code` | string \| null |  |  | Python code (for python tool). | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `command` | any |  |  | Command for the tool runtime. | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `connection` | string \| null |  |  | Connection string or credential reference. | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `eval` | array of EvalEntry \| null |  |  | Tool-level flow control (canonical format). Evaluated after tool execution. | [Ch. 6.5](ch06-05-errors-timeouts-retries.md) |
+| `headers` | map of string \| null |  |  | HTTP headers. | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `kind` | ToolKind | yes |  | Tool type. Authored, so flag-gated kinds are refused while their flag is off (`ToolKindGates`). | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `libs` | any |  |  | Libraries/dependencies. | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `method` | string \| null |  |  | HTTP method (for http tool). | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `output_select` | any |  |  | Output selection strategy (for result externalization). | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `params` | any |  |  | Tool params. A raw `Value`, for the same reason `command` above is one. | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `query` | string \| null |  |  | Query/SQL (for database tools). | [Ch. 5.1](ch05-01-tool-kinds.md) |
+| `url` | string \| null |  |  | URL (for http tool). | [Ch. 5.1](ch05-01-tool-kinds.md) |
 
 ### WorkbookTask
 
@@ -330,8 +330,12 @@ Reusable task definition in workbook.
 
 Taught in [Ch. 4.5](ch04-05-workbook.md).
 
-| Key | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `name` | string | yes |  | Task name. |
-| `sink` | any |  |  | Optional sink configuration. |
-| `tool` | ToolSpec | yes |  | Tool configuration. |
+| Key | Type | Required | Default | Description | Taught in |
+|---|---|---|---|---|---|
+| `name` | string | yes |  | Task name. | [Ch. 4.5](ch04-05-workbook.md) |
+| `sink` | any |  |  | Optional sink configuration. | [Ch. 4.5](ch04-05-workbook.md) |
+| `tool` | ToolSpec | yes |  | Tool configuration. | [Ch. 4.5](ch04-05-workbook.md) |
+
+## Check your understanding
+
+{{#quiz ../quizzes/appendix-a.toml}}

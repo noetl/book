@@ -1,0 +1,25 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "In this table, `python` reads *Parser accepts by default: yes*. Can every worker run it?"
+prompt.distractors = [
+  "Yes: accepted means runnable everywhere.",
+  "No: python is gated behind a flag.",
+  "Only the system pool can.",
+]
+answer.answer = "Not necessarily: the parser accepting a kind says nothing about which workers can execute it."
+context = """
+The manifest says so itself: which kinds a live worker can execute is
+reported by workers and is not known to the server process.
+"""
+id = "5b44fa44-1b80-4502-81e7-617b5e0d8c51"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which kind is accepted by the local runtime but NOT by the server's parser?"
+prompt.distractors = ["`rhai`", "`http`", "`noop`"]
+answer.answer = "`provider` (also `auth` and `sink`)"
+context = """
+Those three are local-only kinds at CLI v6.4.0. The server's manifest at
+v3.161.2 does not list them.
+"""
+id = "c99407fe-1f34-4885-b77c-c8e2bfd13a4c"

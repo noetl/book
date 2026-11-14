@@ -1,0 +1,15 @@
+# Chapter 8: `kind: workbook` is refused by the local runtime (CLI 6.4.0) before any step runs.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: workbook_local
+workbook:
+  - name: t
+    tool:
+      kind: rhai
+      code: "1"
+workflow:
+  - step: start
+    tool:
+      kind: workbook
+      name: t

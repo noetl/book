@@ -245,8 +245,8 @@ def appendix_b(manifest, model, pin, links, local):
         ],
     )
     L += ["## Summary", "",
-          "| Kind | Parser accepts by default | Gate | Accepted locally | Execution (worker) | Holds a slot | Default timeout |",
-          "|---|---|---|---|---|---|---|"]
+          "| Kind | Parser accepts by default | Gate | Accepted locally | Local CI evidence | Execution (worker) | Holds a slot | Default timeout |",
+          "|---|---|---|---|---|---|---|---|"]
     for name in sorted(set(kinds) | set(prof)):
         k = kinds.get(name, {})
         p = prof.get(name, {})
@@ -262,8 +262,9 @@ def appendix_b(manifest, model, pin, links, local):
                 tos += f", {code(to['env'])}"
         else:
             tos = ""
-        loc = "yes" if name in local_set else ""
-        L.append(f"| [`{name}`](#{anchor('kind-' + name)}) | {en_s} | {gate} | {loc} | "
+        loc = "yes" if name in local_set else "no"
+        ev = esc(local.get("evidence", {}).get(name, ""))
+        L.append(f"| [`{name}`](#{anchor('kind-' + name)}) | {en_s} | {gate} | {loc} | {ev} | "
                  f"{esc(p.get('execution'))} | {esc(p.get('holds_slot'))} | {esc(tos)} |")
     extra_local = sorted(local_set - set(kinds) - set(prof))
     L.append("")
@@ -310,6 +311,14 @@ def appendix_b(manifest, model, pin, links, local):
         if name in local_set:
             L += ["- Local runtime: accepted by the parser (Chapter 8 covers what it does there)."]
         L.append("")
+    L += ["## Same kind, different fields", "",
+          "A kind both runtimes accept can still take different fields. At these "
+          "versions `shell` reads `command:` on a worker and `cmds:` locally, and "
+          "each ignores or rejects the other's field "
+          "([Ch. 5.1](ch05-01-tool-kinds.md#local-kinds-and-fields-that-differ)). "
+          "A tool list (`task_sequence`) cannot be parsed locally at all "
+          "([Ch. 5.2](ch05-02-ordered-tool-list.md)).", "",
+          "## Check your understanding", "", "{{#quiz ../quizzes/appendix-b.toml}}", ""]
     return L
 
 

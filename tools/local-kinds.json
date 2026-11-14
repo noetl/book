@@ -1,5 +1,25 @@
 {
   "cli_version": "6.4.0",
   "source": "the `Tool` enum in noetl/cli executor/src/playbook.rs plus the `noop` pass-through in src/playbook_runner.rs (`NOOP_KINDS`); any other kind is refused before the first step runs (`reject_unsupported_kinds`)",
-  "kinds": ["agent", "auth", "duckdb", "http", "mcp", "noop", "playbook", "provider", "rhai", "shell", "sink"]
+  "kinds": [
+    "agent",
+    "auth",
+    "duckdb",
+    "http",
+    "mcp",
+    "noop",
+    "playbook",
+    "provider",
+    "rhai",
+    "shell",
+    "sink"
+  ],
+  "evidence": {
+    "rhai": "examples/ch04/anatomy (runs)",
+    "shell": "examples/ch01/hello (runs, `cmds:`)",
+    "noop": "examples/ch04/step-order (runs)",
+    "python": "examples/ch08/python-refused (refused)",
+    "postgres": "examples/ch08/postgres-refused (refused)",
+    "workbook": "examples/ch08/workbook-refused (refused)"
+  }
 }

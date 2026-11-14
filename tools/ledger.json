@@ -151,6 +151,22 @@
     "landed": "2026-11-14 (#18)",
     "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
   },
+  "ch09-00-daemon.md": {
+    "landed": "2026-11-14 (#19)",
+    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+  },
+  "ch09-01-subscriptions.md": {
+    "landed": "2026-11-14 (#19)",
+    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+  },
+  "ch09-02-spool-and-trail.md": {
+    "landed": "2026-11-14 (#19)",
+    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+  },
+  "ch09-03-dispatch-to-server.md": {
+    "landed": "2026-11-14 (#19)",
+    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+  },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",
     "verified": "\u2014"

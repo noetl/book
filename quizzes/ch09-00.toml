@@ -1,0 +1,15 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What does `noetl subscribe` need running to work with a `timer` source?"
+prompt.distractors = ["A NoETL server.", "Kubernetes and KEDA.", "A Postgres database for state."]
+answer.answer = "Nothing but the CLI itself."
+context = "The daemon runs playbooks on the local runtime; with `timer` there is no external source either."
+id = "62d3f8c5-b19a-40a6-891d-190c050c2895"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A subscription's playbook uses `kind: python`. With the default `--dispatch local`, what happens?"
+prompt.distractors = ["It runs on the nearest worker.", "The daemon installs Python.", "It runs, but slowly."]
+answer.answer = "It is refused, because the daemon runs playbooks on the local runtime, which has no `python`."
+context = "Use `--dispatch server` to send each message to a cluster instead."
+id = "5f903118-2c8b-4121-9a2e-b04d6b3e5a35"

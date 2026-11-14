@@ -1,0 +1,15 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A `timer` run takes longer than `every`. What happens to the ticks it missed?"
+prompt.distractors = ["They all fire at once afterwards.", "Two runs overlap.", "The subscription stops."]
+answer.answer = "Exactly one catch-up tick fires; runs never overlap."
+context = "One tick per poll, and the loop dispatches before polling again (tools v4.6.0 `timer.rs`)."
+id = "54acfd79-eb05-4280-b6fa-7847d4d6e653"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "How does a playbook read a message field `order_id`?"
+prompt.distractors = ["`{{ message.order_id }}`", "`{{ event.order_id }}`", "`{{ input.order_id }}`"]
+answer.answer = "`{{ workload.order_id }}`"
+context = "The message envelope becomes the run's workload, with the `payload_from` fields merged to the top level."
+id = "aa90eb57-812e-4380-a892-82c64d0b1289"

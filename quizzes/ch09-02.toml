@@ -1,0 +1,11 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "The downstream is unreachable when a message arrives, and the subscription has a spool. What happens to the message?"
+prompt.distractors = [
+  "It is left on the source to be redelivered.",
+  "It is dropped and logged.",
+  "The daemon retries it in a loop until it succeeds.",
+]
+answer.answer = "It is written durably to the local spool first, and replayed once a probe confirms the downstream is back."
+context = "The batch was already acked on fetch, so the spool is the only copy (`src/subscribe/spool.rs`)."
+id = "23d98788-3f45-4d1c-8ce7-45559c070614"

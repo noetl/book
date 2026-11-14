@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**39 pages written, 95 not yet written** (of 134 in `SUMMARY.md`).
+**43 pages written, 91 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -61,10 +61,10 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[Local Tool Kinds and Their Limits](ch08-02-local-kinds.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Iterating Without `loop:` — Arcs, SQL and Rhai](ch08-03-local-iteration.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[The Local Event Buffer and `noetl push`](ch08-04-event-buffer.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| The Daemon: `noetl subscribe` and `noetl serve` | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Subscriptions: NATS, Pub/Sub, Kafka | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Spooling and the Event Trail | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Dispatching to a Server | REAL | not written | | |
+| [The Daemon: `noetl subscribe` and `noetl serve`](ch09-00-daemon.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Subscriptions: NATS, Pub/Sub, Kafka](ch09-01-subscriptions.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Spooling and the Event Trail](ch09-02-spool-and-trail.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Dispatching to a Server](ch09-03-dispatch-to-server.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | The Distributed Runtime | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Gateway: The Gatekeeper | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Server: The Orchestrate-Core Drive | REAL | not written | | |

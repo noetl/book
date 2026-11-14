@@ -1,0 +1,13 @@
+{
+  "executed_steps": [
+    "start",
+    "shout"
+  ],
+  "final_result": "HELLO, WORLD!",
+  "playbook_name": "anatomy",
+  "status": "ok",
+  "step_results": {
+    "shout": "HELLO, WORLD!",
+    "start": "hello, world"
+  }
+}

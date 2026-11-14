@@ -1,0 +1,65 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On the local runtime (CLI v6.4.0), what does `{{workload.who}}` (no spaces) render as?"
+prompt.distractors = [
+  "The value of `workload.who`.",
+  "An empty string.",
+  "An error that stops the run.",
+]
+answer.answer = "It stays exactly as written, `{{workload.who}}`."
+context = """
+The local renderer matches only `{{ name }}` with one space inside each brace,
+and leaves unknown or unmatched tokens in place. On a server, minijinja would
+render it normally. Example `ch04/templating` checks this in CI.
+"""
+id = "6b79539c-d016-494a-a1ab-cafde476ce79"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+On a server (v3.161.2), step A has `vars: {total: "{{ output.count }}"}` and
+step B uses `{{ vars.total }}`. What does B see?
+"""
+prompt.distractors = [
+  "The count from A.",
+  "An error: `vars` is a reserved name.",
+  "The string `{{ output.count }}`.",
+]
+answer.answer = "An empty string: nothing on the server reads step `vars:`, and undefined renders empty."
+context = """
+Step `vars:` is honoured only by the local runtime. On the server use
+`set: {ctx.total: "{{ output.count }}"}` and read `{{ total }}`. Undefined
+names render empty because minijinja runs in Chainable mode.
+"""
+id = "36881d60-007b-4eae-bbbe-e4a43b5d7bc6"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which mechanism carries a value from one step to the next on BOTH runtimes?"
+prompt.distractors = [
+  "Step `vars:`.",
+  "Step `set:`.",
+  "Top-level `vars:`.",
+]
+answer.answer = "None of them; each runtime honours a different one."
+context = """
+At server v3.161.2 and CLI v6.4.0, the server honours `set:` and the local
+runtime honours step `vars:`. Neither reads top-level `vars:`. Write for one
+runtime, or keep values in `workload`, which both read.
+"""
+id = "e8c6a52b-1d96-49ef-9e17-67d6e8b0d826"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A server-side template references `{{ report.summary.total }}` but step `report` has not run. What happens?"
+prompt.distractors = [
+  "The step fails with an undefined-variable error.",
+  "The template is left in the command as written.",
+  "The server waits for `report` to run.",
+]
+answer.answer = "It renders as an empty string."
+context = """
+minijinja's Chainable undefined behaviour makes a missing path render empty
+instead of failing. That is convenient, but it can hide a typo.
+"""
+id = "eda203b7-6ed1-4a47-99d2-3b3efa829b76"

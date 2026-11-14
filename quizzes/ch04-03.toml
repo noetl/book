@@ -1,0 +1,46 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "On a NoETL server, which step does an execution start with?"
+prompt.distractors = [
+  "The first step in `workflow`.",
+  "Whichever step has no other step pointing to it.",
+  "The step named in `metadata.entry`.",
+]
+answer.answer = "The step named `start`, wherever it is in the list."
+context = """
+The server's validator requires a step named `start` and the orchestrator
+begins there. The local runtime is the exception: it starts at the first step
+in the list (example `ch04/step-order`).
+"""
+id = "1662ad5e-9526-4516-a048-ed4e3f5bb41b"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "How do you mark the end of a workflow?"
+prompt.distractors = [
+  "Add a step named `end`.",
+  "Set `next: end` on the last step.",
+  "Put the final step last in the list.",
+]
+answer.answer = "You don't: a step with no `next` ends its branch."
+context = """
+There is no end step to declare. A branch ends at a step with no `next`, or
+whose `next` arcs all fail their `when` guards (Chapter 6).
+"""
+id = "8d4a6dd8-f6be-4975-a84c-b94ee5c4b484"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Which step keys does the grammar require?"
+prompt.distractors = [
+  "`step`, `tool` and `next`",
+  "`step` only",
+  "`step`, `desc` and `tool`",
+]
+answer.answer = "`step` and `tool`"
+context = """
+In the server's grammar a step needs a name and a tool. `next` is optional
+(no `next` ends the branch) and `desc` is documentation. The local runtime
+also tolerates a step with no `tool`, but the server does not.
+"""
+id = "375b3234-30f8-4942-bdb4-3201f85d43c5"

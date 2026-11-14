@@ -1,0 +1,13 @@
+# Chapter 4.2: how the LOCAL runtime (CLI 6.4.0) renders templates.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: templating_local
+workload:
+  who: book
+workflow:
+  - step: start
+    tool:
+      kind: shell
+      cmds:
+        - echo "a={{ workload.who }} b={{workload.who}} c={{ workload.who | upper }} d=[{{ workload.missing }}]"

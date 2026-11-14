@@ -1,0 +1,27 @@
+# Chapter 4: every part of a playbook in one file.
+apiVersion: noetl.io/v2          # required; the only accepted value
+kind: Playbook                   # required; the only accepted value
+metadata:                        # required
+  name: anatomy                  # required
+  path: book/ch04/anatomy        # where it lives in the catalog once registered
+  description: The parts of a playbook, smallest useful form.
+  labels:
+    chapter: "4"
+workload:                        # inputs: read as {{ workload.<key> }}
+  greeting: hello
+  who: world
+workflow:                        # required: the steps, in a list
+  - step: start                  # the server starts here, so name the first step `start`
+    desc: Build a greeting
+    tool:
+      kind: rhai
+      code: |
+        "{{ workload.greeting }}, {{ workload.who }}"
+    next:
+      - step: shout
+  - step: shout
+    desc: Upper-case the greeting
+    tool:
+      kind: rhai
+      code: |
+        "{{ workload.greeting }}, {{ workload.who }}!".to_upper()

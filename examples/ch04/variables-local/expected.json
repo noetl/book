@@ -1,0 +1,13 @@
+{
+  "executed_steps": [
+    "start",
+    "report"
+  ],
+  "final_result": "workload=book step_vars=42 top_vars={{ vars.colour }} set={{ flag }} ctx_set={{ ctx.flag }}",
+  "playbook_name": "variables_local",
+  "status": "ok",
+  "step_results": {
+    "report": "workload=book step_vars=42 top_vars={{ vars.colour }} set={{ flag }} ctx_set={{ ctx.flag }}",
+    "start": "42"
+  }
+}

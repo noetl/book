@@ -1,0 +1,11 @@
+{
+  "executed_steps": [
+    "start"
+  ],
+  "final_result": "a=book b={{workload.who}} c=BOOK d=[{{ workload.missing }}]",
+  "playbook_name": "templating_local",
+  "status": "ok",
+  "step_results": {
+    "start": "a=book b={{workload.who}} c=BOOK d=[{{ workload.missing }}]"
+  }
+}

@@ -1,0 +1,33 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A workbook entry has `args: {currency: USD, limit: 10}` and the step that uses
+it has `args: {currency: EUR}`. What `args` does the tool receive?
+"""
+prompt.distractors = [
+  "`{currency: USD, limit: 10}`; the workbook wins.",
+  "`{currency: EUR}`; the step replaces them all.",
+  "An error: the same key is defined twice.",
+]
+answer.answer = "`{currency: EUR, limit: 10}`"
+context = """
+The server merges the step's args over the entry's, key by key, and the step
+wins (`resolve_workbook_references`). It replaces them wholesale only if one
+side is not a map.
+"""
+id = "876e8d01-c57b-4f4a-bc35-5148aed21561"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "After resolution, what does the worker see for a `kind: workbook` step?"
+prompt.distractors = [
+  "A `workbook` command that it looks up by name.",
+  "A reference to the playbook's workbook section.",
+  "Two commands: the workbook entry, then the step.",
+]
+answer.answer = "An ordinary step with the workbook entry's tool kind, for example `http`."
+context = """
+The server rewrites the step's tool in place while it parses the playbook,
+so nothing downstream knows a workbook was involved.
+"""
+id = "2900f690-40e0-4a7d-948f-7910cd114381"

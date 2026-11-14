@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**43 pages written, 91 not yet written** (of 134 in `SUMMARY.md`).
+**44 pages written, 90 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -71,7 +71,7 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;The Command Bus and Worker Pools | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Slots, Pools and KEDA Autoscaling | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Following One Execution End to End | REAL | not written | | |
-| Choosing a Runtime | REAL | not written | | |
+| [Choosing a Runtime](ch11-00-choosing-a-runtime.md) | **REAL** | written | Ch. 3–9 (as cited per cell); resource model @ server v3.161.2 | 2026-11-14 (#20) |
 | Project: Taking Your Playbook Distributed | REAL | not written | | |
 | EHDB: The Event Horizon Database | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Why NATS Was Replaced | REAL | not written | | |

@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**27 pages written, 107 not yet written** (of 134 in `SUMMARY.md`).
+**31 pages written, 103 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -27,10 +27,10 @@ this table is stale.
 | Foreword | — | not written | | |
 | Introduction | REAL | not written | | |
 | [How to Read This Book: Status Badges, Quizzes and Traces](ch00-01-how-to-read.md) | **REAL** | written | resource model `labels`, server v3.161.2 | 2026-11-13 (#65) |
-| Getting Started | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Installation | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Hello, Playbook | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Running It Locally with the CLI | REAL | not written | | |
+| [Getting Started](ch01-00-getting-started.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Installation](ch01-01-installation.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Hello, Playbook](ch01-02-hello-playbook.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Running It Locally with the CLI](ch01-03-running-locally.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
 | [Project: Fetch, Transform, Store — Your First Real Playbook](ch02-00-project-first-playbook.md) | **REAL** | written | CLI v6.4.0 (run in CI); data pinned at server `983e36e` | 2026-11-13 (#12) |
 | What NoETL Is | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Declarative Orchestration | REAL | not written | | |

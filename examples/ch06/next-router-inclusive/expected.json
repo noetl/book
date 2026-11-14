@@ -1,0 +1,15 @@
+{
+  "executed_steps": [
+    "start",
+    "a",
+    "b"
+  ],
+  "final_result": "b",
+  "playbook_name": "next_router_local",
+  "status": "ok",
+  "step_results": {
+    "a": "a",
+    "b": "b",
+    "start": "start"
+  }
+}

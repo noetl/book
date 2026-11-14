@@ -1,0 +1,38 @@
+# Chapter 6.1: the four forms of `next`, on a server. Each form is one step.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: next_forms
+workload:
+  tier: gold
+workflow:
+  - step: start
+    tool: { kind: noop }
+    next: by_name                      # 1. one step name: always taken
+  - step: by_name
+    tool: { kind: noop }
+    next: [fan_a, fan_b]               # 2. a list of names: ALL taken (fan-out)
+  - step: fan_a
+    tool: { kind: noop }
+    next:                              # 3. a list of {step, when, args}: exclusive by default
+      - step: gold_path
+        when: "{{ workload.tier == 'gold' }}"
+        args: { reason: gold }
+      - step: other_path
+  - step: fan_b
+    tool: { kind: noop }
+    next:                              # 4. a router: spec.mode + arcs
+      spec: { mode: inclusive }        #    inclusive = every matching arc
+      arcs:
+        - step: audit
+          when: "{{ workload.tier in ['gold', 'silver'] }}"
+        - step: notify
+          set: { ctx.channel: email }  #    arc-level set: mutations for the target
+  - step: gold_path
+    tool: { kind: noop }
+  - step: other_path
+    tool: { kind: noop }
+  - step: audit
+    tool: { kind: noop }
+  - step: notify
+    tool: { kind: noop }

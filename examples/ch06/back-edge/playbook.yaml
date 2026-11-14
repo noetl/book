@@ -1,0 +1,32 @@
+# Chapter 6.4: a back-edge loop on a server. `fetch_page` runs once per page;
+# the arc back to it is guarded by the page counter. Nothing else bounds it.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: back_edge
+workload:
+  pages: 3
+workflow:
+  - step: start
+    tool: { kind: noop }
+    set:
+      ctx.page: 0                     # becomes {{ page }}
+    next:
+      - step: fetch_page
+  - step: fetch_page
+    tool:
+      kind: python
+      args:
+        page: "{{ page }}"
+      code: |
+        result = {"page": int(args["page"]) + 1}
+    set:
+      ctx.page: "{{ output.page }}"   # persisted as a ctx.updated event
+    next:
+      spec: { mode: exclusive }
+      arcs:
+        - step: fetch_page            # the back-edge: an arc to a step that already ran
+          when: "{{ page | int < workload.pages | int }}"
+        - step: done
+  - step: done
+    tool: { kind: noop }

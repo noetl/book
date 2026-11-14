@@ -26,3 +26,9 @@ glossary is [#50](https://github.com/noetl/book/issues/50).
 | `task_sequence` | The single command a `tool:` list becomes; runs its sub-tasks in order on one worker | [5.2](ch05-02-ordered-tool-list.md) |
 | label | A sub-task's name in a tool list; later items read its result as `{{ <label>.field }}` | [5.2](ch05-02-ordered-tool-list.md) |
 | result store | Where a step result above 100 KiB is spilled; the event then carries a reference | [5.3](ch05-03-results-and-references.md) |
+| arc | One outgoing transition in `next`, optionally guarded by `when` | [6.1](ch06-01-next-and-routers.md) |
+| exclusive / inclusive | Routing modes: first matching arc vs every matching arc (default exclusive) | [6.1](ch06-01-next-and-routers.md) |
+| orchestration pass | The server's evaluation of arcs, triggered by a completion event | [Ch. 6](ch06-00-control-flow.md) |
+| back-edge | An arc to a step that has already run; forms a loop bounded only by its `when` | [6.4](ch06-04-back-edges.md) |
+| `step.skipped` | The event recorded for a target not taken, or a step whose guard was false | [6.2](ch06-02-when-guards.md) |
+| policy rules | `spec.policy.rules` on a tool-list sub-task: continue, retry, jump, break, fail | [6.5](ch06-05-errors-timeouts-retries.md) |

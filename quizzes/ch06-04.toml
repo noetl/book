@@ -1,0 +1,42 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+Will this loop terminate on a server?
+
+```yaml
+- step: poll
+  tool: { kind: http, method: GET, url: "https://api.example.com/job" }
+  next:
+    arcs:
+      - step: poll
+        when: "{{ output.state != 'done' }}"
+      - step: finish
+```
+"""
+prompt.distractors = [
+  "Yes: the server caps back-edges at 1,000 re-runs.",
+  "Yes: `NOETL_RECONCILE_MAX_NOOPS` stops it after ~30 minutes.",
+  "No: the validator rejects self-loops.",
+]
+answer.answer = "Only if the job eventually reports `done`; nothing else bounds it."
+context = """
+There is no server cap on back-edge re-runs. The reconcile no-op limit stops
+re-driving a STUCK execution, but a loop that keeps polling is making
+progress. Add a counter (via `set:`) to the guard to bound it.
+"""
+id = "ab0a1ccf-6245-43ec-8077-0fb458d2d46d"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A back-edge re-runs `fetch_page` five times. What is `{{ fetch_page }}` afterwards?"
+prompt.distractors = [
+  "A list of all five results.",
+  "The first result; later runs are ignored.",
+  "Undefined; re-run steps lose their result.",
+]
+answer.answer = "The fifth (latest) result: state is keyed by step name and each completion overwrites it."
+context = """
+Unlike `loop:`, a back-edge does not aggregate. Collect results yourself with
+`set:` or in a data store.
+"""
+id = "02319573-79b9-4770-9e55-7470a819e24c"

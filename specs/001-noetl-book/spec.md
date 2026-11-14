@@ -346,8 +346,8 @@ Files: `src/ch06-*.md`
 
 Acceptance criteria:
 
-1. The four forms of `next` (name; list; list of `{step, when, args}`; router `{spec:{mode: exclusive|inclusive}, arcs:[...]}`) each with a runnable example.
-2. `when` guards (Jinja2), evaluated after the step completes.
+1. The four forms of `next` (name; list; list of `{step, when, args}`; router `{spec:{mode: exclusive|inclusive}, arcs:[...]}`) each with an example: a distributed example for all four (schema-validated), and local CI examples for the forms the local runtime implements (at CLI v6.4.0 it ignores the bare-name forms, which is itself asserted).
+2. `when` guards (Jinja2): arc guards are evaluated after the source step completes; a step's own `when` is evaluated just before it is dispatched.
 3. Both loop forms: `loop: {in, iterator, spec:{mode: sequential|parallel|cursor, max_in_flight}}` and back-edges; no server cap on iterations or back-edge repeats — the playbook guard is the only bound.
 4. 6.5 is badged PARTIAL and states: `retry` is parsed but not applied; `loop.spec.max_in_flight` is parsed but not read; most kinds have no default timeout — each verified at a named commit.
 5. Notes that local mode ignores `loop:` (forward link to Ch. 8).

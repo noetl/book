@@ -1,0 +1,34 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+Step `check` has a router with two arcs, both guarded by `when`, and both are
+false. Nothing else is running. What happens to the execution?
+"""
+prompt.distractors = [
+  "It completes, because `check` was the last step to run.",
+  "It fails with 'no matching arc'.",
+  "The server retries `check`.",
+]
+answer.answer = "It stalls: no successor is dispatched and no terminal event is written."
+context = """
+Completion needs `end`, or a step with NO `next`, to have completed. `check`
+has a `next`, so it is not an ending. The non-convergence sweep that would
+fail it is off by default (and waits 24 h when on). Add a default arc.
+"""
+id = "8a9c20d0-90d1-4fd4-86e8-5369012202c6"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "What triggers the server to evaluate a step's `next` arcs?"
+prompt.distractors = [
+  "A timer that runs every second.",
+  "The worker, which evaluates them before reporting.",
+  "Registration of the playbook.",
+]
+answer.answer = "A completion event, such as `command.completed`, starting an orchestration pass."
+context = """
+The orchestrator is event-driven. Each completion triggers a pass that
+evaluates arcs and dispatches targets; steps dispatched in the same pass run
+concurrently.
+"""
+id = "268bf5aa-046f-4939-8be5-f51c82dd38c5"

@@ -1,0 +1,28 @@
+# Chapter 6.2 (local, CLI 6.4.0): a false step `when` ends the branch locally. On a server, `a` is skipped and its `next` (b) is still followed.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: when_skip_local
+workload:
+  go: "false"
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next:
+      - step: a
+  - step: a
+    tool:
+      kind: rhai
+      code: |
+        "a"
+    when: "{{ workload.go }}"
+    next:
+      - step: b
+  - step: b
+    tool:
+      kind: rhai
+      code: |
+        "b"

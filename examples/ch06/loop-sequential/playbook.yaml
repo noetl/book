@@ -1,0 +1,25 @@
+# Chapter 6.3: a sequential loop (the default mode). One item at a time:
+# the next is dispatched only when nothing is in flight.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: loop_sequential
+workload:
+  cities: [Lisbon, Oslo, Quito]
+workflow:
+  - step: start
+    loop:
+      in: "{{ workload.cities }}"
+      iterator: city
+      spec:
+        mode: sequential
+    tool:
+      kind: python
+      args:
+        city: "{{ iter.city }}"       # also {{ city }}, {{ iter._index }}, {{ iter._total }}
+      code: |
+        result = {"city": args["city"], "len": len(args["city"])}
+    next:
+      - step: summarize
+  - step: summarize                   # here {{ start }} is the loop's result: a list
+    tool: { kind: noop }

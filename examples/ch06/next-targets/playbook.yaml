@@ -1,0 +1,24 @@
+# Chapter 6.1 (local, CLI 6.4.0): a list of {step} targets is exclusive: only the first matching one runs.
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: next_targets_local
+workflow:
+  - step: start
+    tool:
+      kind: rhai
+      code: |
+        "start"
+    next:
+      - step: a
+      - step: b
+  - step: a
+    tool:
+      kind: rhai
+      code: |
+        "a"
+  - step: b
+    tool:
+      kind: rhai
+      code: |
+        "b"

@@ -32,3 +32,8 @@ glossary is [#50](https://github.com/noetl/book/issues/50).
 | back-edge | An arc to a step that has already run; forms a loop bounded only by its `when` | [6.4](ch06-04-back-edges.md) |
 | `step.skipped` | The event recorded for a target not taken, or a step whose guard was false | [6.2](ch06-02-when-guards.md) |
 | policy rules | `spec.policy.rules` on a tool-list sub-task: continue, retry, jump, break, fail | [6.5](ch06-05-errors-timeouts-retries.md) |
+| event log | An execution's append-only record of everything that happened; state is folded from it | [3.2](ch03-02-event-sourcing.md) |
+| orchestrator | `orchestrate-core`'s engine: playbook + events in, next commands out; runs as WASM on a worker by default | [3.1](ch03-01-declarative-orchestration.md) |
+| blueprint | What a playbook is: control flow and policy, with no resident state between invocations | [3.3](ch03-03-blueprints-and-workers.md) |
+| internal catalog | NoETL's own objects (playbooks, …) behind `/api/catalog/*` | [3.4](ch03-04-two-catalogs.md) |
+| business data | Domain data in your own stores, touched only by playbook steps | [3.4](ch03-04-two-catalogs.md) |

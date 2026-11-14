@@ -1,0 +1,30 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A playbook author pasted a token into a registered playbook by mistake, then fixed the playbook. Is the token gone?"
+prompt.distractors = [
+  "Yes: registering a new version replaces the old one.",
+  "Yes: the server purges old events after 30 days.",
+  "Only if an operator edits the event.",
+]
+answer.answer = "No: anything that reached the event log stays there; the log is append-only and never purged."
+context = """
+That is exactly why registration refuses recognisable secret material up
+front (src/services/secret_material.rs): it is the last point where the
+answer can still be "no".
+"""
+id = "252a407c-436b-4089-a4ad-d2526604f43c"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A step computes a value but neither returns it nor `set`s it. Can a later step use it?"
+prompt.distractors = [
+  "Yes: the worker keeps it for the execution.",
+  "Yes: the orchestrator caches step locals.",
+  "Only on the same worker.",
+]
+answer.answer = "No: only what is in the event log survives between steps."
+context = """
+State is a fold over events. A step's result and its `set:` values are
+events; anything else ends with the command.
+"""
+id = "3a2aa56c-eadc-4df8-add8-1c1947161834"

@@ -317,9 +317,11 @@ closes the book because it explains how the book itself stays honest.
 
 ## What to write first
 
-1. **P0**: CI (`mdbook build` + linkcheck + example runs); seed the
-   spec (`specs/001-noetl-book/`, see `CONTRIBUTING.md`); bootstrap
-   labels and one issue per chapter.
+1. **P0**: ✅ spec-kit, the constitution, the spec
+   (`specs/001-noetl-book/`), labels and one issue per chapter/task
+   (#3–#51, see `specs/001-noetl-book/tasks.md`). Still to do: CI
+   (`mdbook build` + linkcheck, #3), the example runner (#4), and
+   Appendix H + the Style Guide additions (#46).
 2. **P1**: Ch. 4 and Ch. 5 with quizzes (this enables `mdbook-quiz`),
    then Ch. 6 and Ch. 3, plus Appendices A, B and F.
 3. **P2**: Ch. 1 and Ch. 2 with tested examples, then Ch. 8, 7, 9 and

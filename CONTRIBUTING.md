@@ -28,10 +28,11 @@ and their dates), and Roadmap and status summaries mirrored from
 copy of a decision that changes the spec. Anything a reader will see,
 or that an agent must obey, goes in the repo through a PR.
 
-> ⚠ Bootstrap status (2026-11-13): the spec, the labels and the
-> per-chapter issues **do not exist yet**. Creating them is Phase 0
-> (see ROADMAP "What to write first"). Until then, work from
-> BOOK-PLAN §5 and ROADMAP.
+> Bootstrap status (2026-11-13): spec-kit is initialised for Claude
+> Code (`.claude/skills/speckit-*`). The constitution, the spec
+> (`specs/001-noetl-book/`), the labels and one issue per chapter or
+> task (#3–#51) exist. **Start with an `agent-ok` issue in phase P0 or
+> P1**; see `specs/001-noetl-book/tasks.md`.
 
 ## 2. The spec (spec-kit)
 
@@ -67,11 +68,20 @@ in their own PR.
 specify init --here --force --integration claude
 ```
 
-If the repo is already initialised and you use a different agent, add
-your agent's files without re-initialising:
+The repo is already initialised for Claude Code. To add your own
+agent's files without re-initialising, install its integration. Some
+integrations (Copilot among them) are not declared multi-install safe
+alongside Claude and need `--force`. Review the diff before committing.
 
 ```bash
-specify integration install copilot
+specify integration install copilot --force
+```
+
+Point spec-kit at the book spec locally. `.specify/feature.json` is
+git-ignored, per-checkout state:
+
+```bash
+printf '{\n  "feature_directory": "specs/001-noetl-book"\n}\n' > .specify/feature.json
 ```
 
 The process steps are **agent commands**, not terminal commands. The

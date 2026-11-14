@@ -44,7 +44,9 @@ src/SUMMARY.md     the table of contents — the contract for the book
 src/*.md           chapters (chNN-MM-slug.md), appendices
 docs/BOOK-PLAN.md  the plan
 docs/ROADMAP.md    chapter-by-chapter roadmap
-specs/             spec-kit spec (Phase 0, not created yet)
+specs/             spec-kit spec (specs/001-noetl-book/: spec, plan, tasks)
+.specify/          spec-kit scaffold + constitution (.specify/memory/constitution.md)
+.claude/skills/    spec-kit skills for Claude Code (/speckit-*)
 CONTRIBUTING.md    workflow + AI-agent rules
 AGENTS.md          short rules auto-read by coding agents
 examples/          example playbooks, tested in CI

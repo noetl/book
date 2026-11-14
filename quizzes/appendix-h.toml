@@ -1,0 +1,53 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+You are writing a chapter and remember, from an older wiki page, that a
+feature is on in production. What makes that claim REAL in this book?
+"""
+prompt.distractors = [
+  "The older wiki page says so; cite it.",
+  "Another chapter of this book already says so.",
+  "An AI agent confirmed it in a chat.",
+]
+answer.answer = "Checking it against the code or the running system at a named release, and saying where in the PR."
+context = """
+The constitution's "Verify Before REAL" rule: memory, older docs and other
+chapters are not verification. If you cannot check it, label it lower or
+flag it `needs-verification`.
+"""
+id = "b740940f-80dd-4914-a025-5f05de03b328"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """
+A feature is merged and released behind a flag that defaults to off.
+Which callout marks it inside an otherwise REAL page?
+"""
+prompt.distractors = [
+  "`not-yet`, because nobody can use it by default.",
+  "`myth`, because people think it is on.",
+  "No callout; merged code is REAL.",
+]
+answer.answer = "`partial`, naming the flag and its default."
+context = """
+`not-yet` is only for TARGET subjects, which are designed but not built.
+Released code behind an off flag is PARTIAL. `myth` is for correcting a
+false belief, and needs the fact plus its source.
+"""
+id = "b9c58a02-cf88-42bf-85df-226f88473e58"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Where does a playbook shown in a chapter live?"
+prompt.distractors = [
+  "Inline in the chapter's Markdown, in a code block.",
+  "In the NoETL catalog, referenced by path.",
+  "In the chapter's quiz file.",
+]
+answer.answer = "In `examples/<chapter>/<name>/playbook.yaml`, included into the page and run by CI."
+context = """
+An example that only exists in prose drifts silently from the runtime. A
+file under `examples/` is run against the pinned CLI on every PR and diffed
+against its expected output, so a change in behaviour turns CI red.
+"""
+id = "ea335ab5-da34-4a24-8013-3ecf534412c7"

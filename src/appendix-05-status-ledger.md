@@ -5,6 +5,15 @@
 > Not yet written. Goals, sources and the quiz plan for this section are in
 > [`docs/BOOK-PLAN.md`](https://github.com/noetl/book/blob/main/docs/BOOK-PLAN.md).
 
+## Ledger
+
+One row per written page: its badge, and the release or commit its
+claims were checked against. Rows are added as chapters land.
+
+| Page | Badge | Verified against | Landed |
+|---|---|---|---|
+| [Appendix H: Contributing](appendix-08-contributing.md) | REAL | book CI at `main` (mdbook 0.4.40, quiz 0.3.12, admonish 1.20.0, CLI 6.4.0) | 2026-11-13 |
+
 ## Versions the examples are tested against
 
 Every example in this book is run in CI by `tools/run-examples.sh`

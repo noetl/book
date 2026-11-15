@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Who builds the commands for an execution's first step?"""
+prompt.distractors = [
+  "A drive pass on the system pool.",
+  "The first worker to claim the execution.",
+  "The gateway, from the request body.",
+]
+answer.answer = "The server itself, in process, inside `POST /api/execute`."
+context = """`generate_initial_commands` uses orchestrate-core's `CommandBuilder` in the server. Only later passes are issued as `__orchestrate__` commands."""
+id = "d35fd5e4-6bc2-4e97-976c-aa325f2b6309"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """You list all stored events of a finished one-step execution. How many belong to the `__orchestrate__` drive?"""
+prompt.distractors = [
+  "One `command.issued` per pass.",
+  "Four: claimed, started, call.done, completed.",
+  "One `call.done` carrying the drive's result.",
+]
+answer.answer = "None: the meta-command writes nothing to the event log."
+context = """The drive's result is applied from the in-memory `call.done`; its lifecycle events are not stored (`events.rs:676-711`), and its delivery record is a `noetl.command` row."""
+id = "df693f31-a045-4df9-b5b5-174aea689b6d"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What is the order of these stored events for a one-step execution?"""
+prompt.distractors = [
+  "`playbook_started`, `step.enter`, `command.issued`, `command.claimed`, `call.done`, `step.exit`, `playbook.completed`",
+  "`command.issued`, `playbook_started`, `command.started`, `command.claimed`, `call.done`, `command.completed`, `playbook.completed`",
+  "`playbook_started`, `command.claimed`, `command.issued`, `command.started`, `command.completed`, `call.done`, `playbook.completed`",
+]
+answer.answer = "`playbook_started`, `command.issued`, `command.claimed`, `command.started`, `call.done`, `command.completed`, `playbook.completed`"
+context = """There is no `step.enter` for a start step that does not loop, and no `step.exit` unless a case exits. `command.claimed` is written by the server's claim handler."""
+id = "530346c9-9c4e-4785-91f2-dd85c6cb792f"

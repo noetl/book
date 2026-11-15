@@ -14,11 +14,16 @@ not written yet have not added their terms.
 | blueprint | What a playbook is: control flow and policy, with no resident state between invocations | [3.3](ch03-03-blueprints-and-workers.md) |
 | business data | Domain data in your own stores, touched only by playbook steps | [3.4](ch03-04-two-catalogs.md) |
 | child execution | The separate execution a `kind: playbook` step starts, linked by `parent_execution_id` | [7.1](ch07-01-child-executions.md) |
+| claim | A worker taking a command: the bus hands it out, and the server's claim endpoint (`command.claimed`) makes it exclusive | [10.3](ch10-03-bus-and-pools.md) |
+| `cmdbus-writer` | The worker binary in host mode, run as a StatefulSet: it hosts the EHDB command bus (and usually the event bus) | [10.3](ch10-03-bus-and-pools.md) |
+| command bus | The durable log of commands per pool and shard, with a claim coordinator; EHDB, not NATS | [10.3](ch10-03-bus-and-pools.md) |
 | context | A named CLI configuration (`noetl context`) that can pin a runtime and server | [Ch. 8](ch08-00-local-runtime.md) |
+| drive pass | One run of the orchestrator: playbook + folded state in, next commands out; by default a `__orchestrate__` command on the system pool | [10.2](ch10-02-server.md) |
 | event buffer | A local run's recorded events, `$NOETL_LOCAL_DIR/<id>/events.feather`; shipped with `noetl push` | [8.4](ch08-04-event-buffer.md) |
 | event log | An execution's append-only record of everything that happened; state is folded from it | [3.2](ch03-02-event-sourcing.md) |
 | exclusive / inclusive | Routing modes: first matching arc vs every matching arc (default exclusive) | [6.1](ch06-01-next-and-routers.md) |
 | gated kind | A kind refused unless a server flag turns it on (`agent`, `mcp`) | [5.1](ch05-01-tool-kinds.md) |
+| gateway | The client-facing gatekeeper: authenticates, authorizes, proxies to the server and streams results back | [10.1](ch10-01-gateway.md) |
 | hop | One `kind: playbook` call; costs a whole child execution | [Ch. 7](ch07-02-what-a-hop-costs.md) |
 | internal catalog | NoETL's own objects (playbooks, …) behind `/api/catalog/*` | [3.4](ch03-04-two-catalogs.md) |
 | keychain alias | The name a playbook uses for a credential; resolved by the worker at run time | [4.4](ch04-04-keychain.md) |
@@ -28,6 +33,7 @@ not written yet have not added their terms.
 | orchestrator | `orchestrate-core`'s engine: playbook + events in, next commands out; runs as WASM on a worker by default | [3.1](ch03-01-declarative-orchestration.md) |
 | playbook | A YAML document (`kind: Playbook`, `apiVersion: noetl.io/v2`) describing a workflow of steps | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | policy rules | `spec.policy.rules` on a tool-list sub-task: continue, retry, jump, break, fail | [6.5](ch06-05-errors-timeouts-retries.md) |
+| pool | A set of workers claiming one subject family, `commands.<pool>.>`; chosen per execution (`shared`, `system`, `subscription`) | [10.3](ch10-03-bus-and-pools.md) |
 | result store | Where a step result above 100 KiB is spilled; the event then carries a reference | [5.3](ch05-03-results-and-references.md) |
 | `set:` | Server-side step mutations, persisted as a `ctx.updated` event | [4.2](ch04-02-workload-and-templating.md) |
 | slot | A worker's unit of concurrency; a command holds one from claim until its tool returns | [Ch. 5](ch05-00-tools.md) |

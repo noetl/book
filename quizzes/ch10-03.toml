@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A playbook registered at `reports/daily` is executed with no pool override. Which pool runs its steps?"""
+prompt.distractors = [
+  "`system`",
+  "`reports`",
+  "Each step's own `pool:` field decides.",
+]
+answer.answer = "`shared`"
+context = """Pool: the request override, else `system/` or `subscription/` from the path, else `shared`. There is no step-level pool field."""
+id = "8bf0a9d9-9657-4594-a76a-ab50828e89fb"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A worker is killed in the middle of a step's tool, with default flags. What happens to the execution?"""
+prompt.distractors = [
+  "The bus redelivers the command after 30 s and another worker runs it.",
+  "The server writes `command.failed` and the playbook's retry rule runs.",
+  "The execution is marked failed within 3 minutes.",
+]
+answer.answer = "It stays RUNNING: the bus was acked at claim, so nothing redelivers the command, and both sweeps are off."
+context = """The 30 s ack wait only covers a command that was never acked. The orphan sweep (180 s grace) would fail it, but it is off by default."""
+id = "bbb58bf4-2214-45a4-b9bf-f9f78a23553e"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Two workers race for the same command. What guarantees only one runs it?"""
+prompt.distractors = [
+  "The bus's 30-second ack lease.",
+  "Kubernetes, which schedules one pod per command.",
+  "The worker's slot semaphore.",
+]
+answer.answer = "The server's claim endpoint, which takes a Postgres advisory lock on the command id."
+context = """The bus hands out each notification once, but the exactly-once gate is `POST /api/commands/{id}/claim`."""
+id = "7507cad9-9b49-4a8c-ab6c-b92b23683f00"

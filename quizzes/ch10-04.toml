@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """On the 2026-11-11 cluster, the user pool is at 5 replicas with default slots. How many of its commands can run at once?"""
+prompt.distractors = [
+  "5",
+  "4",
+  "80",
+]
+answer.answer = "20"
+context = """Capacity = replicas × slots = 5 × 4. 80 is the capacity at the maximum of 20 replicas."""
+id = "6e21e7ff-45ea-47c9-94d0-c2a16e880efc"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What metric does the user pool's ScaledObject scale on?"""
+prompt.distractors = [
+  "NATS JetStream consumer lag on `noetl.commands.shared.>`.",
+  "Worker CPU utilisation.",
+  "The server's count of RUNNING executions.",
+]
+answer.answer = "`ehdb_feed_subject_lag` for `commands.shared.shard.0`, served by the `cmdbus-writer`."
+context = """NATS is gone. The writer samples the per-subject lag every 2 s."""
+id = "5375f62e-8844-4454-a618-bf15a05aa907"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The ops repository declares a system-pool ScaledObject (3-10). How many system-pool replicas ran on 2026-11-11?"""
+prompt.distractors = [
+  "Between 3 and 10, depending on lag.",
+  "Three, the declared minimum.",
+  "Twenty, the user pool's maximum.",
+]
+answer.answer = "Two, fixed (1 + 1): that ScaledObject is not on the cluster."
+context = """The resource model's DEPLOYED read says the system pool has no autoscaler. A manifest in a repository is intent, not a reading."""
+id = "93d29b27-5a12-4a26-968f-0e6bc5bcac9f"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """90 commands arrive in 1.2 s at a user pool with 8 slots. The measured `issued → claimed` median was about 2.1 s. What does that number mostly measure?"""
+prompt.distractors = [
+  "The command bus being slow.",
+  "Network latency between the writer and workers.",
+  "KEDA's polling interval.",
+]
+answer.answer = "Commands queueing on the bus for a free slot."
+context = """Unsaturated, the same path measured p50 138.5 ms. The difference is waiting for slots."""
+id = "368b47d9-ccbb-4003-87c6-983db912062b"

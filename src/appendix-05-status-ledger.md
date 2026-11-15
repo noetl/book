@@ -113,13 +113,13 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;`spawn`, `join`, `select` | TARGET | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Cancellation and Slots | TARGET | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Flags and the Staged Rollout | TARGET | not written | | |
-| [The Resource Model](ch21-00-resource-model.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Labels: MEASURED, DEPLOYED, DEFAULT, GUIDANCE, TARGET](ch21-01-labels.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Per-Step-Kind Costs](ch21-02-step-kind-costs.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Limits: WASM Fuel, Agent Caps, Context Sizes](ch21-03-limits.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[The Slot and Pool Model](ch21-04-slot-model.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Estimating a Playbook Before You Run It](ch21-05-estimating.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[What Is Not Yet Measured](ch21-06-not-yet-measured.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 |
+| [The Resource Model](ch21-00-resource-model.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Labels: MEASURED, DEPLOYED, DEFAULT, GUIDANCE, TARGET](ch21-01-labels.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Per-Step-Kind Costs](ch21-02-step-kind-costs.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Limits: WASM Fuel, Agent Caps, Context Sizes](ch21-03-limits.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Slot and Pool Model](ch21-04-slot-model.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Estimating a Playbook Before You Run It](ch21-05-estimating.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[What Is Not Yet Measured](ch21-06-not-yet-measured.md) | **REAL** | written | resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0 | 2026-11-15 (#79) |
 | Orchestration Overhead | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Where a Step's Time Goes | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Postgres vs EHDB on the Hot Path | REAL | not written | | |

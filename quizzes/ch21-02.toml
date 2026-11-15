@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A `postgres` step runs a query that never returns. What stops it at the defaults?"""
+prompt.distractors = [
+  "The worker's 180 s command timeout.",
+  "The 30 s HTTP client default.",
+  "The server's reconcile no-op limit.",
+]
+answer.answer = "Nothing: the tool sets no timeout and the worker has no per-command one."
+context = """`step_kinds.no_global_timeout`; the postgres tool sets none. Set `timeout_seconds` on slow steps."""
+id = "960fc56b-bf87-4ab9-8f81-b2ec3d16f935"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which kind frees its worker slot before the work it started has finished?"""
+prompt.distractors = [
+  "`script`: it polls the Job every 2 s.",
+  "`playbook` with `return_result: true`.",
+  "`agent`: between model calls.",
+]
+answer.answer = "`container`: the slot is freed once the Kubernetes Job is created."
+context = """`script` holds the slot until the Job finishes; an awaiting `playbook` and an `agent` loop hold it throughout."""
+id = "f4a5d9a7-e985-473e-af77-15f3af517a6c"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A step sets `retry: {max_retries: 3}` in its tool config. How many times is the tool retried on failure?"""
+prompt.distractors = [
+  "Three, with exponential backoff from 500 ms.",
+  "Three, immediately.",
+  "Once, then the step fails.",
+]
+answer.answer = "Zero: `ToolConfig.retry` is parsed but no executor applies it."
+context = """`step_kinds.retry_config_inert`, tools v4.6.0 `src/registry.rs:36-68`."""
+id = "15844495-35b9-4f16-aaa3-787762f50e56"

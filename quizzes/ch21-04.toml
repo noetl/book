@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A user pool has 8 slots. Eight parent executions each await a child with `return_result: true`, all on that pool. What happens?"""
+prompt.distractors = [
+  "KEDA adds replicas first, so it always resolves.",
+  "The children run on the system pool.",
+  "The server detects the cycle and fails the parents at once.",
+]
+answer.answer = "The parents hold all 8 slots, no child can start, and each parent waits until its await times out."
+context = """The model's deadlock note on `kind: playbook`. KEDA may add capacity, but it scales on waiting commands, and nothing guarantees it before the awaits time out."""
+id = "fd138d51-3c26-4ae8-89c8-9c13168d2771"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Where does the resource model's `slot_rule` disagree with worker v6.15.0?"""
+prompt.distractors = [
+  "It says 8 slots per worker instead of 4.",
+  "It says slots are per pool, not per worker.",
+  "It does not; they agree.",
+]
+answer.answer = "It omits the early release when a step parks on an external callback."
+context = """Worker `src/executor/command.rs:1326-1333` frees the slot on a pending callback, as the model's own `container` entry says."""
+id = "7ec113fe-fd60-4a1b-9e1c-e8159454b0b4"

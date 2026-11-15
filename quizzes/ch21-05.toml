@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A playbook has 5 steps; a back-edge re-runs 3 of them 4 more times; no sub-playbooks. How many step runs does the estimating rule count?"""
+prompt.distractors = [
+  "5",
+  "8",
+  "20",
+]
+answer.answer = "17"
+context = """5 first runs + 3 × 4 re-runs = 17. Each re-run pays the per-step overhead again."""
+id = "c4f589f4-0d9c-4651-bacc-6e8739c4d332"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """With the model's figures, which change adds the most time to the Chapter 2 playbook on prod?"""
+prompt.distractors = [
+  "Splitting `report` into two steps.",
+  "Doubling the rows `load` inserts.",
+  "Adding a `noop` step.",
+]
+answer.answer = "Making `fetch` an awaited sub-playbook (2 hops × 9-15 s)."
+context = """A hop is a whole child execution; one extra step is ~4.5 s at the model's figure; more rows is work, which is small here."""
+id = "a6ab486e-f78e-471e-98ba-de118047f65b"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """How do you get a step's tool time from a finished execution?"""
+prompt.distractors = [
+  "A `duration` field on the execution status.",
+  "`GET /api/executions/{id}/status`, which reports per-step times.",
+  "The KEDA metrics endpoint.",
+]
+answer.answer = "`result.context.duration_ms` on its `call.done` event."
+context = """The status route returns counts only; the execution route has timestamps you subtract."""
+id = "e084ca3b-4a6c-4cec-a626-4091d55166e9"

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """You need the prod latency of an `http` step for a plan. What does the model give you?"""
+prompt.distractors = [
+  "138.5 ms, the bus median.",
+  "~4.5 s, the per-step overhead.",
+  "30 s, the HTTP default timeout.",
+]
+answer.answer = "No number: it is NOT_YET_MEASURED."
+context = """Item 1 of `not_yet_measured`. 4.5 s is orchestration around a step, 30 s is a limit, 138.5 ms is the bus."""
+id = "bc5ff3c7-4578-4536-a7bf-db621ad0c8b9"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """How does a NOT_YET_MEASURED item close?"""
+prompt.distractors = [
+  "Someone estimates it in a chat.",
+  "A GUIDANCE rule is written for it.",
+  "It is removed after six months.",
+]
+answer.answer = "A MEASURED entry, with environment, date, n and a public source, ships in a server release."
+context = """Until a release carries the figure, the book treats it as open."""
+id = "a22faba1-9fa8-49b5-9cae-5a9e01c12ec3"

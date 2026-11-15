@@ -215,6 +215,34 @@
     "landed": "2026-11-14 (#20)",
     "verified": "Ch. 3\u20139 (as cited per cell); resource model @ server v3.161.2"
   },
+  "ch21-00-resource-model.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-01-labels.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-02-step-kind-costs.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-03-limits.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-04-slot-model.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-05-estimating.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
+  "ch21-06-not-yet-measured.md": {
+    "landed": "2026-11-15 (#79)",
+    "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
+  },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",
     "verified": "\u2014"

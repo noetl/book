@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The model says the user pool had 2 replicas, KEDA 2-20, labelled DEPLOYED. What is that a statement about?"""
+prompt.distractors = [
+  "The code default for every NoETL install.",
+  "A tested capacity guarantee.",
+  "A planning target for new clusters.",
+]
+answer.answer = "What one production cluster ran on 2026-11-11."
+context = """DEPLOYED is configuration read off a cluster on `as_of`; it changes without a release."""
+id = "69da9d74-4c0e-4f45-8154-c3d12b76b0d2"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which label marks a rule you derive figures from, rather than a figure?"""
+prompt.distractors = [
+  "MEASURED",
+  "DEFAULT",
+  "TARGET",
+]
+answer.answer = "GUIDANCE"
+context = """GUIDANCE is arithmetic over the figures; TARGET is a goal nobody has met yet."""
+id = "ebdf55a6-4af6-4c14-a982-40bd25465f88"

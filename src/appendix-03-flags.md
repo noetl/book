@@ -9,7 +9,7 @@
 Generated from `noetl/server` **v3.161.2** (commit `983e36e3ec4c`, 2026-11-12), files `orchestrate-core/schema/dsl-manifest.json`, `orchestrate-core/schema/resource-model.json`. The server's own tests fail if these files drift from the code that defines the grammar, so this page is as current as the pin.
 ```
 
-The flags and environment variables the DSL artifacts name: the gates on tool kinds and DSL features, and the limits a worker reads. It is **not** every environment variable the server and worker read; only those the artifacts publish.
+The flags and environment variables the DSL artifacts name: the gates on tool kinds and DSL features, and the limits a worker reads, followed by the runtime flags the chapters cite. It is **not** every environment variable the server and worker read.
 
 ## Gates
 
@@ -52,3 +52,34 @@ The flags and environment variables the DSL artifacts name: the gates on tool ki
 |---|---|---|
 | `NOETL_AGENT_MAX_TOOL_CALLS` | 32 | tool calls per agent step |
 | `NOETL_AGENT_TOOL_TIMEOUT_SECS` | 180 | seconds per playbook-bound child |
+
+## Runtime flags the chapters cite
+
+Variables the server, worker, gateway or CLI read that the DSL artifacts do not publish, listed because a chapter names them. Each was checked against the source at the release shown; a deployment may override any default. Built from `tools/flags-cited.json`; CI fails if a chapter names a variable that is in neither this table nor the ones above.
+
+| Variable | Read by | Default | What it does | Source | Cited in |
+|---|---|---|---|---|---|
+| `GATEWAY_SESSION_VALIDATE_VIA_PLAYBOOK` | gateway | true | validate an uncached session by running the auth playbook | gateway v3.22.1 src/auth/mod.rs:174-181 | [10.1](ch10-01-gateway.md) |
+| `NOETL_AUTHZ_SYNC` | gateway | false | the same synchronous path for authorization checks | gateway v3.22.1 src/auth/mod.rs:231-235 | [10.1](ch10-01-gateway.md) |
+| `NOETL_AUTH_SYNC` | gateway | false | validate sessions through the server's synchronous auth path instead of a playbook (a code comment says prod runs it on) | gateway v3.22.1 src/auth/mod.rs:205-209, 224 | [10.1](ch10-01-gateway.md) |
+| `NOETL_CATALOG_LOG` | server | off | shadow: also record each registration in the EHDB catalog tier | server v3.161.2 src/handlers/catalog_log.rs:26-27, src/services/catalog.rs:163 | [3.4](ch03-04-two-catalogs.md) |
+| `NOETL_CATALOG_READ_SOURCE` | server | postgres | where the catalog's latest version resolves from: postgres, verify, or tier | server v3.161.2 src/handlers/catalog_read.rs:3-13, 37 | [3.4](ch03-04-two-catalogs.md) |
+| `NOETL_COMMAND_BUS` | server, worker | none (required) | the command bus; only the EHDB bus is accepted, NATS is refused | server v3.161.2 src/command_bus.rs:47-90; worker v6.15.0 src/command_bus.rs:85-115 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_COMMAND_BUS_ACK_WAIT_SECS` | worker (writer) | 30 | seconds before an unacked command is redelivered | worker v6.15.0 src/command_bus.rs:191 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_COMMAND_BUS_HOST` | worker | false | run this worker process as the command-bus writer (the cmdbus-writer) | worker v6.15.0 src/command_bus.rs:178 (env_bool), src/worker.rs:159-204 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_DSL_KB` | server | false | mount the DSL knowledge-base routes | server v3.161.2 src/main.rs:1064 | [4.0](ch04-00-anatomy-of-a-playbook.md) |
+| `NOETL_EVENT_BUS_HOST` | worker | false | also host the event bus (SSE feed, KV, WAL fan-out) | worker v6.15.0 src/event_bus.rs:6, 203 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_EVENT_FEED_ADDR` | gateway | none (required) | EHDB events feed the gateway streams to clients over SSE | gateway v3.22.1 src/main.rs:181-197, src/event_feed.rs:9 | [10.1](ch10-01-gateway.md) |
+| `NOETL_EVENT_INGEST_PUBLISH_ONLY` | server | false | publish ingested events to the EHDB events feed (the gateway's SSE source); off, the feed receives nothing | server v3.161.2 src/config/app.rs:118-125, src/handlers/event_write.rs:304-318 | [10.1](ch10-01-gateway.md) |
+| `NOETL_FEED_FILTER_SUBJECT` | worker | none (required) | the pool this worker claims for, e.g. noetl.commands.shared.>; the worker refuses to start without it | worker v6.15.0 src/config.rs:40-46, src/worker.rs:233-244 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_INTERNAL_API_TOKEN` | server, worker, gateway | unset | bearer for internal routes; the gateway's push ingress is refused without it | server v3.161.2 src/auth_gate.rs:47; gateway v3.22.1 src/main.rs:419-434 | [10.1](ch10-01-gateway.md) |
+| `NOETL_KEYCHAIN_STRICT` | worker | false | fail the command when a referenced keychain alias does not resolve, instead of rendering it empty | worker v6.15.0 src/executor/keychain_namespace.rs:33-51 | [4.4](ch04-04-keychain.md) |
+| `NOETL_KV_ADDR` | gateway | none (required) | EHDB KV address for sessions, the request store and execution owners | gateway v3.22.1 src/main.rs:132-161 | [10.1](ch10-01-gateway.md) |
+| `NOETL_LOCAL_DIR` | CLI | ~/.noetl/local | root of the local runtime's event buffer | CLI v6.4.1 src/local_buffer.rs:11 | [1.3](ch01-03-running-locally.md), [8.4](ch08-04-event-buffer.md) |
+| `NOETL_MCP_REQUEST_TIMEOUT_SECONDS` | worker (mcp tool) | 60 | MCP request timeout when the step sets none | tools v4.6.0 src/tools/mcp.rs:782 | [6.5](ch06-05-errors-timeouts-retries.md), [21.2](ch21-02-step-kind-costs.md) |
+| `NOETL_MCP_URL` | worker (mcp tool), CLI | unset | fallback MCP endpoint after NOETL_MCP_<SERVER>_ENDPOINT | tools v4.6.0 src/tools/mcp.rs:28; CLI v6.4.1 executor/src/playbook.rs:599 | [8.2](ch08-02-local-kinds.md) |
+| `NOETL_NONCONVERGENCE_SWEEP_ENABLED` | server | false | fail an execution whose newest event has not moved for a grace period while nothing can move it | server v3.161.2 src/config/app.rs:680-700 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_ORCHESTRATE_PLUGIN_DRIVE` | server | true | run each drive pass as the `__orchestrate__` WASM command on the system pool; false drives in process | server v3.161.2 src/config/app.rs:70-87 | [10.2](ch10-02-server.md) |
+| `NOETL_ORPHAN_SWEEP_ENABLED` | server | false | fail (playbook.failed) a RUNNING execution whose outstanding claim belongs to a dead worker | server v3.161.2 src/config/app.rs:600-627 | [10.3](ch10-03-bus-and-pools.md) |
+| `NOETL_PLAYBOOK_AWAIT_CHILD_RESULT` | worker (playbook tool) | true | kill-switch: false reverts an awaited child's result to the legacy status payload | tools v4.6.0 src/tools/playbook.rs:51-53 | [7.1](ch07-01-child-executions.md) |
+| `NOETL_TASK_SEQUENCE_MAX_ITERATIONS` | worker (task_sequence tool) | 1000000 | cap on iterations inside one tool list | tools v4.6.0 src/tools/task_sequence.rs:252-257 | [5.2](ch05-02-ordered-tool-list.md) |

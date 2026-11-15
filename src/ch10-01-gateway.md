@@ -56,6 +56,12 @@ paths are off by default (`NOETL_AUTH_SYNC`, `NOETL_AUTHZ_SYNC`). The
 gateway still decides; the check is a workflow.
 ```
 
+That is the **code default**. A deployment can turn the synchronous
+path on, and a code comment in gateway v3.22.1 says login and
+validation sync (`NOETL_AUTH_SYNC`) "is already live in prod"
+(`src/auth/mod.rs:224`). This book has not read the cluster, so it
+states only the default and that comment.
+
 Validated sessions are cached, so a request does not start a playbook
 every time.
 

@@ -342,8 +342,8 @@ def appendix_c(manifest, model, pin):
         [
             "The flags and environment variables the DSL artifacts name: the "
             "gates on tool kinds and DSL features, and the limits a worker "
-            "reads. It is **not** every environment variable the server and "
-            "worker read; only those the artifacts publish.",
+            "reads, followed by the runtime flags the chapters cite. It is "
+            "**not** every environment variable the server and worker read.",
         ],
     )
     rows = []
@@ -390,6 +390,55 @@ def appendix_c(manifest, model, pin):
         for b in sorted(budgets, key=lambda b: b.get("env", "")):
             L.append(f"| `{b.get('env')}` | {esc(b.get('default'))} | {esc(b.get('scope'))} |")
         L.append("")
+    return L
+
+
+FLAG_RE = re.compile(r"\b(?:NOETL|WORKER|GATEWAY)_[A-Z0-9_]*[A-Z0-9]\b")
+
+
+def cited_flags(src_dir):
+    """Every NOETL_/WORKER_/GATEWAY_ variable named in a chapter page, with the
+    pages that name it. A name followed by '_<' or ending in '_' in prose is a
+    pattern (NOETL_MCP_<SLUG>_ENDPOINT, NOETL_COMMAND_BUS_*_BIND), not a flag."""
+    found = {}
+    for name in sorted(os.listdir(src_dir)):
+        if not (name.startswith("ch") and name.endswith(".md")):
+            continue
+        text = open(os.path.join(src_dir, name), encoding="utf-8").read()
+        for m in FLAG_RE.finditer(text):
+            nxt = text[m.end():m.end() + 2]
+            if nxt.startswith("_<") or nxt.startswith("_*") or nxt == "_`" or nxt.startswith("_ "):
+                continue
+            found.setdefault(m.group(0), set()).add(name)
+    return found
+
+
+def appendix_c_cited(L, cited_meta, src_dir):
+    """AP-C (#48): the runtime flags the chapters cite, and the gate that keeps
+    the list complete."""
+    listed = {x.split("`")[1] for x in L if x.startswith("| `")}
+    meta = {f["var"]: f for f in cited_meta["flags"]}
+    cited = cited_flags(src_dir)
+    missing = sorted(v for v in cited if v not in listed and v not in meta)
+    if missing:
+        sys.exit("appendix C: chapters cite variables listed nowhere; add them to "
+                 "tools/flags-cited.json:\n  " + "\n  ".join(
+                     f"{v} ({', '.join(sorted(cited[v]))})" for v in missing))
+    L += ["## Runtime flags the chapters cite", "",
+          "Variables the server, worker, gateway or CLI read that the DSL artifacts "
+          "do not publish, listed because a chapter names them. Each was checked "
+          "against the source at the release shown; a deployment may override any "
+          "default. Built from `tools/flags-cited.json`; CI fails if a chapter "
+          "names a variable that is in neither this table nor the ones above.", "",
+          "| Variable | Read by | Default | What it does | Source | Cited in |",
+          "|---|---|---|---|---|---|"]
+    for v in sorted(meta):
+        f = meta[v]
+        pages = ", ".join(f"[{p[2:4].lstrip('0')}.{p[5:7].lstrip('0') or '0'}]({p})"
+                          for p in sorted(cited.get(v, [])))
+        L.append(f"| `{v}` | {esc(f['read_by'])} | {esc(f['default'])} | {esc(f['what'])} | "
+                 f"{esc(f['source'])} | {pages} |")
+    L.append("")
     return L
 
 
@@ -520,7 +569,9 @@ def main():
     local = json.load(open(os.path.join(HERE, "local-kinds.json")))
     write(os.path.join(a.out, "appendix-01-dsl-reference.md"), appendix_a(schema, pin, links))
     write(os.path.join(a.out, "appendix-02-tool-kinds.md"), appendix_b(manifest, model, pin, links, local))
-    write(os.path.join(a.out, "appendix-03-flags.md"), appendix_c(manifest, model, pin))
+    cited_meta = json.load(open(os.path.join(HERE, "flags-cited.json"), encoding="utf-8"))
+    write(os.path.join(a.out, "appendix-03-flags.md"),
+          appendix_c_cited(appendix_c(manifest, model, pin), cited_meta, os.path.join(ROOT, "src")))
     write(os.path.join(a.out, "appendix-04-resource-model.md"), appendix_d(model, pin))
 
 

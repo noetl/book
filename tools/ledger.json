@@ -8,7 +8,7 @@
     "verified": "generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1"
   },
   "appendix-03-flags.md": {
-    "landed": "2026-11-13 (#57)",
+    "landed": "2026-11-13 (#57), 2026-11-15 (#81: cited runtime flags)",
     "verified": "generated, server v3.161.2 (`983e36e`)"
   },
   "appendix-04-resource-model.md": {
@@ -196,7 +196,7 @@
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1"
   },
   "ch10-01-gateway.md": {
-    "landed": "2026-11-15 (#77)",
+    "landed": "2026-11-15 (#77), #81",
     "verified": "gateway v3.22.1; server v3.161.2 (`should_publish`)"
   },
   "ch10-02-server.md": {

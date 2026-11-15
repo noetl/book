@@ -43,7 +43,7 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 
 ## Phase P4
 
-- [ ] AP-C [P] Appendix C: Feature Flags and Environment Variables (generated) — [#48](https://github.com/noetl/book/issues/48) · `src/appendix-03-flags.md`
+- [ ] AP-C [P] Appendix C: Feature Flags and Environment Variables (generated) — [#48](https://github.com/noetl/book/issues/48) · `src/appendix-03-flags.md`, `tools/flags-cited.json`
 - [ ] AP-D [P] Appendix D: The Resource Model, Annotated (generated) — [#49](https://github.com/noetl/book/issues/49) · `src/appendix-04-resource-model.md`
 - [ ] CH-13 [P] EHDB: The Event Horizon Database — [#23](https://github.com/noetl/book/issues/23) · `src/ch13-*.md`
 - [ ] CH-21 [P] The Resource Model — [#31](https://github.com/noetl/book/issues/31) · `src/ch21-*.md`

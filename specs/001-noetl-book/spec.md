@@ -49,6 +49,7 @@ Answered by the authoring agent from code and public sources, under the owner's 
 - Q: Where does Ch. 12 run, and how is it verified? → A: on kind built with `noetl/ops` dev automation on tagged release images; examples are schema-checked in CI and the author's run is recorded in the PR.
 - Q: Is a resource-model figure enough to state a number in Ch. 21? → A: Yes, with its label, its `as_of` and the model's own source. Where the code at the pin says otherwise, the page reports both; the model is a representation, not the code.
 - Q: Should Appendix C list every runtime flag? → A: Every flag the chapters cite, generated from `tools/flags-cited.json`, with a CI check that no chapter cites an unlisted one. Not every variable the binaries read.
+- Q: Ch. 13's draft said the chain store "cannot serve yet" and the fence is "enforce staged". What does the evidence say? → A: The chain store serves on prod behind three default-off gates, armed per the dated record (2026-09-30 to 2026-10-09). For the fence, no dated public record states its prod mode; the worker v6.15.0 code records that enforce was not armed while the election started ~5.5 min late. The page says exactly that.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -477,17 +478,21 @@ Sources: `noetl/ops` automation/development; `noetl/cli` src/playbook_runner.rs,
 
 ### CH-13
 
-**EHDB: The Event Horizon Database** · Badge **REAL** · Phase **P4** · Issue [#23](https://github.com/noetl/book/issues/23) · Draft (stub; refine with /speckit-clarify before starting)
+**EHDB: The Event Horizon Database** · Badge **REAL** · Phase **P4** · Issue [#23](https://github.com/noetl/book/issues/23) · Specified (clarified 2026-11-15)
 
 Files: `src/ch13-*.md`
 
 Acceptance criteria:
 
-1. NATS replacement dated (bus flip 2026-07-27, NATS deleted 2026-08-01); append log, bloom/floor, two buses.
-2. 13.5 PARTIAL: lease live, fence enforce staged; 13.7 PARTIAL: chain store cannot serve yet.
-3. Meets [CH-ALL](#ch-all).
+1. Code facts verified at **ehdb v0.15.1** (the version server v3.161.2 and worker v6.15.0 pin); deployment facts only from a dated public record (ai-meta wiki Sessions-Log / Home, issues), each with its date. The NATS replacement is dated: bus flip 2026-07-27, NATS deleted 2026-08-01; the page also states that the transport RFC had recommended keeping NATS.
+2. The append log (parts, the active part, sealing on 8 MiB / 1024 records / optional age, the manifest, fsync per append or group commit), blooms and the prune floor (scheme 2, floor-exact), and the two buses hosted by the `cmdbus-writer`.
+3. 13.5 **PARTIAL**: the lease is the code's election (15 s lease, 5 s renew, ~21 s failover) and was held on prod (epoch 29, 2026-11-04); the fence defaults off and its prod mode is **not in a dated public record**, so the page states the default and what the code records (enforce was not armed while the election started late).
+4. 13.6 **PARTIAL**: sealed-part N-way copies exist; tail replication (B3) is server-only and flag-gated; the bus stores on the writer are single-copy on one volume.
+5. 13.7 **PARTIAL**: the chain store **serves** on prod behind three default-off gates (armed 2026-09-30, disarmed and re-armed 2026-10-06, still armed 2026-10-09 per the public record); the open comparator issue (ai-meta#360) is stated.
+6. Where ehdb's own docs disagree with its code at v0.15.1, the page follows the code and says so.
+7. Meets [CH-ALL](#ch-all).
 
-Sources: `noetl/ehdb` README, docs/SCOPE.md, ehdb wiki; ai-meta docs/rfc/ehdb-*.md
+Sources: `noetl/ehdb` v0.15.1 README, docs/SCOPE.md, docs/spec, crates; ai-meta docs/rfc/ehdb-*.md, nats-vs-ehdb-transport-boundary.md; ai-meta wiki Sessions-Log, Home
 
 ### CH-14
 

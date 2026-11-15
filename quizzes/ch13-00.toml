@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which ehdb version do server v3.161.2 and worker v6.15.0 run?"""
+prompt.distractors = [
+  "Whatever `Cargo.toml` says, 3.112.3.",
+  "The latest ehdb release at build time.",
+  "ehdb is part of the server binary and has no version.",
+]
+answer.answer = "v0.15.1, named in both `Cargo.lock` files."
+context = """The lockfiles pin the tag `v0.15.1`. The `version` fields in some `Cargo.toml` files are stale."""
+id = "75f70df9-4933-4fca-9f8e-6faf20c38bdf"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """ehdb's `durability-window.md` says there is no age-based seal. What does this chapter do with that?"""
+prompt.distractors = [
+  "Repeats the doc, since docs are authoritative.",
+  "Omits sealing entirely.",
+  "Marks the whole chapter TARGET.",
+]
+answer.answer = "Follows the code, which seals on age when configured (`part.rs:530-536`), and says the doc is stale."
+context = """Docs are representations of the code; at a named tag the code wins."""
+id = "97e22bfb-4e8d-4e5d-b4b3-4e23a10177d5"

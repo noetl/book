@@ -93,7 +93,9 @@ At server v3.161.2 the server publishes an event to that feed only when
 execution is not a `system/` playbook (`should_publish`,
 `src/handlers/event_write.rs:304-318`). With code defaults the SSE
 stream receives nothing. A deployment that streams results sets the
-flag; this book has not read whether a given cluster does.
+flag. Worker v6.15.0's documentation says the server does run with it
+on (`src/event_bus.rs`, [13.4](ch13-04-two-buses.md)); this book has
+not read a cluster to confirm it.
 ```
 
 ## Check your understanding

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A writer pod restarts. Roughly how long until a new writer holds the lease, at the defaults?"""
+prompt.distractors = [
+  "Instantly: the same pod keeps its lease.",
+  "5 minutes, the KEDA cooldown.",
+  "It never does without an operator.",
+]
+answer.answer = "About 21 s: lease 15 s + renew 5 s + 1."
+context = """The holder identity includes a random id, so a restarted pod waits out the old lease."""
+id = "0bf7018e-0b1a-4a0e-9d87-902c97293fe6"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What does the public record say about the fence's mode on prod?"""
+prompt.distractors = [
+  "It has enforced since 2026-07-27.",
+  "It is permanently off; fencing was removed.",
+  "It runs in shadow, per the 2026-11-04 Home page.",
+]
+answer.answer = "Nothing dated; the code records that enforce was not armed while the election started ~5.5 min late."
+context = """The page claims no mode until a dated record does."""
+id = "ca8b0217-22a4-4d71-9801-78600bd8cbf5"

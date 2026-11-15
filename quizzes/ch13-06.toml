@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The disk under the `cmdbus-writer` is lost. What of the command log survives?"""
+prompt.distractors = [
+  "Everything: sealed parts are copied to object storage.",
+  "Everything except the last 15 s.",
+  "Only the unsealed tail.",
+]
+answer.answer = "Nothing on that volume: the bus stores' sealed parts and tail are single-copy there."
+context = """The worker has only the local-filesystem substrate (`command_bus.rs:286`)."""
+id = "aa26c68f-2a90-456f-bc4f-03d561eb86e1"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What does tail replication (B3) guarantee?"""
+prompt.distractors = [
+  "No data loss at all.",
+  "That sealed parts are copied N ways.",
+  "That the bus is replicated across zones.",
+]
+answer.answer = "A loss bounded by its tick; it does not make writes synchronously durable."
+context = """It is server-only, default off; on prod it ran with a 60 s tick from 2026-10-10."""
+id = "ff1a6ba5-e6d8-4563-9aed-75ff147a1d1c"

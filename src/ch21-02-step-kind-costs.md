@@ -29,7 +29,7 @@ profiled; nothing is measured for them.
 | `noop` | in process | briefly | it still pays the per-step orchestration cost |
 
 (Each row cites tools v4.6.0 or worker `d1c9584`, which is in v6.15.0;
-the citations are in [Appendix D](appendix-04-resource-model.md#step-kinds).)
+the per-kind citations are in [Appendix B](appendix-02-tool-kinds.md).)
 
 ## Two rules that hold for every kind
 

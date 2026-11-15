@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**62 pages written, 72 not yet written** (of 134 in `SUMMARY.md`).
+**70 pages written, 64 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -66,21 +66,21 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[Spooling and the Event Trail](ch09-02-spool-and-trail.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Dispatching to a Server](ch09-03-dispatch-to-server.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | [The Distributed Runtime](ch10-00-distributed-runtime.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Gateway: The Gatekeeper](ch10-01-gateway.md) | **REAL** | written | gateway v3.22.1; server v3.161.2 (`should_publish`) | 2026-11-15 (#77), #81 |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Gateway: The Gatekeeper](ch10-01-gateway.md) | **REAL** | written | gateway v3.22.1; server v3.161.2 (`should_publish`) | 2026-11-15 (#77), #81, #83 |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Server: The Orchestrate-Core Drive](ch10-02-server.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[The Command Bus and Worker Pools](ch10-03-bus-and-pools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Slots, Pools and KEDA Autoscaling](ch10-04-slots-and-keda.md) | **REAL** | written | worker v6.15.0; resource model DEPLOYED as of 2026-11-11 (server v3.161.2) | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;Following One Execution End to End | REAL | not written | | |
 | [Choosing a Runtime](ch11-00-choosing-a-runtime.md) | **REAL** | written | Ch. 3–9 (as cited per cell); resource model @ server v3.161.2 | 2026-11-14 (#20) |
 | Project: Taking Your Playbook Distributed | REAL | not written | | |
-| EHDB: The Event Horizon Database | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Why NATS Was Replaced | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;The Append Log: Parts, Segments, Manifest | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Bloom Filters and the Prune Floor | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Two Buses: Commands and Events | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Writer Election and Fencing | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Durability: Tail Replication and the Unsealed Tail | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;The Chain Store | PARTIAL | not written | | |
+| [EHDB: The Event Horizon Database](ch13-00-ehdb.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Why NATS Was Replaced](ch13-01-why-replace-nats.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Append Log: Parts, Segments, Manifest](ch13-02-append-log.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Bloom Filters and the Prune Floor](ch13-03-bloom-and-floor.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Two Buses: Commands and Events](ch13-04-two-buses.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Writer Election and Fencing](ch13-05-election-and-fencing.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Durability: Tail Replication and the Unsealed Tail](ch13-06-durability.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Chain Store](ch13-07-chain-store.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | EHDB as the State Substrate | TARGET | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Embedded State: One EHDB per Shard | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;The Execution-Partitioned Event Store (RFC #355) | TARGET | not written | | |

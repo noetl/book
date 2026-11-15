@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """When did NATS stop being part of NoETL's production platform?"""
+prompt.distractors = [
+  "2026-07-15, when the takeover was decided.",
+  "It still carries events; only commands moved.",
+  "2026-11-07, with bloom scheme 2.",
+]
+answer.answer = "2026-08-01, when its namespaces were deleted (after the bus flipped to EHDB on 2026-07-27)."
+context = """The bus flip succeeded on its third round on 2026-07-27; NATS was deleted on 2026-08-01."""
+id = "15b848d1-7c76-4920-b0c8-7e1b1c6f970d"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What did the 2026-07-15 transport analysis recommend?"""
+prompt.distractors = [
+  "Replace NATS completely and at once.",
+  "Replace EHDB with NATS.",
+  "Run both buses in parallel forever.",
+]
+answer.answer = "Partial replacement: keep NATS as the command bus."
+context = """The takeover plan written the same day decided the opposite."""
+id = "77aa73d7-8869-4a2d-b520-2fc44da3b01f"

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why can a bloom filter pin the prune floor on an old part with no live data?"""
+prompt.distractors = [
+  "Bloom filters have false negatives.",
+  "Old parts are never pruned.",
+  "The floor is set by wall-clock time.",
+]
+answer.answer = "A false positive says the part might hold a live execution, so retention keeps it."
+context = """Blooms have false positives but no false negatives; floor-exact confirms with an exact read."""
+id = "ea53d7a6-d304-40c1-bb38-2a4c71bfa5f8"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why was bloom scheme 2 rolled out to readers a day before writers?"""
+prompt.distractors = [
+  "Writers needed a database migration.",
+  "Scheme 2 is slower to read.",
+  "The writer was not running that day.",
+]
+answer.answer = "Older readers cannot read scheme-2 filters, so every reader had to understand them first."
+context = """Release A (readers, ehdb v0.15.0) on 2026-11-06, Release B (writers armed) on 2026-11-07."""
+id = "a13aa03e-b550-4e07-a7ad-104004845311"

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """When does the active part seal, at the defaults?"""
+prompt.distractors = [
+  "Every 60 seconds.",
+  "When the process shuts down.",
+  "Never: EHDB keeps one file per store.",
+]
+answer.answer = "At 8 MiB or 1024 records, whichever comes first (age only if configured)."
+context = """`DEFAULT_SEAL_MAX_BYTES` and `DEFAULT_SEAL_MAX_RECORDS`, `engine.rs:65-67`."""
+id = "e1c1cda1-c9db-44a2-bb8a-ca8be3067ffc"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The bus writers use group commit. What does that change?"""
+prompt.distractors = [
+  "The crash window: some acknowledged records may be lost.",
+  "Nothing: every record still gets its own `fsync`.",
+  "Durability moves to the reader.",
+]
+answer.answer = "The cost: records that arrive together share one `fsync`, and none is acknowledged before it."
+context = """`FlushPolicy` group-commit posture, `part.rs:33-50`."""
+id = "fb5e9d4c-c0bc-4e73-a024-1133d2708464"

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A deployment sets `NOETL_CHAIN_SOURCE=chain` only. Does the server read history from the chain store?"""
+prompt.distractors = [
+  "Yes: the source gate is the switch.",
+  "Yes, but only for new executions.",
+  "No: the chain store is TARGET-only.",
+]
+answer.answer = "No: all three gates are needed, and without the populator the source resolves to off."
+context = """`event_chain.rs:218-262`."""
+id = "9e9f3ab3-4fdc-40de-8fec-bd6a4e11496a"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What was the chain store's root problem?"""
+prompt.distractors = [
+  "Events were stored twice.",
+  "The chain used wall-clock time to order events.",
+  "Executions over 1024 events were truncated.",
+]
+answer.answer = "After a restart, the next event got `prev = NULL`, indistinguishable from a genuine first event."
+context = """Fixed with a coverage record plus head hydration (2026-09-29); a beginning must be written, not inferred from a missing link."""
+id = "201db263-df2b-49d7-99f4-1152ac9409f9"

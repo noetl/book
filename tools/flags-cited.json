@@ -168,6 +168,90 @@
       "default": "false",
       "what": "the same synchronous path for authorization checks",
       "source": "gateway v3.22.1 src/auth/mod.rs:231-235"
+    },
+    {
+      "var": "NOETL_CHAIN_POPULATE",
+      "read_by": "server (ehdb-l0)",
+      "default": "off (allow-list: 1/true/yes/on)",
+      "what": "populate the chain store from the event log",
+      "source": "ehdb v0.15.1 crates/ehdb-l0/src/chain_populator.rs:71"
+    },
+    {
+      "var": "NOETL_CHAIN_ADVANCE",
+      "read_by": "server",
+      "default": "off (same allow-list)",
+      "what": "advance each execution's chain head as events arrive",
+      "source": "server v3.161.2 src/chain_advance.rs:47"
+    },
+    {
+      "var": "NOETL_CHAIN_SOURCE",
+      "read_by": "server",
+      "default": "off (anything but `chain`)",
+      "what": "`chain`: read execution history from the chain store (needs the other two gates)",
+      "source": "server v3.161.2 src/db/queries/event_chain.rs:218-262"
+    },
+    {
+      "var": "NOETL_EHDB_ELECTION",
+      "read_by": "worker (writer)",
+      "default": "off",
+      "what": "run the shard writer election (Kubernetes Lease `ehdb-shard-<shard>`)",
+      "source": "worker v6.15.0 src/ehdb/lease_store.rs:162-166"
+    },
+    {
+      "var": "NOETL_EHDB_ELECTION_LEASE_SECS",
+      "read_by": "worker (writer)",
+      "default": "15",
+      "what": "lease duration",
+      "source": "worker v6.15.0 src/ehdb/election.rs:95; ehdb v0.15.1 crates/ehdb-reference/src/election.rs:53"
+    },
+    {
+      "var": "NOETL_EHDB_ELECTION_RENEW_SECS",
+      "read_by": "worker (writer)",
+      "default": "5",
+      "what": "lease renew interval",
+      "source": "worker v6.15.0 src/ehdb/election.rs; ehdb v0.15.1 crates/ehdb-reference/src/election.rs:55"
+    },
+    {
+      "var": "NOETL_EHDB_FENCING",
+      "read_by": "worker (writer)",
+      "default": "off",
+      "what": "epoch fence mode: off, shadow or enforce",
+      "source": "worker v6.15.0 src/ehdb/election.rs:312; ehdb v0.15.1 crates/ehdb-core/src/fence.rs:50-62"
+    },
+    {
+      "var": "NOETL_EHDB_FLOOR_EXACT",
+      "read_by": "server",
+      "default": "off",
+      "what": "confirm the prune-floor holder with an exact read, so a bloom false positive cannot pin the floor",
+      "source": "server v3.161.2 src/services/event_archive.rs:2059, 2428-2440"
+    },
+    {
+      "var": "NOETL_EHDB_SEAL_MAX_AGE_MS",
+      "read_by": "worker",
+      "default": "unset (off)",
+      "what": "seal the active part once it is this old",
+      "source": "worker v6.15.0 src/ehdb/eventlog_backend.rs:246-256"
+    },
+    {
+      "var": "NOETL_EHDB_SEAL_MAX_AGE_SECS",
+      "read_by": "server",
+      "default": "unset (off)",
+      "what": "seal the server store's active part once it is this old (checked every NOETL_EHDB_SEAL_TICK_SECS, 60)",
+      "source": "server v3.161.2 src/handlers/ehdb_embedded.rs:734, 916"
+    },
+    {
+      "var": "NOETL_EHDB_TAIL_REPLICATION",
+      "read_by": "server",
+      "default": "off",
+      "what": "copy the unsealed tail off the node on a timer (B3; tick default 15 s)",
+      "source": "server v3.161.2 src/handlers/ehdb_embedded.rs:1015-1033"
+    },
+    {
+      "var": "NOETL_EHDB_TAIL_CLEANUP",
+      "read_by": "server",
+      "default": "on",
+      "what": "clean up replicated tail objects; false keeps every tail object",
+      "source": "server v3.161.2 src/handlers/ehdb_embedded.rs:1004"
     }
   ]
 }

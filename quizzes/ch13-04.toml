@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why do the command bus and the event bus use separate engines in one process?"""
+prompt.distractors = [
+  "They need different file formats.",
+  "Kubernetes requires one engine per port.",
+  "For security isolation between tenants.",
+]
+answer.answer = "Events are about ten times hotter, and `fsync` under the engine lock would put event volume in front of command dispatch."
+context = """ai-meta#205: the binding cost is `fsync` inside the engine lock."""
+id = "54d72cf2-9aec-417e-835d-d6114e72b9aa"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """With `NOETL_EVENT_INGEST_PUBLISH_ONLY=true`, who writes the durable `noetl.event` log?"""
+prompt.distractors = [
+  "The server, by direct INSERT.",
+  "Each worker, after its step.",
+  "The gateway, from the SSE feed.",
+]
+answer.answer = "The first materializer group, reading the event bus."
+context = """The event bus then carries the source of truth, not just live updates."""
+id = "d6bc3c63-75cb-4d64-b5a8-90822118ca8f"

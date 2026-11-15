@@ -196,7 +196,7 @@
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1"
   },
   "ch10-01-gateway.md": {
-    "landed": "2026-11-15 (#77), #81",
+    "landed": "2026-11-15 (#77), #81, #83",
     "verified": "gateway v3.22.1; server v3.161.2 (`should_publish`)"
   },
   "ch10-02-server.md": {
@@ -214,6 +214,38 @@
   "ch11-00-choosing-a-runtime.md": {
     "landed": "2026-11-14 (#20)",
     "verified": "Ch. 3\u20139 (as cited per cell); resource model @ server v3.161.2"
+  },
+  "ch13-00-ehdb.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-01-why-replace-nats.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-02-append-log.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-03-bloom-and-floor.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-04-two-buses.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-05-election-and-fencing.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-06-durability.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+  },
+  "ch13-07-chain-store.md": {
+    "landed": "2026-11-15 (#83)",
+    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
   },
   "ch21-00-resource-model.md": {
     "landed": "2026-11-15 (#79)",

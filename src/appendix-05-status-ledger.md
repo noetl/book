@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**45 pages written, 89 not yet written** (of 134 in `SUMMARY.md`).
+**50 pages written, 84 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -32,11 +32,11 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[Hello, Playbook](ch01-02-hello-playbook.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Running It Locally with the CLI](ch01-03-running-locally.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
 | [Project: Fetch, Transform, Store — Your First Real Playbook](ch02-00-project-first-playbook.md) | **REAL** | written | CLI v6.4.0 (run in CI); data pinned at server `983e36e` | 2026-11-13 (#12) |
-| What NoETL Is | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Declarative Orchestration | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Event Sourcing: The Log Is the Truth | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Ephemeral Blueprints and Stateless Workers | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Two Catalogs: Internal Objects vs Business Data | REAL | not written | | |
+| [What NoETL Is](ch03-00-what-noetl-is.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0 | 2026-11-15 (#64) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Declarative Orchestration](ch03-01-declarative-orchestration.md) | **REAL** | written | server v3.161.2 `orchestrate-core` (`WorkflowOrchestrator`) | 2026-11-15 (#64) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Event Sourcing: The Log Is the Truth](ch03-02-event-sourcing.md) | **REAL** | written | server v3.161.2 (`983e36e`) | 2026-11-15 (#64) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Ephemeral Blueprints and Stateless Workers](ch03-03-blueprints-and-workers.md) | **REAL** | written | worker v6.15.0 | 2026-11-15 (#64) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Two Catalogs: Internal Objects vs Business Data](ch03-04-two-catalogs.md) | **PARTIAL** | written | server v3.161.2: catalog in Postgres by default; EHDB-only is the target (PARTIAL) | 2026-11-15 (#64) |
 | [Anatomy of a Playbook](ch04-00-anatomy-of-a-playbook.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[`apiVersion`, `kind`, `metadata`](ch04-01-header.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[`workload`, `vars` and Templating](ch04-02-workload-and-templating.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |

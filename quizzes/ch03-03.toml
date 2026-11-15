@@ -1,0 +1,29 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "Two consecutive steps of one execution run. Which workers can run them?"
+prompt.distractors = [
+  "The same worker, which owns the execution.",
+  "The same worker, unless it is busy.",
+  "Workers assigned to the playbook when it was registered.",
+]
+answer.answer = "Any worker with a free slot on the right pool; workers keep nothing between commands."
+context = """
+Workers are stateless: claim one command, run it, emit events, release the
+slot. The next command can be claimed by any worker.
+"""
+id = "23564ca6-bfb7-4316-903e-74d7d8215933"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = "A client app needs a customer's orders. Where does the read happen?"
+prompt.distractors = [
+  "In the gateway, which queries the orders database.",
+  "In the client, with a database connection string from NoETL.",
+  "In the NoETL server, from its catalog.",
+]
+answer.answer = "In a playbook step (for example a `postgres` or `http` tool), which the client invokes."
+context = """
+All data access happens inside playbook steps; the gateway is a gatekeeper
+only (execution-model rule).
+"""
+id = "53ae059b-dbf1-4e1f-b5f2-d752fd1ce73e"

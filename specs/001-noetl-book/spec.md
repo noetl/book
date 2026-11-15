@@ -298,7 +298,7 @@ Acceptance criteria:
 
 1. Declarative orchestration and event sourcing: the append-only event log is the source of truth (never edited); state is folded from it.
 2. Ephemeral blueprints and stateless workers: claim one command, run it, emit events, release the slot; no resident agents or MCP servers; all data access inside playbook steps.
-3. Two catalogs: internal (NoETL's own objects, EHDB-only, `/api/catalog/*`) vs business data (external stores, read by steps).
+3. Two catalogs: internal (NoETL's own objects, `/api/catalog/*`) vs business data (external stores, read by steps). The internal catalog's storage is badged honestly: **EHDB-only is the target** (TARGET); at server v3.161.2 it is Postgres `noetl.catalog` by default with an EHDB shadow log and a staged EHDB read path (`NOETL_CATALOG_READ_SOURCE`, default `postgres`), so the storage section is PARTIAL until EHDB serving is the default. *(Refined 2026-11-15, book#51.)*
 4. Each section has a quiz; at least 2 Appendix F entries are added or cited.
 5. Meets [CH-ALL](#ch-all).
 

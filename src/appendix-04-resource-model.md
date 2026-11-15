@@ -21,6 +21,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 
 ## Labels
 
+*Explained in [21.1 Labels](ch21-01-labels.md).*
+
 | Label | Meaning |
 |---|---|
 | **DEFAULT** | a code default (env var + value); a deployment may override it |
@@ -31,6 +33,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 | **TARGET** | a goal or budget; not a measurement |
 
 ## Limits
+
+*Explained in [21.3 Limits](ch21-03-limits.md).*
 
 | Label | What | Value | Source | Note | Cost | Costs | Deployed | Env | Gates | Parallel | Unit |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -52,6 +56,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 | DEFAULT |  | 225 | noetl/server src/config/app.rs:702-726 | how long a stuck execution is re-driven before the server stops |  |  |  | NOETL_RECONCILE_MAX_NOOPS |  |  | consecutive no-progress polls at an 8 s tick (~30 min) |
 
 ## Concurrency
+
+*Explained in [21.4 The slot and pool model](ch21-04-slot-model.md) and [10.4](ch10-04-slots-and-keda.md).*
 
 ### autoscaling
 
@@ -103,6 +109,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 
 ## Heuristics
 
+*Explained in [21.5 Estimating](ch21-05-estimating.md).*
+
 | Label | Source | Rule |
 |---|---|---|
 | GUIDANCE |  | Estimate wall clock as steps x per_step_overhead + sum(step work) + hops x hop_overhead, where hops are kind: playbook children. On prod today use ~4.5 s per step and ~9-15 s per hop (orchestration_overhead.measured), and re-measure: the overhead, not the work, decides the total. |
@@ -118,6 +126,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 | TARGET | noetl/server orchestrate-core dsl-manifest worker_runtime.agent.playbook_tools.not_durable | Orchestrator-driven resume of a hosted agent loop after a worker dies (today the step restarts from turn 1). |
 
 ## Metrics
+
+*Explained in [21.5 Check the estimate](ch21-05-estimating.md#check-the-estimate).*
 
 - **events_note**: agent.* events come only from the hosted loop (NOETL_WORKER_AGENT_PLAYBOOK_TOOLS=true). Token usage is in call.done result data, not on agent.* events.
 - **server_prometheus_source**: noetl/server src/metrics.rs, served at GET /metrics
@@ -163,6 +173,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 
 ## Not yet measured
 
+*Explained in [21.6 What is not yet measured](ch21-06-not-yet-measured.md).*
+
 - per-step latency of http, duckdb, postgres and mcp steps on prod
 - latency of a hosted LLM call inside a real playbook step
 - sustained executions per second on prod
@@ -172,6 +184,8 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 - unsaturated prod command-bus latency after 2026-07-30
 
 ## Orchestration overhead
+
+*Explained in [21.5 Estimating](ch21-05-estimating.md) and [Chapter 22](ch22-00-orchestration-overhead.md).*
 
 - **caveat**: Per-step cost varies with load and with the server build: several of these figures predate later dispatch fixes. Measure on the target cluster at the target load before committing to a budget.
 - **summary**: Each step pays a fixed orchestration cost (command dispatch, claim, and three lifecycle event emits) on top of its work; each kind: playbook hop pays a whole child execution's worth.
@@ -189,5 +203,7 @@ Model version **1**, figures as of **2026-11-11**. Purpose: Plan a playbook's ti
 | MEASURED | command-bus writer restart (lease election) | failover window 21 s; plan for a 20-60 s write outage | prod | 2026-11-04 | noetl/worker wiki cmdbus-writer-tier-service |
 
 ## Step kinds
+
+*Explained in [21.2 Per-step-kind costs](ch21-02-step-kind-costs.md).*
 
 Per-kind execution, slot and timeout profiles are in [Appendix B](appendix-02-tool-kinds.md).

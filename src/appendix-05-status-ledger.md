@@ -152,7 +152,7 @@ this table is stale.
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |
 | [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1 | 2026-11-13 (#57, #63) |
 | [Appendix C: Feature Flags and Environment Variables](appendix-03-flags.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57) |
-| [Appendix D: The Resource Model, Annotated](appendix-04-resource-model.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57) |
+| [Appendix D: The Resource Model, Annotated](appendix-04-resource-model.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57), 2026-11-15 (#80: Ch. 21 links) |
 | [Appendix E: Status Ledger — REAL vs TARGET by Chapter](appendix-05-status-ledger.md) | **REAL** | written | generated from the pages | 2026-11-13 (#47) |
 | [Appendix F: Myths and Corrections](appendix-06-myths.md) | **REAL** | written | per row | 2026-11-13 (#61) |
 | [Appendix G: Glossary](appendix-07-glossary.md) | **REAL** | written | terms as defined in their chapters | 2026-11-13 (#50) |

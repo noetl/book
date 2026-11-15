@@ -471,7 +471,28 @@ def appendix_d(model, pin):
     L += ["## Step kinds", "",
           "Per-kind execution, slot and timeout profiles are in "
           "[Appendix B](appendix-02-tool-kinds.md).", ""]
-    return L
+    # AP-D (#49): link each top-level section to the Ch. 21 section that
+    # explains it. A section with no entry fails the run, so a new
+    # top-level key in the model cannot appear here unexplained.
+    explained = {
+        "Labels": "[21.1 Labels](ch21-01-labels.md)",
+        "Limits": "[21.3 Limits](ch21-03-limits.md)",
+        "Concurrency": "[21.4 The slot and pool model](ch21-04-slot-model.md) and [10.4](ch10-04-slots-and-keda.md)",
+        "Heuristics": "[21.5 Estimating](ch21-05-estimating.md)",
+        "Metrics": "[21.5 Check the estimate](ch21-05-estimating.md#check-the-estimate)",
+        "Not yet measured": "[21.6 What is not yet measured](ch21-06-not-yet-measured.md)",
+        "Orchestration overhead": "[21.5 Estimating](ch21-05-estimating.md) and [Chapter 22](ch22-00-orchestration-overhead.md)",
+        "Step kinds": "[21.2 Per-step-kind costs](ch21-02-step-kind-costs.md)",
+    }
+    out = []
+    for line in L:
+        out.append(line)
+        if line.startswith("## ") and line != "## Check your understanding":
+            title = line[3:]
+            if title not in explained:
+                sys.exit(f"appendix D: section '{title}' has no Ch. 21 link; add it to `explained`")
+            out += ["", f"*Explained in {explained[title]}.*"]
+    return out
 
 
 # ---------------------------------------------------------------- main

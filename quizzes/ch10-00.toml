@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which part of the distributed runtime runs a step's tool?"""
+prompt.distractors = [
+  "The server, after it writes `command.issued`.",
+  "The gateway, for requests it authenticated.",
+  "The `cmdbus-writer`, which owns the command.",
+]
+answer.answer = "A worker in the execution's pool."
+context = """The server has no tool runtime and the gateway never runs tools. The `cmdbus-writer` is the bus: it holds commands until a worker claims one."""
+id = "dd39b305-29b2-458d-9b8c-a7547db3bfdb"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A worker finishes a step and reports `command.completed`. What decides the next step?"""
+prompt.distractors = [
+  "The worker that finished, reading the playbook's `next`.",
+  "The command bus, by publishing the next subject.",
+  "The gateway, which tracks the client's execution.",
+]
+answer.answer = "A drive pass: by default a `__orchestrate__` command run as WASM on the system pool."
+context = """`command.completed` triggers a drive pass. With `NOETL_ORCHESTRATE_PLUGIN_DRIVE` at its default (`true`), the server issues that pass as a command to the system pool."""
+id = "6e8124f1-dfd1-477a-8375-401fcbc15148"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which service reads and writes NoETL's own Postgres tables (`noetl.*`)?"""
+prompt.distractors = [
+  "The server and every worker.",
+  "Workers in the system pool.",
+  "The gateway, for sessions.",
+]
+answer.answer = "Only the server."
+context = """Workers reach `noetl.*` only through the server's API. The gateway keeps its session state in EHDB key-value storage, not Postgres."""
+id = "b1bb31f4-c33a-4848-a579-d0dd9dada260"

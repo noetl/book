@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """With code defaults, how does the gateway validate a session token it has not cached?"""
+prompt.distractors = [
+  "It queries the sessions table in Postgres.",
+  "It verifies a JWT signature locally and never calls the server.",
+  "It forwards the request and lets the server reject it.",
+]
+answer.answer = "It starts an auth playbook on the server and waits for the answer."
+context = """`GATEWAY_SESSION_VALIDATE_VIA_PLAYBOOK` defaults to true. The playbook path `api_integration/auth0/auth0_validate_session` has no `system/` prefix, so it runs on the shared pool."""
+id = "7adfd3f5-06e6-4ae8-93f8-0c6393cad584"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A client sends `{ "user_uid": "someone-else" }` in the body of a proxied call. What reaches the server?"""
+prompt.distractors = [
+  "The body unchanged; the server checks it.",
+  "An error: the gateway rejects bodies that name a user.",
+  "The body with the field removed.",
+]
+answer.answer = "The verified session's own user id: the gateway rewrites `uid` / `user_uid`."
+context = """`src/proxy.rs:286-311` rewrites the identity fields from the verified session before forwarding."""
+id = "1e8fcf00-2ac1-4ad1-89b6-82dc6401762e"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which statement about the gateway's state is true at v3.22.1?"""
+prompt.distractors = [
+  "It is stateless; every request is validated from scratch.",
+  "It keeps your business data in a cache.",
+  "It stores sessions in the server's Postgres.",
+]
+answer.answer = "It keeps sessions, the request store and execution owners in EHDB KV, and open SSE connections in memory."
+context = """`NOETL_KV_ADDR` is required at start-up. What it never keeps is business data."""
+id = "2db73290-f08a-4c6b-adfd-73d3dd35c03d"

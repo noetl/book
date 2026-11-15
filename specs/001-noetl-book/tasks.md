@@ -37,9 +37,9 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 
 ## Phase P3
 
-- [ ] CH-10 [P] The Distributed Runtime — [#21](https://github.com/noetl/book/issues/21) · `src/ch10-*.md`
-- [ ] CH-12 [P] Project: Taking Your Playbook Distributed — [#22](https://github.com/noetl/book/issues/22) · `src/ch12-00-project-distributed.md`
-- [ ] T-05 mdbook-noetl-trace: event-log step-through visualizer — [#7](https://github.com/noetl/book/issues/7) · `tools/`, `traces/`
+- [ ] CH-10 [P] The Distributed Runtime — [#21](https://github.com/noetl/book/issues/21) · `src/ch10-*.md` (specified; 10.5 needs a captured T-05 trace)
+- [ ] CH-12 [P] Project: Taking Your Playbook Distributed — [#22](https://github.com/noetl/book/issues/22) · `src/ch12-00-project-distributed.md`, `examples/ch12/` (specified; needs a release-image kind stack)
+- [ ] T-05 mdbook-noetl-trace: event-log step-through visualizer — [#7](https://github.com/noetl/book/issues/7) · `tools/trace-fold/`, `tools/mdbook-noetl-trace.py`, `traces/` (specified; needs a captured trace)
 
 ## Phase P4
 

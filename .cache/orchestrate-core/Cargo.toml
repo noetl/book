@@ -1,0 +1,46 @@
+[package]
+name = "noetl-orchestrate-core"
+version = "0.1.0"
+edition = "2021"
+description = "Pure orchestrator drive core for NoETL — compiles to the server (native) and to a wasm32 system plug-in (the system/orchestrate kernel service). noetl/ai-meta#108."
+license = "Apache-2.0"
+
+[dependencies]
+# minijinja WITHOUT `loader` (no std::fs on wasm32-unknown-unknown); templates come
+# from the playbook, not files.  `serde` for serde_json value bridging; `builtins`
+# for the filter set the evaluator uses.  Proven to compile to wasm32-unknown-unknown
+# with no WASI imports (noetl/ai-meta#108 spike).
+minijinja = { version = "2.5", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["serde", "std"] }
+thiserror = "2.0"
+tracing = "0.1"
+
+# ai-meta#265 Phase 0: the canonical state digest.
+sha2 = "0.10"
+hex = "0.4"
+
+# Content-addressed catalog (ai-meta#548): the playbook digest is computed
+# over the YAML's JSON value, so the core parses YAML itself.  Pure Rust;
+# builds for wasm32.
+serde_yaml = "0.9"
+
+# DSL knowledge base (ai-meta RFC `dsl-knowledge-base.md`): derive the playbook
+# JSON Schema from the authoring types below.  OPTIONAL so the wasm32
+# `system/orchestrate` plug-in (which never emits a schema) carries none of it;
+# the server enables it.  schemars 1.x emits draft 2020-12.
+schemars = { version = "1", optional = true }
+
+[features]
+json-schema = ["dep:schemars"]
+
+[dev-dependencies]
+# Phase 0 determinism probe (ai-meta#265): the digest under test.
+sha2 = "0.10"
+hex = "0.4"
+
+[[example]]
+name = "emit_dsl"
+required-features = ["json-schema"]

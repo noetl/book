@@ -36,6 +36,18 @@ machine-readable DSL knowledge base; it never forks it).
 Assumed background: YAML, a shell, basic SQL and HTTP. Rust is not
 required except where a page says so.
 
+## Clarifications
+
+### Session 2026-11-15
+
+Answered by the authoring agent from code and public sources, under the owner's grant of autonomy (book#51); each answer cites what it was checked against.
+
+- Q: At which releases are Ch. 10's REAL claims verified? → A: server v3.161.2 (the `tools/SERVER_SCHEMA_PIN` commit), worker v6.15.0, gateway v3.22.1. A later release is cited only where it changes a claim.
+- Q: Where do Ch. 10's deployment numbers come from? → A: the DEPLOYED entries of the public resource model, with its `as_of` date. Committed `noetl/ops` manifests are not evidence of what runs: the resource model records that the committed system-pool ScaledObject is not on the cluster.
+- Q: What may a T-05 trace be made from? → A: only a captured event log of one real execution on a stack running tagged releases, with internal identifiers scrubbed. No hand-written or synthetic logs.
+- Q: Must T-05 fold in the browser with WASM? → A: Not in the first iteration. It folds at build time with the same orchestrate-core crate at the server pin; CI re-folds and fails if stale. That is the same reducer, so correctness is unchanged.
+- Q: Where does Ch. 12 run, and how is it verified? → A: on kind built with `noetl/ops` dev automation on tagged release images; examples are schema-checked in CI and the author's run is recorded in the PR.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 — A new author runs a real playbook locally (Priority: P1)
@@ -198,15 +210,19 @@ Sources: `noetl/server` orchestrate-core/schema/ (playbook.schema.json, dsl-mani
 
 ### T-05
 
-**mdbook-noetl-trace: event-log step-through visualizer** · Badge **TARGET** · Phase **P3** · Issue [#7](https://github.com/noetl/book/issues/7) · Draft (stub; refine with /speckit-clarify before starting)
+**mdbook-noetl-trace: event-log step-through visualizer** · Badge **TARGET** · Phase **P3** · Issue [#7](https://github.com/noetl/book/issues/7) · Specified (clarified 2026-11-15)
 
-Files: `tools/`, `traces/`
+Files: `tools/trace-fold/`, `tools/mdbook-noetl-trace.py`, `traces/`
 
 Acceptance criteria:
 
-1. Folds a recorded event log with orchestrate-core compiled to WASM (the engine's reducer), so it cannot disagree with the engine.
+1. Folds a recorded event log with **orchestrate-core's own reducer** (`WorkflowState::apply_event`) at the server commit in `tools/SERVER_SCHEMA_PIN`, so the visualization cannot disagree with the engine. The book never computes state itself.
+2. First iteration folds **at build time** (native) and commits one state per event to `traces/<name>/states.json`; CI re-folds and fails if the committed states are stale. An in-browser WASM fold is a later iteration.
+3. A trace is a **captured** event log of one real execution on a stack running tagged releases (prod, or kind on release images). It records where, when, and which releases. Hand-written or synthetic logs are refused. Identifiers that are internal (hostnames, pod names, project ids) are scrubbed, and CI checks the scrub does not change any folded digest.
+4. A `{{#trace …}}` directive renders a step-through: the event at each position and the folded state (steps pending / running / done, loop counters, context), with keyboard and button navigation and a no-JS fallback table.
+5. `mdbook build` and linkcheck pass.
 
-Sources: BOOK-PLAN §2.5, §4
+Sources: BOOK-PLAN §2.5, §4; server `orchestrate-core/src/state.rs`
 
 ### T-06
 
@@ -409,18 +425,19 @@ Sources: `noetl/cli` src/playbook_runner.rs, executor/src/playbook.rs, README, c
 
 ### CH-10
 
-**The Distributed Runtime** · Badge **REAL** · Phase **P3** · Issue [#21](https://github.com/noetl/book/issues/21) · Draft (stub; refine with /speckit-clarify before starting)
+**The Distributed Runtime** · Badge **REAL** · Phase **P3** · Issue [#21](https://github.com/noetl/book/issues/21) · Specified (clarified 2026-11-15)
 
 Files: `src/ch10-*.md`
 
 Acceptance criteria:
 
-1. Gateway (gatekeeper only) → server (orchestrate-core drive on the system pool) → EHDB command bus → pools claiming `commands.<pool>.>`.
-2. Slot model and KEDA on `ehdb_feed_subject_lag` (not NATS), pool sizes DEPLOYED with a date.
-3. 10.5 uses the first `noetl-trace` (T-05).
-4. Meets [CH-ALL](#ch-all).
+1. The path of a request, verified at server v3.161.2, worker v6.15.0 and gateway v3.22.1: the **gateway** authenticates, authorizes and proxies (and streams results back over SSE; it keeps session state in EHDB KV; by default it validates sessions by running an auth playbook); the **server** writes `playbook_started` and builds the first commands itself, then each later drive pass runs as the `__orchestrate__` WASM command on the **system** pool (`NOETL_ORCHESTRATE_PLUGIN_DRIVE`, default true); commands travel on the **EHDB command bus** hosted by the `cmdbus-writer`; workers claim `commands.<pool>.>`. The pool is chosen **per execution** (request override, else the playbook path prefix, else `shared`); there is no step-level pool field.
+2. The slot model (`WORKER_MAX_CONCURRENT`, default 4; capacity = replicas × slots) and KEDA on `ehdb_feed_subject_lag` (not NATS). Pool sizes are the **DEPLOYED** values of the public resource model (`noetl.ai/dsl/resource-model.json`) with its `as_of` date, never committed manifests alone.
+3. What happens when a worker dies mid-command at default flags (the bus is acked at claim; there is no redelivery; the sweeps that end such an execution are off by default).
+4. 10.5 steps through a **captured** T-05 trace. Until one exists, 10.5 stays a stub and this issue stays open; 10.0–10.4 may land first.
+5. Meets [CH-ALL](#ch-all).
 
-Sources: noetl.ai/dsl/resource-model.json (= server orchestrate-core/schema/resource-model.json); ai-meta agents/rules/execution-model.md (⚠ its KEDA/NATS line is stale); ai-meta wiki Home / Sessions-Log
+Sources: server, worker and gateway at the tags above; noetl.ai/dsl/resource-model.json (= server orchestrate-core/schema/resource-model.json); ai-meta agents/rules/execution-model.md (⚠ its KEDA/NATS line is stale)
 
 ### CH-11
 
@@ -438,15 +455,19 @@ Sources: `noetl/cli` src/playbook_runner.rs, executor/src/playbook.rs, README, c
 
 ### CH-12
 
-**Project: Taking Your Playbook Distributed** · Badge **REAL** · Phase **P3** · Issue [#22](https://github.com/noetl/book/issues/22) · Draft (stub; refine with /speckit-clarify before starting)
+**Project: Taking Your Playbook Distributed** · Badge **REAL** · Phase **P3** · Issue [#22](https://github.com/noetl/book/issues/22) · Specified (clarified 2026-11-15)
 
-Files: `src/ch12-00-project-distributed.md`
+Files: `src/ch12-00-project-distributed.md`, `examples/ch12/`
 
 Acceptance criteria:
 
-1. Ch. 2 playbook on kind with a parallel `loop:`, a `postgres` step and a sub-playbook.
-2. Reader reads the event log; trace via T-05.
-3. Meets [CH-ALL](#ch-all).
+1. The Ch. 2 playbook, ported to the distributed runtime (`set:` for the counter, `{{ step.field }}` references), plus a parallel `loop:`, a `postgres` step and a sub-playbook (`kind: playbook`, `return_result: true`), run on a **kind** cluster built with `noetl/ops` dev automation on **tagged release images**. The page names the releases and the date of the author's run.
+2. Every example in `examples/ch12/` is `RUNTIME=distributed` and passes the schema check in CI; the author's run (command, releases, terminal status) is recorded in the PR.
+3. The reader reads the execution's event log (`noetl` CLI or the server API) and steps through it with a T-05 trace captured from the author's run.
+4. "What changed and why" lists every change from the Ch. 2 version and why the local runtime could not do it (cross-referenced to the Ch. 8.1 table).
+5. Meets [CH-ALL](#ch-all).
+
+Blocked until a release-image stack and T-05 are available.
 
 Sources: `noetl/ops` automation/development; `noetl/cli` src/playbook_runner.rs, executor/src/playbook.rs, README, cli wiki
 

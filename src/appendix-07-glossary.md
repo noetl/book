@@ -34,12 +34,15 @@ not written yet have not added their terms.
 | playbook | A YAML document (`kind: Playbook`, `apiVersion: noetl.io/v2`) describing a workflow of steps | [Ch. 4](ch04-00-anatomy-of-a-playbook.md) |
 | policy rules | `spec.policy.rules` on a tool-list sub-task: continue, retry, jump, break, fail | [6.5](ch06-05-errors-timeouts-retries.md) |
 | pool | A set of workers claiming one subject family, `commands.<pool>.>`; chosen per execution (`shared`, `system`, `subscription`) | [10.3](ch10-03-bus-and-pools.md) |
+| resource model | `noetl.ai/dsl/resource-model.json`: NoETL's labelled, dated figures for time, slots, limits and fuel | [Ch. 21](ch21-00-resource-model.md) |
+| resource-model label | MEASURED, DEPLOYED, DEFAULT, GUIDANCE, TARGET or NOT_YET_MEASURED: what kind of number a figure is | [21.1](ch21-01-labels.md) |
 | result store | Where a step result above 100 KiB is spilled; the event then carries a reference | [5.3](ch05-03-results-and-references.md) |
 | `set:` | Server-side step mutations, persisted as a `ctx.updated` event | [4.2](ch04-02-workload-and-templating.md) |
 | slot | A worker's unit of concurrency; a command holds one from claim until its tool returns | [Ch. 5](ch05-00-tools.md) |
 | spool | Store-and-forward buffer (local_disk in the daemon) that keeps messages while the downstream is down | [9.2](ch09-02-spool-and-trail.md) |
 | `start` | The step every server execution begins with; the validator requires it | [4.3](ch04-03-steps.md) |
 | step | One named entry of `workflow`: runs one tool, then routes with `next` | [4.3](ch04-03-steps.md) |
+| step run | One execution of a step; a step re-run by a back-edge counts once per run when estimating | [21.5](ch21-05-estimating.md) |
 | `step.skipped` | The event recorded for a target not taken, or a step whose guard was false | [6.2](ch06-02-when-guards.md) |
 | subscription | A `kind: Subscription` document: a message source plus the playbook to run per message | [9.1](ch09-01-subscriptions.md) |
 | `task_sequence` | The single command a `tool:` list becomes; runs its sub-tasks in order on one worker | [5.2](ch05-02-ordered-tool-list.md) |

@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Before estimating a playbook's latency, what does the resource model say to count first?"""
+prompt.distractors = [
+  "The bytes each step returns.",
+  "The number of tool kinds used.",
+  "The CPU limit of the worker pool.",
+]
+answer.answer = "Steps and sub-playbook hops."
+context = """`read_first`: latency is dominated by orchestration per step, not by the work a step does."""
+id = "21cc5071-211a-44af-ad6a-8401313bc7e4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What do the server's tests guarantee about `resource-model.json`?"""
+prompt.distractors = [
+  "That every figure is still true of the current release.",
+  "That DEPLOYED values match the live cluster.",
+  "Nothing: the file is hand-edited.",
+]
+answer.answer = "That it is what `resource_model.rs` generates, and that no number lacks a label."
+context = """`tests/dsl_artifacts.rs:46` compares the committed file with the generator. Nothing re-measures the figures."""
+id = "85053cf1-0e76-4fda-a9f0-bfe21aa2d260"

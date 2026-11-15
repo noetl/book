@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """An agent step keeps calling tools. What ends it at the defaults?"""
+prompt.distractors = [
+  "The model decides when to stop; there is no cap.",
+  "A 30 s WASM timeout.",
+  "The 100 KiB result limit.",
+]
+answer.answer = "The 32-call budget: `agent.final` is refused with `tool_call_budget`."
+context = """`NOETL_AGENT_MAX_TOOL_CALLS` = 32; the model cannot raise it."""
+id = "e225d627-7aec-42a4-9695-808dc83a57e4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A step returns a 300 KiB result that the next step reads. What happens?"""
+prompt.distractors = [
+  "The step fails: results are capped at 100 KiB.",
+  "It is truncated to 100 KiB.",
+  "Nothing: results have no size limit.",
+]
+answer.answer = "It is spilled to the result store; the next step's read becomes a fetch."
+context = """`NOETL_EVENT_RESULT_CONTEXT_MAX_BYTES` = 100 KiB is a spill threshold, not a refusal."""
+id = "cde0351c-555c-40f0-a2bd-5a411960cb14"

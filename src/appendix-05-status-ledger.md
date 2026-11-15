@@ -65,11 +65,11 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[Subscriptions: NATS, Pub/Sub, Kafka](ch09-01-subscriptions.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Spooling and the Event Trail](ch09-02-spool-and-trail.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Dispatching to a Server](ch09-03-dispatch-to-server.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
-| [The Distributed Runtime](ch10-00-distributed-runtime.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Gateway: The Gatekeeper](ch10-01-gateway.md) | **REAL** | written | gateway v3.22.1; server v3.161.2 (`should_publish`) | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Server: The Orchestrate-Core Drive](ch10-02-server.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[The Command Bus and Worker Pools](ch10-03-bus-and-pools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Slots, Pools and KEDA Autoscaling](ch10-04-slots-and-keda.md) | **REAL** | written | worker v6.15.0; resource model DEPLOYED as of 2026-11-11 (server v3.161.2) | 2026-11-15 |
+| [The Distributed Runtime](ch10-00-distributed-runtime.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Gateway: The Gatekeeper](ch10-01-gateway.md) | **REAL** | written | gateway v3.22.1; server v3.161.2 (`should_publish`) | 2026-11-15 (#77) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Server: The Orchestrate-Core Drive](ch10-02-server.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Command Bus and Worker Pools](ch10-03-bus-and-pools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Slots, Pools and KEDA Autoscaling](ch10-04-slots-and-keda.md) | **REAL** | written | worker v6.15.0; resource model DEPLOYED as of 2026-11-11 (server v3.161.2) | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;Following One Execution End to End | REAL | not written | | |
 | [Choosing a Runtime](ch11-00-choosing-a-runtime.md) | **REAL** | written | Ch. 3–9 (as cited per cell); resource model @ server v3.161.2 | 2026-11-14 (#20) |
 | Project: Taking Your Playbook Distributed | REAL | not written | | |

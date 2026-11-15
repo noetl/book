@@ -192,23 +192,23 @@
     "verified": "CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
   },
   "ch10-00-distributed-runtime.md": {
-    "landed": "2026-11-15",
+    "landed": "2026-11-15 (#77)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1"
   },
   "ch10-01-gateway.md": {
-    "landed": "2026-11-15",
+    "landed": "2026-11-15 (#77)",
     "verified": "gateway v3.22.1; server v3.161.2 (`should_publish`)"
   },
   "ch10-02-server.md": {
-    "landed": "2026-11-15",
+    "landed": "2026-11-15 (#77)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1"
   },
   "ch10-03-bus-and-pools.md": {
-    "landed": "2026-11-15",
+    "landed": "2026-11-15 (#77)",
     "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1"
   },
   "ch10-04-slots-and-keda.md": {
-    "landed": "2026-11-15",
+    "landed": "2026-11-15 (#77)",
     "verified": "worker v6.15.0; resource model DEPLOYED as of 2026-11-11 (server v3.161.2)"
   },
   "ch11-00-choosing-a-runtime.md": {

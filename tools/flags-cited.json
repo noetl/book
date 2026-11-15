@@ -1,0 +1,173 @@
+{
+  "_doc": "AP-C (#48): runtime flags the chapters cite that the DSL artifacts do not name. Each entry is checked against the source at the release given. tools/gen-appendices.py renders them into Appendix C and fails if a chapter cites a NOETL_*/WORKER_*/GATEWAY_* variable that is in neither table. Names ending in '_' in prose are patterns (e.g. NOETL_MCP_<SLUG>_ENDPOINT) and are not checked.",
+  "flags": [
+    {
+      "var": "NOETL_ORCHESTRATE_PLUGIN_DRIVE",
+      "read_by": "server",
+      "default": "true",
+      "what": "run each drive pass as the `__orchestrate__` WASM command on the system pool; false drives in process",
+      "source": "server v3.161.2 src/config/app.rs:70-87"
+    },
+    {
+      "var": "NOETL_ORPHAN_SWEEP_ENABLED",
+      "read_by": "server",
+      "default": "false",
+      "what": "fail (playbook.failed) a RUNNING execution whose outstanding claim belongs to a dead worker",
+      "source": "server v3.161.2 src/config/app.rs:600-627"
+    },
+    {
+      "var": "NOETL_NONCONVERGENCE_SWEEP_ENABLED",
+      "read_by": "server",
+      "default": "false",
+      "what": "fail an execution whose newest event has not moved for a grace period while nothing can move it",
+      "source": "server v3.161.2 src/config/app.rs:680-700"
+    },
+    {
+      "var": "NOETL_EVENT_INGEST_PUBLISH_ONLY",
+      "read_by": "server",
+      "default": "false",
+      "what": "publish ingested events to the EHDB events feed (the gateway's SSE source); off, the feed receives nothing",
+      "source": "server v3.161.2 src/config/app.rs:118-125, src/handlers/event_write.rs:304-318"
+    },
+    {
+      "var": "NOETL_CATALOG_READ_SOURCE",
+      "read_by": "server",
+      "default": "postgres",
+      "what": "where the catalog's latest version resolves from: postgres, verify, or tier",
+      "source": "server v3.161.2 src/handlers/catalog_read.rs:3-13, 37"
+    },
+    {
+      "var": "NOETL_CATALOG_LOG",
+      "read_by": "server",
+      "default": "off",
+      "what": "shadow: also record each registration in the EHDB catalog tier",
+      "source": "server v3.161.2 src/handlers/catalog_log.rs:26-27, src/services/catalog.rs:163"
+    },
+    {
+      "var": "NOETL_DSL_KB",
+      "read_by": "server",
+      "default": "false",
+      "what": "mount the DSL knowledge-base routes",
+      "source": "server v3.161.2 src/main.rs:1064"
+    },
+    {
+      "var": "NOETL_INTERNAL_API_TOKEN",
+      "read_by": "server, worker, gateway",
+      "default": "unset",
+      "what": "bearer for internal routes; the gateway's push ingress is refused without it",
+      "source": "server v3.161.2 src/auth_gate.rs:47; gateway v3.22.1 src/main.rs:419-434"
+    },
+    {
+      "var": "NOETL_COMMAND_BUS",
+      "read_by": "server, worker",
+      "default": "none (required)",
+      "what": "the command bus; only the EHDB bus is accepted, NATS is refused",
+      "source": "server v3.161.2 src/command_bus.rs:47-90; worker v6.15.0 src/command_bus.rs:85-115"
+    },
+    {
+      "var": "NOETL_COMMAND_BUS_HOST",
+      "read_by": "worker",
+      "default": "false",
+      "what": "run this worker process as the command-bus writer (the cmdbus-writer)",
+      "source": "worker v6.15.0 src/command_bus.rs:178 (env_bool), src/worker.rs:159-204"
+    },
+    {
+      "var": "NOETL_EVENT_BUS_HOST",
+      "read_by": "worker",
+      "default": "false",
+      "what": "also host the event bus (SSE feed, KV, WAL fan-out)",
+      "source": "worker v6.15.0 src/event_bus.rs:6, 203"
+    },
+    {
+      "var": "NOETL_COMMAND_BUS_ACK_WAIT_SECS",
+      "read_by": "worker (writer)",
+      "default": "30",
+      "what": "seconds before an unacked command is redelivered",
+      "source": "worker v6.15.0 src/command_bus.rs:191"
+    },
+    {
+      "var": "NOETL_FEED_FILTER_SUBJECT",
+      "read_by": "worker",
+      "default": "none (required)",
+      "what": "the pool this worker claims for, e.g. noetl.commands.shared.>; the worker refuses to start without it",
+      "source": "worker v6.15.0 src/config.rs:40-46, src/worker.rs:233-244"
+    },
+    {
+      "var": "NOETL_KEYCHAIN_STRICT",
+      "read_by": "worker",
+      "default": "false",
+      "what": "fail the command when a referenced keychain alias does not resolve, instead of rendering it empty",
+      "source": "worker v6.15.0 src/executor/keychain_namespace.rs:33-51"
+    },
+    {
+      "var": "NOETL_PLAYBOOK_AWAIT_CHILD_RESULT",
+      "read_by": "worker (playbook tool)",
+      "default": "true",
+      "what": "kill-switch: false reverts an awaited child's result to the legacy status payload",
+      "source": "tools v4.6.0 src/tools/playbook.rs:51-53"
+    },
+    {
+      "var": "NOETL_TASK_SEQUENCE_MAX_ITERATIONS",
+      "read_by": "worker (task_sequence tool)",
+      "default": "1000000",
+      "what": "cap on iterations inside one tool list",
+      "source": "tools v4.6.0 src/tools/task_sequence.rs:252-257"
+    },
+    {
+      "var": "NOETL_MCP_REQUEST_TIMEOUT_SECONDS",
+      "read_by": "worker (mcp tool)",
+      "default": "60",
+      "what": "MCP request timeout when the step sets none",
+      "source": "tools v4.6.0 src/tools/mcp.rs:782"
+    },
+    {
+      "var": "NOETL_MCP_URL",
+      "read_by": "worker (mcp tool), CLI",
+      "default": "unset",
+      "what": "fallback MCP endpoint after NOETL_MCP_<SERVER>_ENDPOINT",
+      "source": "tools v4.6.0 src/tools/mcp.rs:28; CLI v6.4.1 executor/src/playbook.rs:599"
+    },
+    {
+      "var": "NOETL_LOCAL_DIR",
+      "read_by": "CLI",
+      "default": "~/.noetl/local",
+      "what": "root of the local runtime's event buffer",
+      "source": "CLI v6.4.1 src/local_buffer.rs:11"
+    },
+    {
+      "var": "NOETL_KV_ADDR",
+      "read_by": "gateway",
+      "default": "none (required)",
+      "what": "EHDB KV address for sessions, the request store and execution owners",
+      "source": "gateway v3.22.1 src/main.rs:132-161"
+    },
+    {
+      "var": "NOETL_EVENT_FEED_ADDR",
+      "read_by": "gateway",
+      "default": "none (required)",
+      "what": "EHDB events feed the gateway streams to clients over SSE",
+      "source": "gateway v3.22.1 src/main.rs:181-197, src/event_feed.rs:9"
+    },
+    {
+      "var": "GATEWAY_SESSION_VALIDATE_VIA_PLAYBOOK",
+      "read_by": "gateway",
+      "default": "true",
+      "what": "validate an uncached session by running the auth playbook",
+      "source": "gateway v3.22.1 src/auth/mod.rs:174-181"
+    },
+    {
+      "var": "NOETL_AUTH_SYNC",
+      "read_by": "gateway",
+      "default": "false",
+      "what": "validate sessions through the server's synchronous auth path instead of a playbook (a code comment says prod runs it on)",
+      "source": "gateway v3.22.1 src/auth/mod.rs:205-209, 224"
+    },
+    {
+      "var": "NOETL_AUTHZ_SYNC",
+      "read_by": "gateway",
+      "default": "false",
+      "what": "the same synchronous path for authorization checks",
+      "source": "gateway v3.22.1 src/auth/mod.rs:231-235"
+    }
+  ]
+}

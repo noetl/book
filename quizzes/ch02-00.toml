@@ -43,7 +43,7 @@ prompt.prompt = "How many times does `fetch` run, and how many `step.exit` event
 prompt.distractors = ["Twice and twice.", "Once and once.", "Twice and zero."]
 answer.answer = "Twice, but the local buffer records it once."
 context = """
-At CLI v6.4.0 the local trail (and `executed_steps`) lists each step at its
+At CLI v6.4.1 the local trail (and `executed_steps`) lists each step at its
 first run only. A server records every pass.
 """
 id = "cb35304d-d5e2-4dd7-bb6d-b00dacf407b3"
@@ -57,7 +57,7 @@ prompt.distractors = [
   "The current working directory's `noetl.duckdb`.",
 ]
 answer.answer = "`.noetl/state.duckdb` next to the playbook file."
-context = "`default_duckdb_path` is `.noetl/state.duckdb`, resolved against the playbook's directory (CLI v6.4.0)."
+context = "`default_duckdb_path` is `.noetl/state.duckdb`, resolved against the playbook's directory (CLI v6.4.1)."
 id = "72e8f149-a6fe-40f9-80f3-699940896a25"
 
 [[questions]]

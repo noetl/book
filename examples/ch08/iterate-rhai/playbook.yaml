@@ -1,4 +1,4 @@
-# Chapter 8.3: iterate inside ONE step with a Rhai loop (local runtime, CLI 6.4.0).
+# Chapter 8.3: iterate inside ONE step with a Rhai loop (local runtime, CLI 6.4.1).
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

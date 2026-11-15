@@ -2,7 +2,7 @@
 
 <span class="status status-real">REAL</span>
 
-At CLI v6.4.0 the local runtime accepts **eleven** kinds: `shell`,
+At CLI v6.4.1 the local runtime accepts **eleven** kinds: `shell`,
 `http`, `playbook`, `duckdb`, `auth`, `sink`, `rhai`, `provider`,
 `agent`, `mcp` and `noop`. That is the list in its refusal message
 (`LOCAL_KINDS_FOR_MESSAGE`). The check itself asks the CLI's `Tool`
@@ -46,7 +46,7 @@ playbook would need to move to a cluster (comment on
 | `playbook` | Runs the child **in the same process**, resolving `path` relative to the parent. `input:` is passed to the child as workload. The step has **no result unless `return_result: true`**, the same opt-in as on a cluster. A path on another NoETL instance (`noetl://…`, `peer/<instance>/…`) is refused. |
 | `mcp` | Calls an MCP server at a URL. A `server: mcp/<path>` catalog reference is refused unless `NOETL_MCP_<SLUG>_ENDPOINT` or `NOETL_MCP_URL` supplies an endpoint. |
 | `agent` | Runs a model call loop. Credentials come from the local store. |
-| `sink` | Writes to a file, a DuckDB table or GCS. ⚠ See below. |
+| `sink` | Writes the result of the most recently completed step to a file, a DuckDB table or GCS (`format:` `json`, the default, `yaml` or `csv`). See below. |
 | `auth`, `provider` | Local-only. `auth` obtains a provider access token (`provider`, `scopes`); `provider` runs cloud-provider operations through the same tool a worker would use. |
 | `noop` | Does nothing, and the step is **not recorded** in `executed_steps`. |
 
@@ -60,14 +60,28 @@ The sub-playbook case, run in CI (`examples/ch08/sub-playbook`):
 {{#include ../examples/ch08/sub-playbook/expected.json}}
 ```
 
-```admonish warning title="`sink` writes an arbitrary step's result"
-At CLI v6.4.0 the local `sink` tool writes
+```admonish note title="Fixed in v6.4.1: `sink` writes the most recent result"
+Up to CLI v6.4.0 the local `sink` tool wrote
 `context.step_results.values().last()`. `step_results` is a hash map,
-which has no defined order, so once two or more steps have results,
-which one is written is not defined (`src/playbook_runner.rs`, the
-`Tool::Sink` arm). Until that is fixed, write files from a `duckdb`
-step (`COPY … TO`), as [Chapter 2](ch02-00-project-first-playbook.md)
-does.
+which has no defined order, so once two or more steps had results the
+sink wrote an arbitrary one, and which one changed from run to run.
+From **v6.4.1** (noetl/cli#111) the runner records which step finished
+most recently, a back-edge re-run included, and the sink writes that
+step's result.
+```
+
+This example has eight steps that each produce a result before the
+sink, then reads the file back. On v6.4.0 it printed a different word
+on different runs; on v6.4.1 it always prints `eight`
+(`examples/ch08/sink-last-result`, run in CI). `sink` is local-only, so
+the server's playbook schema refuses this playbook; CI checks that too:
+
+```yaml
+{{#include ../examples/ch08/sink-last-result/playbook.yaml}}
+```
+
+```text
+{{#include ../examples/ch08/sink-last-result/expected.txt}}
 ```
 
 ## Check your understanding

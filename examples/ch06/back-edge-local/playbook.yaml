@@ -1,4 +1,4 @@
-# Chapter 6.4 (local, CLI 6.4.0): a back-edge loop. `count` re-runs until its
+# Chapter 6.4 (local, CLI 6.4.1): a back-edge loop. `count` re-runs until its
 # guard fails. Locally the counter travels in step `vars:` (the server ignores
 # those; see examples/ch06/back-edge for the server form).
 apiVersion: noetl.io/v2

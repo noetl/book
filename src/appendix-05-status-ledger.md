@@ -27,44 +27,44 @@ this table is stale.
 | Foreword | — | not written | | |
 | [Introduction](ch00-00-introduction.md) | **REAL** | written | claims linked to Ch. 1–11; no version-specific numbers | 2026-11-14 (#10) |
 | [How to Read This Book: Status Badges, Quizzes and Traces](ch00-01-how-to-read.md) | **REAL** | written | resource model `labels`, server v3.161.2 | 2026-11-13 (#65) |
-| [Getting Started](ch01-00-getting-started.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Installation](ch01-01-installation.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Hello, Playbook](ch01-02-hello-playbook.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Running It Locally with the CLI](ch01-03-running-locally.md) | **REAL** | written | CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
-| [Project: Fetch, Transform, Store — Your First Real Playbook](ch02-00-project-first-playbook.md) | **REAL** | written | CLI v6.4.0 (run in CI); data pinned at server `983e36e` | 2026-11-13 (#12) |
+| [Getting Started](ch01-00-getting-started.md) | **REAL** | written | CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Installation](ch01-01-installation.md) | **REAL** | written | CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Hello, Playbook](ch01-02-hello-playbook.md) | **REAL** | written | CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Running It Locally with the CLI](ch01-03-running-locally.md) | **REAL** | written | CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`) | 2026-11-14 (#11) |
+| [Project: Fetch, Transform, Store — Your First Real Playbook](ch02-00-project-first-playbook.md) | **REAL** | written | CLI v6.4.1 (run in CI); data pinned at server `983e36e` | 2026-11-13 (#12) |
 | [What NoETL Is](ch03-00-what-noetl-is.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0 | 2026-11-15 (#64) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Declarative Orchestration](ch03-01-declarative-orchestration.md) | **REAL** | written | server v3.161.2 `orchestrate-core` (`WorkflowOrchestrator`) | 2026-11-15 (#64) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Event Sourcing: The Log Is the Truth](ch03-02-event-sourcing.md) | **REAL** | written | server v3.161.2 (`983e36e`) | 2026-11-15 (#64) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Ephemeral Blueprints and Stateless Workers](ch03-03-blueprints-and-workers.md) | **REAL** | written | worker v6.15.0 | 2026-11-15 (#64) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Two Catalogs: Internal Objects vs Business Data](ch03-04-two-catalogs.md) | **PARTIAL** | written | server v3.161.2: catalog in Postgres by default; EHDB-only is the target (PARTIAL) | 2026-11-15 (#64) |
-| [Anatomy of a Playbook](ch04-00-anatomy-of-a-playbook.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`apiVersion`, `kind`, `metadata`](ch04-01-header.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`workload`, `vars` and Templating](ch04-02-workload-and-templating.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`workflow`: Steps](ch04-03-steps.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`keychain`: Credentials by Reference](ch04-04-keychain.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`workbook`: Reusable Tasks](ch04-05-workbook.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#58) |
-| [Tools](ch05-00-tools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model | 2026-11-13 (#59) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[The Tool Kinds](ch05-01-tool-kinds.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model | 2026-11-13 (#59) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[The Ordered Tool List: One Command, One Slot](ch05-02-ordered-tool-list.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model | 2026-11-13 (#59) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Results, References and Size Limits](ch05-03-results-and-references.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model | 2026-11-13 (#59) |
-| [Control Flow](ch06-00-control-flow.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`next`, Arcs and Routers](ch06-01-next-and-routers.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`when` Guards](ch06-02-when-guards.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[`loop:` — Sequential, Parallel, Cursor](ch06-03-loop.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Back-Edges: Loops as Goto](ch06-04-back-edges.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Errors, Timeouts and Retries — What Is Enforced](ch06-05-errors-timeouts-retries.md) | **PARTIAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0 | 2026-11-13 (#60) |
+| [Anatomy of a Playbook](ch04-00-anatomy-of-a-playbook.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`apiVersion`, `kind`, `metadata`](ch04-01-header.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`workload`, `vars` and Templating](ch04-02-workload-and-templating.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`workflow`: Steps](ch04-03-steps.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`keychain`: Credentials by Reference](ch04-04-keychain.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`workbook`: Reusable Tasks](ch04-05-workbook.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#58) |
+| [Tools](ch05-00-tools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model | 2026-11-13 (#59) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Tool Kinds](ch05-01-tool-kinds.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model | 2026-11-13 (#59) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Ordered Tool List: One Command, One Slot](ch05-02-ordered-tool-list.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model | 2026-11-13 (#59) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Results, References and Size Limits](ch05-03-results-and-references.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model | 2026-11-13 (#59) |
+| [Control Flow](ch06-00-control-flow.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`next`, Arcs and Routers](ch06-01-next-and-routers.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`when` Guards](ch06-02-when-guards.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[`loop:` — Sequential, Parallel, Cursor](ch06-03-loop.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Back-Edges: Loops as Goto](ch06-04-back-edges.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Errors, Timeouts and Retries — What Is Enforced](ch06-05-errors-timeouts-retries.md) | **PARTIAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1 | 2026-11-13 (#60) |
 | [Composition: Sub-Playbooks](ch07-00-sub-playbooks.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[`kind: playbook` and Child Executions](ch07-01-child-executions.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[What a Hop Costs](ch07-02-what-a-hop-costs.md) | **REAL** | written | tools v4.6.0 `src/tools/playbook.rs`; resource model @ server v3.161.2; ai-meta PR #556 (open) | 2026-11-14 (#17) |
-| [The Local Runtime: `noetl run`](ch08-00-local-runtime.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[One Process, One Interpreter](ch08-01-in-process-interpreter.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Local Tool Kinds and Their Limits](ch08-02-local-kinds.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Iterating Without `loop:` — Arcs, SQL and Rhai](ch08-03-local-iteration.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[The Local Event Buffer and `noetl push`](ch08-04-event-buffer.md) | **REAL** | written | CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
-| [The Daemon: `noetl subscribe` and `noetl serve`](ch09-00-daemon.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Subscriptions: NATS, Pub/Sub, Kafka](ch09-01-subscriptions.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Spooling and the Event Trail](ch09-02-spool-and-trail.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Dispatching to a Server](ch09-03-dispatch-to-server.md) | **REAL** | written | CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| [The Local Runtime: `noetl run`](ch08-00-local-runtime.md) | **REAL** | written | CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[One Process, One Interpreter](ch08-01-in-process-interpreter.md) | **REAL** | written | CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Local Tool Kinds and Their Limits](ch08-02-local-kinds.md) | **REAL** | written | CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Iterating Without `loop:` — Arcs, SQL and Rhai](ch08-03-local-iteration.md) | **REAL** | written | CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Local Event Buffer and `noetl push`](ch08-04-event-buffer.md) | **REAL** | written | CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table | 2026-11-14 (#18) |
+| [The Daemon: `noetl subscribe` and `noetl serve`](ch09-00-daemon.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Subscriptions: NATS, Pub/Sub, Kafka](ch09-01-subscriptions.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Spooling and the Event Trail](ch09-02-spool-and-trail.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Dispatching to a Server](ch09-03-dispatch-to-server.md) | **REAL** | written | CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/` | 2026-11-14 (#19) |
 | The Distributed Runtime | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Gateway: The Gatekeeper | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Server: The Orchestrate-Core Drive | REAL | not written | | |
@@ -150,7 +150,7 @@ this table is stale.
 | Credentials and Secrets | REAL | not written | | |
 | Representation Drift: Keeping What You Know True | REAL | not written | | |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |
-| [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.0 | 2026-11-13 (#57, #63) |
+| [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1 | 2026-11-13 (#57, #63) |
 | [Appendix C: Feature Flags and Environment Variables](appendix-03-flags.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57) |
 | [Appendix D: The Resource Model, Annotated](appendix-04-resource-model.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57) |
 | [Appendix E: Status Ledger — REAL vs TARGET by Chapter](appendix-05-status-ledger.md) | **REAL** | written | generated from the pages | 2026-11-13 (#47) |
@@ -169,7 +169,7 @@ the CI job log prints it (`noetl --version`).
 
 | Component | Version | Where it is pinned |
 |---|---|---|
-| NoETL CLI (`noetl run`, local runtime) | **6.4.0** (released 2026-11-11) | `examples/NOETL_CLI_VERSION` |
+| NoETL CLI (`noetl run`, local runtime) | **6.4.1** (released 2026-11-15) | `examples/NOETL_CLI_VERSION` |
 | mdBook | 0.4.40 | `.github/workflows/book.yml` |
 | mdbook-linkcheck | 0.7.7 | `.github/workflows/book.yml` |
 | mdbook-quiz | 0.3.12 | `.github/workflows/book.yml` |

@@ -12,7 +12,7 @@ rule here is tied to the code that implements it. Server rules are from
 the orchestrator in `orchestrate-core` at **server v3.161.2** (commit
 `983e36e`). It is the same engine whether the server drives an
 execution itself or runs it as WASM on a worker. Local behaviour is
-from **CLI v6.4.0**, and every local claim is a CI example.
+from **CLI v6.4.1**, and every local claim is a CI example.
 
 ## How an execution moves
 

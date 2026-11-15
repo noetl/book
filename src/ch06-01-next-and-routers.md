@@ -62,7 +62,7 @@ Routers do not take `args`, and the grammar's own comment says arc
 
 ## On the local runtime
 
-The local runtime (CLI v6.4.0) implements forms 3 and 4 the way the
+The local runtime (CLI v6.4.1) implements forms 3 and 4 the way the
 server does, except that "in parallel" becomes "one after another" in
 one process. CI checks both:
 
@@ -82,7 +82,7 @@ It does **not** implement forms 1 and 2:
 ```
 
 ```admonish warning title="Locally, `next: b` and `next: [a, b]` do nothing"
-At CLI v6.4.0, a `next` that is a bare name or a list of bare names
+At CLI v6.4.1, a `next` that is a bare name or a list of bare names
 is ignored. The run stops after the step, with status `ok` and no
 warning. For a playbook that must run locally too, write targets
 (`next: [{step: b}]`) or a router.

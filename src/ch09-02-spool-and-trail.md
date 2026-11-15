@@ -32,7 +32,7 @@ lifecycle events carry the subscription's id.
 A subscription can declare a **spool**. When the downstream (the
 target of dispatch) is unreachable, messages are written to disk and
 replayed when it comes back. In local mode the only spool backend is
-**`local_disk`** (`src/subscribe/spool.rs`, CLI v6.4.0). The engine
+**`local_disk`** (`src/subscribe/spool.rs`, CLI v6.4.1). The engine
 (circuit breaker, ordering, idempotency, dead-letter, retention) is
 shared with the worker's spool runtime, from the tool library.
 

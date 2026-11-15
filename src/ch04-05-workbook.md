@@ -60,7 +60,7 @@ entry holds one tool, not a list, so an ordered tool list
 ([5.2](ch05-02-ordered-tool-list.md)) cannot live in a workbook entry.
 
 ```admonish warning title="Not on the local runtime"
-At CLI v6.4.0 the local runtime does not accept `kind: workbook`. A
+At CLI v6.4.1 the local runtime does not accept `kind: workbook`. A
 playbook that uses it is refused before any step runs, with the list
 of kinds the local runtime supports.
 ```

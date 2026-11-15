@@ -8,13 +8,13 @@ playbook, and it is how the book's CI runs its examples. It is also a
 **different implementation** from the server's: it parses the same
 grammar, but it supports fewer tool kinds, ignores some keys, and has
 its own template and condition rules. This chapter is the complete
-list of those differences at **CLI v6.4.0**. Every claim here is
+list of those differences at **CLI v6.4.1**. Every claim here is
 either a CI example or a line of the CLI's source at that tag.
 
 ## Which runtime runs a playbook
 
 `noetl run <ref>` picks its runtime with a three-rung ladder
-(`resolve_runtime`, `src/lib.rs`, CLI v6.4.0):
+(`resolve_runtime`, `src/lib.rs`, CLI v6.4.1):
 
 1. **`-r` / `--runtime`**, if it is `local` or `distributed`. The value
    `auto`, which is also the default, means "not set".

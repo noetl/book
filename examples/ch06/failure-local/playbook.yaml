@@ -1,4 +1,4 @@
-# Chapter 6.5 (local, CLI 6.4.0): a failing step stops the run; `after` never runs,
+# Chapter 6.5 (local, CLI 6.4.1): a failing step stops the run; `after` never runs,
 # and `spec.on_error: continue` changes nothing.
 apiVersion: noetl.io/v2
 kind: Playbook

@@ -14,7 +14,7 @@ Everything in this chapter was checked against the grammar the NoETL
 server publishes, `orchestrate-core/schema/playbook.schema.json`, at
 **server v3.161.2** (commit `983e36e`, 2026-11-12), against the server's
 validator (`src/playbook/parser.rs`) at the same commit, and against
-the local runtime in **CLI v6.4.0**. The full key-by-key reference is
+the local runtime in **CLI v6.4.1**. The full key-by-key reference is
 generated from that file in [Appendix A](appendix-01-dsl-reference.md).
 
 ## The whole thing on one page
@@ -97,7 +97,7 @@ validator and lists every problem at once. It is mounted only when the
 server sets `NOETL_DSL_KB=true`, which is off by default.
 
 ```admonish warning title="The local runtime is more forgiving"
-The local runtime in CLI v6.4.0 does not run the server's validator.
+The local runtime in CLI v6.4.1 does not run the server's validator.
 It starts at the **first** step in `workflow`, whatever its name, and
 does not require a `start` step. A playbook that runs locally can
 therefore still be refused by a server. Name your first step `start`

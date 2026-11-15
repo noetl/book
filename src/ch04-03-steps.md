@@ -54,7 +54,7 @@ simply ends its branch. [Chapter 6](ch06-00-control-flow.md) explains
 when the whole execution counts as finished.
 
 ```admonish warning title="Where the local runtime differs"
-Checked in CLI v6.4.0 (`src/playbook_runner.rs`):
+Checked in CLI v6.4.1 (`src/playbook_runner.rs`):
 
 - It starts at the **first** step in the list, not at `start`. You can
   change that with `--target <step>`.

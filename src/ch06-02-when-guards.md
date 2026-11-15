@@ -73,7 +73,7 @@ Two consequences:
 
 ## On the local runtime
 
-The local runtime (CLI v6.4.0) supports a smaller condition language:
+The local runtime (CLI v6.4.1) supports a smaller condition language:
 `==`, `!=`, `'x' in y`, and a bare value tested for truthiness with
 the same false-like words. It has no `<` or `>` and no `and` / `or`
 (`evaluate_condition`, `executor/src/condition.rs`). For anything more,

@@ -12,7 +12,7 @@ both.
 
 Server facts here were checked at **server v3.161.2** (commit
 `983e36e`) and worker v6.15.0. Local facts were checked at **CLI
-v6.4.0** and are asserted by CI examples.
+v6.4.1** and are asserted by CI examples.
 
 ## `workload`: inputs
 
@@ -65,7 +65,7 @@ The names a step's templates can see on the server are:
 
 The local runtime does **not** run a Jinja engine. It substitutes
 tokens in a single pass (`render_template`,
-`executor/src/template.rs`, CLI v6.4.0):
+`executor/src/template.rs`, CLI v6.4.1):
 
 - `{{ name }}` is replaced only when written with **exactly one space**
   inside each brace. `{{name}}` is left as it is.
@@ -96,7 +96,7 @@ So `b` stayed literal (no spaces), `c` used the `upper` filter, and
 Here the runtimes really diverge. There are three variable mechanisms
 in the grammar, and each runtime honours a different subset:
 
-| Mechanism | Server (v3.161.2) | Local (CLI v6.4.0) |
+| Mechanism | Server (v3.161.2) | Local (CLI v6.4.1) |
 |---|---|---|
 | top-level `vars:` | parsed; **nothing reads it** | not loaded |
 | step `vars:` (extract from the result) | parsed; **nothing reads it** | **works**: sets `{{ vars.<key> }}` |

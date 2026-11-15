@@ -80,7 +80,7 @@ when a playbook asks for it.
 ## On the local runtime
 
 ```admonish warning title="The local runtime ignores `loop:`"
-At CLI v6.4.0 the local runtime parses `loop:` but has no code that
+At CLI v6.4.1 the local runtime parses `loop:` but has no code that
 reads it. A loop step runs **once**, as if `loop:` were not there, and
 the run ends `ok`. CI checks this (`examples/ch08/loop-runs-once`).
 Locally, iterate with a back-edge ([6.4](ch06-04-back-edges.md)) or

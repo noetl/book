@@ -1,4 +1,4 @@
-# Chapter 4.2: which variable mechanisms the LOCAL runtime (CLI 6.4.0) honours.
+# Chapter 4.2: which variable mechanisms the LOCAL runtime (CLI 6.4.1) honours.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

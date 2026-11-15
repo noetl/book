@@ -95,7 +95,7 @@ and back-edges *between* steps have none
 ## Not on the local runtime
 
 ```admonish warning title="The local runtime cannot read a tool list"
-At CLI v6.4.0 a step whose `tool:` is a list fails to parse, with
+At CLI v6.4.1 a step whose `tool:` is a list fails to parse, with
 `workflow[0].tool[0]: invalid type: map, expected variant identifier`,
 and nothing runs. CI checks this (`examples/ch05/pipeline-refused-local`).
 The example above is a distributed one: CI validates it against the

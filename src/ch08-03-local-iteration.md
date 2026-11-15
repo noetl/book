@@ -3,7 +3,7 @@
 <span class="status status-real">REAL</span>
 
 ```admonish myth
-"The local runtime runs `loop:`." At CLI v6.4.0 it parses `loop:` into
+"The local runtime runs `loop:`." At CLI v6.4.1 it parses `loop:` into
 `Step.loop_config`, and **nothing reads that field**
 (`git grep loop_config` finds only its declaration). A loop step runs
 **once**, as if `loop:` were absent, and the run ends `ok` with no
@@ -12,7 +12,7 @@ warning. CI checks this: `examples/ch08/loop-runs-once`.
 
 The reference page `docs/reference/rust_local_execution.md` in
 `noetl/docs` lists `step.loop` under "current DSL semantics (what local
-mode must preserve)". That is a requirement, and at v6.4.0 the code
+mode must preserve)". That is a requirement, and at v6.4.1 the code
 does not meet it.
 
 Three ways to iterate locally actually work. All three are CI

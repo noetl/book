@@ -15,7 +15,7 @@ the CLI process.
   reading its output, and the local event trail.
 
 Every example in this chapter is in the book's repository under
-`examples/ch01/`, and CI runs it with **NoETL CLI v6.4.0**.
+`examples/ch01/`, and CI runs it with **NoETL CLI v6.4.1**.
 
 ## Check your understanding
 

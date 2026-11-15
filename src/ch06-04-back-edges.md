@@ -61,7 +61,7 @@ that the source eventually clears.
 
 ## On the local runtime
 
-Back-edges work locally (CLI v6.4.0), with the local variable rules:
+Back-edges work locally (CLI v6.4.1), with the local variable rules:
 the counter travels in step `vars:`, not `set:`. This version runs in
 CI:
 

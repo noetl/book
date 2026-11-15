@@ -5,7 +5,7 @@
 A local run normally leaves no history. With `--event-buffer`, it
 records its events the way a server would, in a local file you can
 read or ship to a server later (`noetl run --help`, `noetl buffer
---help`, `noetl push --help`, CLI v6.4.0).
+--help`, `noetl push --help`, CLI v6.4.1).
 
 ```console
 $ noetl run playbook.yaml -r local --event-buffer

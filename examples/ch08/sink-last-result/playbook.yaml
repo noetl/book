@@ -1,0 +1,43 @@
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: sink_last_result
+  description: Eight steps produce results; the sink writes the last one.
+workflow:
+  - step: start
+    tool: {kind: rhai, code: '"one"'}
+    next: [{step: two}]
+  - step: two
+    tool: {kind: rhai, code: '"two"'}
+    next: [{step: three}]
+  - step: three
+    tool: {kind: rhai, code: '"three"'}
+    next: [{step: four}]
+  - step: four
+    tool: {kind: rhai, code: '"four"'}
+    next: [{step: five}]
+  - step: five
+    tool: {kind: rhai, code: '"five"'}
+    next: [{step: six}]
+  - step: six
+    tool: {kind: rhai, code: '"six"'}
+    next: [{step: seven}]
+  - step: seven
+    tool: {kind: rhai, code: '"seven"'}
+    next: [{step: eight}]
+  - step: eight
+    tool: {kind: rhai, code: '"eight"'}
+    next: [{step: save}]
+  - step: save
+    tool:
+      kind: sink
+      format: json
+      target:
+        type: file
+        path: /tmp/noetl-book-ch08-sink.json
+    next: [{step: check}]
+  - step: check
+    tool:
+      kind: duckdb
+      db: /tmp/noetl-book-ch08-sink.duckdb
+      query: "SELECT content FROM read_text('/tmp/noetl-book-ch08-sink.json')"

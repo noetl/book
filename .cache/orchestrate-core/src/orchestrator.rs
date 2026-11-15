@@ -1,0 +1,5112 @@
+//! Workflow orchestration engine.
+//!
+//! Coordinates workflow execution by:
+//! - Analyzing events to determine current state
+//! - Evaluating transitions to determine next steps
+//! - Publishing commands for workers
+
+use std::collections::{HashMap, HashSet};
+
+use serde::{Deserialize, Serialize};
+use tracing::{debug, info, warn};
+
+use crate::error::{CoreError, CoreResult};
+use crate::event::Event;
+use crate::playbook::{LoopMode, NextSpec, Playbook, Step};
+
+use crate::commands::{Command, CommandBuilder, IteratorMetadata};
+use crate::evaluator::ConditionEvaluator;
+use crate::state::{
+    apply_set_mutations, extract_user_data, ExecutionState, StepState, WorkflowState,
+};
+use crate::template::TemplateRenderer;
+
+/// Merge iterator metadata into the step-enter context so
+/// `state.apply_event` can stamp `iterations_expected` (and a
+/// readable iterator name) onto the resulting `StepInfo` during
+/// state reconstruction.  `with_params` is the existing transition
+/// context (if any); the helper returns a new JSON object that
+/// includes both that AND the iteration keys.
+fn merge_iteration_context(
+    with_params: Option<serde_json::Value>,
+    iterations_expected: i32,
+    iterator_var: &str,
+) -> serde_json::Value {
+    let mut obj = match with_params {
+        Some(serde_json::Value::Object(m)) => m,
+        _ => serde_json::Map::new(),
+    };
+    obj.insert(
+        "iterations_expected".to_string(),
+        serde_json::json!(iterations_expected),
+    );
+    obj.insert(
+        "iterator_var".to_string(),
+        serde_json::Value::String(iterator_var.to_string()),
+    );
+    serde_json::Value::Object(obj)
+}
+
+/// Build the `output` namespace for a completed step's `when:` / `set:`
+/// rendering (noetl/ai-meta#100 PFT parity).  Exposes the step's unwrapped
+/// tool data both as `output.X` and `output.data.X` (mirrors `build_context`'s
+/// per-step `with_data` shape).  Returns `None` when the step has no result.
+fn output_namespace(state: &WorkflowState, step_name: &str) -> Option<serde_json::Value> {
+    let result = state.steps.get(step_name)?.result.as_ref()?;
+    let data = extract_user_data(result).unwrap_or_else(|| result.clone());
+    let out = match &data {
+        serde_json::Value::Object(m) if !m.contains_key("data") => {
+            let mut o = m.clone();
+            o.insert("data".to_string(), data.clone());
+            serde_json::Value::Object(o)
+        }
+        _ => data,
+    };
+    Some(out)
+}
+
+/// noetl/ai-meta#123: prepend the offending loop step name to an
+/// `evaluate_loop` error so the surfaced `playbook.failed` names *which*
+/// step's `in:` failed — without nesting a second `Validation error:`
+/// prefix (which `CoreError`'s `Display` would add if the whole error were
+/// re-wrapped).  The inner message (e.g. `Loop expression '…' did not
+/// evaluate to an iterable (got null)`) is preserved verbatim.
+fn prefix_loop_step_error(step_name: &str, e: CoreError) -> CoreError {
+    match e {
+        CoreError::Validation(msg) => {
+            CoreError::Validation(format!("loop step '{step_name}': {msg}"))
+        }
+        CoreError::Template(msg) => CoreError::Template(format!("loop step '{step_name}': {msg}")),
+    }
+}
+
+/// Add `ctx` and `workload` namespace shims to a flat variable
+/// context.  Mirrors the same pattern in `CommandBuilder::build_command`
+/// (commands.rs:108-115) so that `{{ ctx.foo }}` and `{{ workload.foo }}`
+/// resolve in orchestrator-level evaluation (loop expressions, step.when
+/// guards, transition conditions), not just in tool command rendering.
+///
+/// Uses `entry().or_insert_with()` to avoid clobbering existing bindings
+/// — if the context already carries a `ctx` or `workload` key (e.g. from
+/// a prior shim call or from the workload block), the existing value wins.
+fn with_ctx_shims(
+    context: &HashMap<String, serde_json::Value>,
+) -> HashMap<String, serde_json::Value> {
+    let mut render_ctx = context.clone();
+    let ctx_value = serde_json::to_value(context).unwrap_or(serde_json::Value::Null);
+    render_ctx
+        .entry("ctx".to_string())
+        .or_insert_with(|| ctx_value.clone());
+    render_ctx
+        .entry("workload".to_string())
+        .or_insert_with(|| ctx_value);
+    render_ctx
+}
+
+/// Strip `set:` scope prefixes (`ctx.` / `iter.` / `step.`) from
+/// rendered mutation keys, mirroring [`apply_set_mutations`]'s write
+/// rule, and return the bare-key → value map.
+///
+/// noetl/ai-meta#85: used to build the `ctx.updated` event payload so
+/// the durable-context fold keys match the in-context (post
+/// scope-strip) shape — `ctx.offset` persists as `offset`, exactly the
+/// key `build_context`'s overlay re-inserts.
+fn strip_set_scopes(
+    rendered: &HashMap<String, serde_json::Value>,
+) -> serde_json::Map<String, serde_json::Value> {
+    let mut out = serde_json::Map::with_capacity(rendered.len());
+    for (key, value) in rendered {
+        let bare = match key.split_once('.') {
+            Some(("ctx" | "iter" | "step", bare)) => bare.to_string(),
+            _ => key.clone(),
+        };
+        out.insert(bare, value.clone());
+    }
+    out
+}
+
+/// Build the inverse arc graph for a workflow: `target_step` →
+/// `{ upstream steps that point at it }`.
+///
+/// Used by the orchestrator's fan-in / reduce barrier (Phase D R4,
+/// noetl/ai-meta#49 → noetl/server#142).  A step with **more than
+/// one** entry in its upstream set is a reduce boundary — its
+/// dispatch is deferred until every upstream is in a terminal
+/// state (`Completed | Failed | Skipped`).  Single-upstream
+/// targets are unaffected.
+///
+/// Mirrors `repos/noetl/noetl/core/dsl/engine/planner.py`'s
+/// `build_fanout_reduce_plan` `incoming` map — every step's
+/// `next` arc collects all its outgoing targets, and the inverse
+/// gives the set of upstreams per step.  Targets that are not
+/// real steps in the workflow (notably the sentinel `"end"`) are
+/// skipped — the orchestrator already special-cases `end` via the
+/// `reached_end` quiescent path.
+///
+/// The empty/missing-`next` case yields no edges (a terminal step
+/// produces no targets).
+///
+/// **Back-edges (loops) are excluded.**  An arc `u -> t` is a
+/// back-edge when `t` can reach `u` again by following forward arcs
+/// (a self-loop, or a longer cycle like the canonical pagination
+/// `fetch_page -> check_pagination -> fetch_page`).  A back-edge
+/// upstream must NOT gate the fan-in barrier: the barrier waits for
+/// every upstream to reach a terminal state, but a loop's back-edge
+/// source is *downstream* of the target and only runs *after* it —
+/// counting it deadlocks the loop forever (`fetch_page` deferring on
+/// `check_pagination` which never starts).  Excluding back-edges
+/// leaves genuine fan-in untouched (a reduce target can't reach its
+/// parallel upstreams) while letting loop heads dispatch on their
+/// real forward entry.  noetl/ai-meta#83.
+fn build_incoming_arcs<'a>(
+    steps: &'a HashMap<&'a str, &'a Step>,
+) -> HashMap<&'a str, HashSet<&'a str>> {
+    let mut incoming: HashMap<&'a str, HashSet<&'a str>> = HashMap::new();
+    for (step_name, step) in steps {
+        let targets = collect_arc_targets(step);
+        for target in targets {
+            // Only count targets that resolve to a real step in
+            // the workflow definition; the dispatch path drops
+            // unknown targets too.
+            if steps.contains_key(target.as_str()) {
+                // SAFETY: the key lives as long as `steps` (which
+                // outlives this function's borrow).
+                let target_key: &'a str = steps
+                    .get_key_value(target.as_str())
+                    .map(|(k, _)| *k)
+                    .expect("contains_key just confirmed it");
+                incoming.entry(target_key).or_default().insert(step_name);
+            }
+        }
+    }
+    // Drop back-edge upstreams so loops don't deadlock the barrier.
+    for (target, upstreams) in incoming.iter_mut() {
+        let reachable = forward_reachable(target, steps);
+        upstreams.retain(|up| !reachable.contains(up));
+    }
+    // A target whose only upstream was a back-edge (pure loop head
+    // reached solely via the cycle) now has an empty set — drop it so
+    // the barrier's `get(name)` returns None and dispatch proceeds.
+    incoming.retain(|_, upstreams| !upstreams.is_empty());
+    incoming
+}
+
+/// Forward-reachable set: every step reachable from `start` by
+/// following `next` arcs one or more hops.  Cycle-safe (a visited
+/// set bounds the walk), so a step on a loop appears in its own
+/// reachable set.  Used by [`build_incoming_arcs`] to identify
+/// back-edges.
+fn forward_reachable<'a>(
+    start: &'a str,
+    steps: &'a HashMap<&'a str, &'a Step>,
+) -> HashSet<&'a str> {
+    let mut seen: HashSet<&'a str> = HashSet::new();
+    let mut stack: Vec<&'a str> = Vec::new();
+    if let Some(step) = steps.get(start) {
+        for t in collect_arc_targets(step) {
+            if let Some((k, _)) = steps.get_key_value(t.as_str()) {
+                stack.push(*k);
+            }
+        }
+    }
+    while let Some(node) = stack.pop() {
+        if !seen.insert(node) {
+            continue;
+        }
+        if let Some(step) = steps.get(node) {
+            for t in collect_arc_targets(step) {
+                if let Some((k, _)) = steps.get_key_value(t.as_str()) {
+                    if !seen.contains(*k) {
+                        stack.push(*k);
+                    }
+                }
+            }
+        }
+    }
+    seen
+}
+
+/// The set of steps that can still execute on the *current* path:
+/// every step forward-reachable from one of `seeds`, plus the seeds
+/// themselves.  `seeds` are the steps that are live right now — the
+/// in-flight (entered / not-yet-terminal) steps and the step whose
+/// completion is driving this dispatch pass.  Cycle-safe (a visited
+/// set bounds the walk).
+///
+/// noetl/ai-meta#120: the reduce barrier uses this to decide whether
+/// a statically-declared upstream is a *real* pending dependency.  An
+/// upstream that is not done, not skipped, not in-flight, and not
+/// reachable from any live seed can never run on the taken path — it
+/// is the source of a severed open / asymmetric loop back-edge (e.g.
+/// `pft_flow_test`'s `load_next_facility -> setup_facility_work` where
+/// the per-facility loop is bypassed).  Counting it as a barrier
+/// dependency deadlocks dispatch forever (`commands=0`).  The static
+/// `build_incoming_arcs` back-edge filter cannot distinguish this case
+/// because, with the return path absent, the target does NOT
+/// forward-reach the upstream, so the arc looks exactly like a genuine
+/// fan-in — only runtime state tells them apart.
+fn live_reachable<'a>(
+    seeds: &[&'a str],
+    steps: &'a HashMap<&'a str, &'a Step>,
+) -> HashSet<&'a str> {
+    let mut seen: HashSet<&'a str> = HashSet::new();
+    let mut stack: Vec<&'a str> = Vec::new();
+    for seed in seeds {
+        if let Some((k, _)) = steps.get_key_value(*seed) {
+            if seen.insert(*k) {
+                stack.push(*k);
+            }
+        }
+    }
+    while let Some(node) = stack.pop() {
+        if let Some(step) = steps.get(node) {
+            for t in collect_arc_targets(step) {
+                if let Some((k, _)) = steps.get_key_value(t.as_str()) {
+                    if seen.insert(*k) {
+                        stack.push(*k);
+                    }
+                }
+            }
+        }
+    }
+    seen
+}
+
+/// Collect every target step-name referenced by a step's `next`
+/// router, across all four `NextSpec` variants.  Helper for
+/// [`build_incoming_arcs`].
+fn collect_arc_targets(step: &Step) -> Vec<String> {
+    match &step.next {
+        None => Vec::new(),
+        Some(NextSpec::Single(name)) => vec![name.clone()],
+        Some(NextSpec::List(names)) => names.clone(),
+        Some(NextSpec::Router(router)) => router.arcs.iter().map(|a| a.step.clone()).collect(),
+        Some(NextSpec::Targets(targets)) => targets.iter().map(|t| t.step.clone()).collect(),
+    }
+}
+
+/// Result of orchestration evaluation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OrchestrationResult {
+    /// Current execution state.
+    pub state: ExecutionState,
+    /// Commands to issue.
+    pub commands: Vec<Command>,
+    /// Whether the execution should complete.
+    pub should_complete: bool,
+    /// Completion status if should_complete is true.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub completion_status: Option<CompletionStatus>,
+    /// Events to emit.
+    pub events_to_emit: Vec<EventToEmit>,
+}
+
+/// Completion status for a workflow.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompletionStatus {
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failed_steps: Option<Vec<String>>,
+}
+
+/// Event to emit during orchestration.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventToEmit {
+    pub event_type: String,
+    pub node_name: Option<String>,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// Workflow orchestrator.
+pub struct WorkflowOrchestrator {
+    evaluator: ConditionEvaluator,
+    command_builder: CommandBuilder,
+    renderer: TemplateRenderer,
+}
+
+impl Default for WorkflowOrchestrator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl WorkflowOrchestrator {
+    /// Create a new workflow orchestrator (full-context dispatch; default).
+    pub fn new() -> Self {
+        Self::with_atomic_item_context(false)
+    }
+
+    /// Create an orchestrator whose command builder narrows each worker-bound
+    /// command context to the minimal working-item slice (RFC noetl/ai-meta#115
+    /// Phase 5 / tenet 6).  `enabled = false` is identical to [`Self::new`].
+    pub fn with_atomic_item_context(enabled: bool) -> Self {
+        Self {
+            evaluator: ConditionEvaluator::new(),
+            command_builder: CommandBuilder::with_atomic_item_context(enabled),
+            renderer: TemplateRenderer::new(),
+        }
+    }
+
+    /// Evaluate an execution and determine next actions.
+    ///
+    /// This is the main orchestration entry point, called when:
+    /// - A new execution starts
+    /// - A worker reports a result (via event)
+    pub fn evaluate(
+        &self,
+        events: &[Event],
+        playbook: &Playbook,
+        trigger_event_type: Option<&str>,
+    ) -> CoreResult<OrchestrationResult> {
+        // Reconstruct workflow state from events (full path — used by tests and
+        // by trigger_orchestrator on a cold cache).  `state` lives in
+        // noetl-orchestrate-core on the pure `core::event::Event`; convert the
+        // server's `db::Event` slice at this boundary (noetl/ai-meta#109).
+        let mut state = WorkflowState::from_events(events)
+            .ok_or_else(|| CoreError::Validation("No events found for execution".to_string()))?;
+        let latest_ts = events.last().map(|e| e.timestamp);
+        self.evaluate_state(&mut state, latest_ts, playbook, trigger_event_type)
+    }
+
+    /// Orchestrate against an already-built `WorkflowState` (noetl/ai-meta#100
+    /// perf).  `trigger_orchestrator` caches the state per execution and
+    /// advances it by applying only NEW events, then calls this — avoiding the
+    /// O(n) `from_events` rebuild on every trigger.  `latest_ts` is the most
+    /// recent event's timestamp (used to stamp a cursor-drain completion).
+    pub fn evaluate_state(
+        &self,
+        state: &mut WorkflowState,
+        latest_ts: Option<chrono::DateTime<chrono::Utc>>,
+        playbook: &Playbook,
+        trigger_event_type: Option<&str>,
+    ) -> CoreResult<OrchestrationResult> {
+        debug!(
+            "Evaluating execution {}, state: {}, trigger: {:?}",
+            state.execution_id, state.state, trigger_event_type
+        );
+
+        // Check for terminal states
+        if matches!(
+            state.state,
+            ExecutionState::Completed | ExecutionState::Failed | ExecutionState::Cancelled
+        ) {
+            return Ok(OrchestrationResult {
+                state: state.state,
+                commands: vec![],
+                should_complete: false,
+                completion_status: None,
+                events_to_emit: vec![],
+            });
+        }
+
+        // Skip evaluation for progress marker events
+        if let Some(event_type) = trigger_event_type {
+            if matches!(event_type, "step_started" | "step_running") {
+                debug!("Skipping orchestration for progress marker event");
+                return Ok(OrchestrationResult {
+                    state: state.state,
+                    commands: vec![],
+                    should_complete: false,
+                    completion_status: None,
+                    events_to_emit: vec![],
+                });
+            }
+        }
+
+        // Build context for evaluation (convert Value to HashMap)
+        let mut context = value_to_hashmap(&state.build_context());
+
+        // Build step lookup
+        let steps: HashMap<&str, &Step> = playbook
+            .workflow
+            .iter()
+            .map(|s| (s.step.as_str(), s))
+            .collect();
+
+        // Apply step-level `set:` mutations.  Mirrors Python's
+        // step-level `set:` in transitions.py — template expressions
+        // rendered against the completion context, applied via
+        // scope-prefix stripping (ctx.x → x).  Must run before any
+        // evaluate_next / evaluate_loop so the downstream context
+        // includes the mutations.
+        //
+        // noetl/ai-meta#85: a step's `set:` fires **once per
+        // completion**, and the rendered values are persisted to the
+        // event log as a `ctx.updated` event (durable loop-variable
+        // propagation).  `build_context` already overlaid the durable
+        // fold of all prior `ctx.updated` events, so previously-applied
+        // sets are present without re-rendering.  We only render +
+        // apply a step's set here when it has NOT yet been persisted for
+        // the step's current `completed_at` — i.e. the step just
+        // completed (or completed a fresh loop iteration).
+        //
+        // This replaces the old "apply every completed step's set on
+        // every pass" loop, which was the thrash source: `start`'s
+        // `set: ctx.offset: {{ workload.offset }}` (= 0) re-fired each
+        // pass and competed with `check_pagination`'s advancing
+        // `set: ctx.offset` in random HashMap order, reverting the loop
+        // variable to its workload default non-deterministically.
+        //
+        // Newly-completed steps are applied in completion-`event_id`
+        // order so that when several complete in the same pass the
+        // most-recent one wins the ephemeral context (matches the
+        // latest-wins fold the durable persistence does across passes).
+        // `event_id` is the stable completion key — `completed_at` can't
+        // be used because the event loader fills it with `DateTime::from_timestamp(0, 0).unwrap()`
+        // when the row's created_at is unreadable, so it varies across
+        // reconstructions and would defeat the once-per-completion guard.
+        let mut ctx_update_events: Vec<EventToEmit> = Vec::new();
+        let mut newly_completed: Vec<(&str, i64)> = state
+            .steps
+            .iter()
+            .filter(|(name, info)| {
+                info.state == StepState::Completed
+                    && info.completed_event_id.is_some()
+                    && steps
+                        .get(name.as_str())
+                        .map(|s| s.set_vars.is_some())
+                        .unwrap_or(false)
+                    // Not yet persisted for this completion.
+                    && state.ctx_set_marks.get(name.as_str())
+                        != info.completed_event_id.as_ref()
+            })
+            .map(|(name, info)| (name.as_str(), info.completed_event_id.unwrap()))
+            .collect();
+        newly_completed.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(b.0)));
+        for (step_name, completion_gen) in newly_completed {
+            let step_def = match steps.get(step_name) {
+                Some(s) => *s,
+                None => continue,
+            };
+            let Some(set_vars) = &step_def.set_vars else {
+                continue;
+            };
+            let mut shimmed = with_ctx_shims(&context);
+            // noetl/ai-meta#100 (PFT parity): expose the completing step's
+            // result as `output` so step-level `set:` expressions like
+            // `ctx.facility_mapping_id: {{ output.data.rows[0].facility_mapping_id }}`
+            // resolve to the real value instead of the `else` default.
+            if let Some(out) = output_namespace(state, step_name) {
+                shimmed.insert("output".to_string(), out);
+            }
+            let mut rendered: HashMap<String, serde_json::Value> =
+                HashMap::with_capacity(set_vars.len());
+            for (key, val) in set_vars {
+                let rendered_val = match self.renderer.render_value(val, &shimmed) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        warn!(
+                            "step-level set: template render error for key '{}': {}",
+                            key, e
+                        );
+                        val.clone()
+                    }
+                };
+                rendered.insert(key.clone(), rendered_val);
+            }
+            apply_set_mutations(&mut context, &rendered);
+            // Persist this completion's set so it survives the
+            // re-dispatch that workflow-arc loops require.
+            let values = strip_set_scopes(&rendered);
+            if !values.is_empty() {
+                ctx_update_events.push(EventToEmit {
+                    event_type: "ctx.updated".to_string(),
+                    node_name: None,
+                    status: "CONTEXT".to_string(),
+                    context: Some(serde_json::json!({
+                        "step": step_name,
+                        "gen": completion_gen,
+                        "values": serde_json::Value::Object(values),
+                    })),
+                    result: None,
+                    error: None,
+                });
+            }
+        }
+
+        // Apply worker-side `_context_updates` from policy-rule `set:`
+        // evaluation.  The task_sequence tool embeds a `_context_updates`
+        // map in its result data when `spec.policy.rules[].then.set`
+        // mutations fired — these need to propagate to subsequent steps
+        // because the worker only sees one step's pipeline at a time.
+        for (step_name, info) in &state.steps {
+            if !state.is_step_completed(step_name) {
+                continue;
+            }
+            if let Some(result) = &info.result {
+                if let Some(user_data) = extract_user_data(result) {
+                    if let Some(updates) = user_data
+                        .as_object()
+                        .and_then(|m| m.get("_context_updates"))
+                        .and_then(|v| v.as_object())
+                    {
+                        let mutations: HashMap<String, serde_json::Value> = updates
+                            .iter()
+                            .map(|(k, v)| (k.clone(), v.clone()))
+                            .collect();
+                        apply_set_mutations(&mut context, &mutations);
+                    }
+                }
+            }
+        }
+
+        // Determine what to do based on state
+        let mut result = match state.state {
+            ExecutionState::Initial => {
+                // Start first step(s) - always start with "start" step
+                self.dispatch_initial_steps(state, playbook, &context)?
+            }
+            ExecutionState::InProgress => {
+                // Check if we need to dispatch the initial step
+                // (playbook_started but no steps entered yet)
+                if state.steps.is_empty() {
+                    self.dispatch_initial_steps(state, playbook, &context)?
+                } else {
+                    // Process completed steps and determine next steps
+                    self.process_in_progress(
+                        &mut *state,
+                        &steps,
+                        &context,
+                        trigger_event_type,
+                        latest_ts,
+                    )?
+                }
+            }
+            _ => OrchestrationResult {
+                state: state.state,
+                commands: vec![],
+                should_complete: false,
+                completion_status: None,
+                events_to_emit: vec![],
+            },
+        };
+
+        // noetl/ai-meta#85: persist this pass's freshly-applied
+        // step-level `set:` mutations as `ctx.updated` events, ahead of
+        // the dispatch (`step.enter` / `command.issued`) events so the
+        // causal order in the log is "context updated, then next step
+        // dispatched".  Each carries the producing step + its
+        // `completed_at` so reconstruction folds it latest-wins and the
+        // orchestrator never re-emits the same completion's set.
+        if !ctx_update_events.is_empty() {
+            ctx_update_events.append(&mut result.events_to_emit);
+            result.events_to_emit = ctx_update_events;
+        }
+
+        Ok(result)
+    }
+
+    /// Dispatch initial workflow steps.
+    fn dispatch_initial_steps(
+        &self,
+        state: &WorkflowState,
+        playbook: &Playbook,
+        context: &HashMap<String, serde_json::Value>,
+    ) -> CoreResult<OrchestrationResult> {
+        let mut commands = Vec::new();
+        let mut events_to_emit = Vec::new();
+
+        // Find start step (always named "start")
+        let start_step = playbook
+            .get_step("start")
+            .ok_or_else(|| CoreError::Validation("Start step 'start' not found".to_string()))?;
+
+        info!("Dispatching initial step: {}", start_step.step);
+
+        // Create step.enter event
+        events_to_emit.push(EventToEmit {
+            event_type: "step.enter".to_string(),
+            node_name: Some(start_step.step.clone()),
+            status: "ENTERED".to_string(),
+            context: None,
+            result: None,
+            error: None,
+        });
+
+        // Build command for the step
+        // Note: In a real implementation, command_id would come from get_snowflake_id()
+        let command = self.command_builder.build_command(
+            0, // Placeholder - real implementation would use snowflake ID
+            state.execution_id,
+            state.catalog_id,
+            0, // Placeholder - would be parent event ID
+            start_step,
+            context,
+            None,
+        )?;
+
+        commands.push(command);
+
+        Ok(OrchestrationResult {
+            state: ExecutionState::InProgress,
+            commands,
+            should_complete: false,
+            completion_status: None,
+            events_to_emit,
+        })
+    }
+
+    /// Process an in-progress execution.
+    fn process_in_progress(
+        &self,
+        state: &mut WorkflowState,
+        steps: &HashMap<&str, &Step>,
+        context: &HashMap<String, serde_json::Value>,
+        trigger_event_type: Option<&str>,
+        latest_ts: Option<chrono::DateTime<chrono::Utc>>,
+    ) -> CoreResult<OrchestrationResult> {
+        let mut commands = Vec::new();
+        let mut events_to_emit = Vec::new();
+        // R3c parallel-branch completion: track whether the
+        // transition path saw a route to `end` so we can defer the
+        // completion decision until after every parallel branch is
+        // accounted for.  See `decide_completion` at the end of this
+        // function — completing on the first branch that hits `end`
+        // would falsely mark the playbook done while the other
+        // branches are still running.
+        let mut reached_end = false;
+        // Steps already dispatched in THIS pass.  `is_step_done` /
+        // `running_steps` read from the events DB, so two sibling
+        // arcs whose `next_step` resolves to the same target would
+        // otherwise both queue commands in the same orchestrator
+        // round (neither has a persisted event yet).  Track here so
+        // the second arc skips dispatch.  Surfaced as part of the
+        // `end`-step-with-action fix (noetl/ai-meta#54): parallel
+        // branches converging on `end` would double-queue without
+        // this guard.
+        let mut dispatched_in_pass: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
+
+        // R4 fan-in / reduce barrier (noetl/ai-meta#49 Phase D Round 4,
+        // sub-issue noetl/server#142).  A step that has more than one
+        // upstream arc — the canonical `PlannedReduce` shape from the
+        // Python `repos/noetl/noetl/core/dsl/engine/planner.py` —
+        // should fire ONCE after every upstream finishes, not once
+        // per upstream completion.  Today the dispatch-skip checks
+        // below cover same-pass dedup (a sibling arc to the same
+        // target in the same orchestrator round) + already-running /
+        // already-done.  They do NOT cover the cross-pass case where
+        // branch A completes in pass 1 and branch B is still running:
+        // the orchestrator would dispatch `reduce_customer` based on
+        // A alone, and `reduce_customer` would never see B's result.
+        //
+        // The barrier check below defers dispatch of any multi-
+        // upstream target until every upstream is in a terminal state
+        // (`Completed | Failed | Skipped`, i.e. `is_step_done`).
+        // command.failed already short-circuits via the dedicated path
+        // at the top of this function, so reaching the dispatch loop
+        // with all upstreams done means none failed mid-flight.
+        let incoming_arcs = build_incoming_arcs(steps);
+
+        // command.failed gets its own dedicated short-circuit path
+        // BEFORE the transition-trigger filter — a failed step must
+        // not have its next.arcs evaluated, and the orchestrator
+        // must emit `playbook.failed` once all in-flight work is
+        // drained (the existing completion path waited for every
+        // branch to reach `end`, which a failed branch never does).
+        // See noetl/ai-meta#58 for the e2e finding (control_flow_workbook
+        // stalled at `command.failed` with no terminal event).
+        if matches!(trigger_event_type, Some("command.failed")) {
+            // Detect failed steps via the durable `state` field
+            // (set by apply_event when `command.failed` or
+            // `step_failed` lands), not via `info.error.is_some()`.
+            // The error-string extraction at apply_event time only
+            // catches top-level `result.error`; many tools emit
+            // their failure context under `result.context.error`,
+            // so step.error stays None even on real failures.
+            // step.state is the reliable signal.
+            let failed_steps: Vec<String> = state
+                .steps
+                .iter()
+                .filter(|(_, info)| matches!(info.state, crate::state::StepState::Failed))
+                .map(|(name, _)| name.clone())
+                .collect();
+
+            // No failed step recorded yet (race between event ingest
+            // and apply_event) — keep waiting; the next trigger
+            // round will see it.
+            if failed_steps.is_empty() {
+                return Ok(OrchestrationResult {
+                    state: ExecutionState::InProgress,
+                    commands,
+                    should_complete: false,
+                    completion_status: None,
+                    events_to_emit,
+                });
+            }
+
+            // Sibling parallel branches still running — defer the
+            // terminal decision so each in-flight branch gets to
+            // emit its own outcome event into the log.  When the
+            // last running branch finishes, that branch's
+            // command.completed or command.failed will re-trigger
+            // us and we'll re-check this condition.
+            if state.has_running_steps() {
+                return Ok(OrchestrationResult {
+                    state: ExecutionState::InProgress,
+                    commands,
+                    should_complete: false,
+                    completion_status: None,
+                    events_to_emit,
+                });
+            }
+
+            // All in-flight work drained, at least one step failed
+            // — emit the terminal playbook.failed event.
+            return Ok(OrchestrationResult {
+                state: ExecutionState::Failed,
+                commands: vec![],
+                should_complete: true,
+                completion_status: Some(CompletionStatus {
+                    status: "FAILED".to_string(),
+                    error: Some(format!("Failed steps: {}", failed_steps.join(", "))),
+                    failed_steps: Some(failed_steps),
+                }),
+                events_to_emit,
+            });
+        }
+
+        // noetl/ai-meta#186 — `call.done` is a completion event for a step that
+        // parked on an async callback, and ONLY for one.
+        //
+        // On the callback path the usual order inverts: `command.completed`
+        // arrives first carrying only the external handle (and does not complete
+        // the step — see `state::is_parked_on_callback`), and the terminal
+        // `call.done` arrives later from the callback endpoint.  Without
+        // admitting it here the resume would complete the step in state and
+        // never re-evaluate the DAG, so no successor would ever dispatch.
+        //
+        // Gated on the execution having actually parked at some point rather
+        // than admitted outright.  Every ordinary step emits a `call.done`
+        // mid-flight, so accepting it unconditionally would add a whole
+        // orchestration pass per step to every execution on the platform — a
+        // hot-path cost for a feature only the container tool uses.  With the
+        // gate, a playbook that never parks does exactly what it did before,
+        // and the check itself is a scan of an already-resident map.
+        let callback_resume_trigger = matches!(trigger_event_type, Some("call.done"))
+            && state.steps.values().any(|s| s.uses_callback);
+
+        // Only process transitions on completion events
+        if !callback_resume_trigger
+            && !matches!(
+                trigger_event_type,
+                Some("command.completed")
+                    | Some("action_completed")
+                    | Some("step.exit")
+                    | Some("step_completed")
+                    | Some("iterator_completed")
+            )
+        {
+            return Ok(OrchestrationResult {
+                state: ExecutionState::InProgress,
+                commands,
+                should_complete: false,
+                completion_status: None,
+                events_to_emit,
+            });
+        }
+
+        // #76: Sequential-iterator next-dispatch.
+        //
+        // When a command.completed arrives for a sequential-mode
+        // iterator step that has more iterations to go, dispatch
+        // the next iteration.  The guard avoids double-dispatch
+        // across orchestrator passes: dispatch only when the
+        // number of dispatched iterations equals the number of
+        // completed iterations (no in-flight iteration).
+        //
+        // This block runs before the transition-evaluation loop
+        // because the iterator step is NOT completed yet (only
+        // individual iterations are), so the transition loop
+        // won't pick it up.
+        if matches!(
+            trigger_event_type,
+            Some("command.completed") | Some("action_completed")
+        ) {
+            for (step_name, step_info) in &state.steps {
+                let Some(expected) = step_info.iterations_expected else {
+                    continue;
+                };
+                let completed = step_info.iterations_completed();
+                if completed >= expected {
+                    continue;
+                } // all done
+                if completed == 0 {
+                    continue;
+                } // not started yet
+                if step_info.iterations_dispatched != completed {
+                    continue;
+                } // in-flight iteration
+
+                let Some(step_def) = steps.get(step_name.as_str()) else {
+                    continue;
+                };
+                let Some(loop_cfg) = step_def.r#loop.as_ref() else {
+                    continue;
+                };
+
+                let is_sequential = loop_cfg
+                    .spec
+                    .as_ref()
+                    .map(|s| s.mode == LoopMode::Sequential)
+                    .unwrap_or(true); // default is Sequential
+                if !is_sequential {
+                    continue;
+                }
+
+                let next_idx = completed as usize;
+                let shimmed = with_ctx_shims(context);
+                // noetl/ai-meta#123: name the loop step in any surfaced error.
+                let items = self
+                    .evaluator
+                    .evaluate_loop(loop_cfg.in_expr.as_deref().unwrap_or(""), &shimmed)
+                    .map_err(|e| prefix_loop_step_error(step_name, e))?;
+                if next_idx >= items.len() {
+                    continue;
+                } // safety guard
+
+                info!(
+                    "Sequential iterator '{}': dispatching iteration {}/{} after previous completed",
+                    step_name,
+                    next_idx + 1,
+                    expected
+                );
+
+                let item = items.into_iter().nth(next_idx).unwrap();
+                let iter_meta = IteratorMetadata {
+                    parent_execution_id: state.execution_id,
+                    iterator_step: step_name.clone(),
+                    item_var: loop_cfg.iterator.clone(),
+                    item,
+                    index: next_idx,
+                    total: expected as usize,
+                };
+                let command = self.command_builder.build_iteration_command(
+                    0,
+                    state.execution_id,
+                    state.catalog_id,
+                    0,
+                    step_def,
+                    context,
+                    iter_meta,
+                )?;
+                commands.push(command);
+            }
+        }
+
+        // noetl/ai-meta#100: cursor-loop drive.
+        //
+        // On a completion event, advance each active `mode: cursor` step:
+        //   - claim still in flight        -> wait
+        //   - claim returned 0 rows        -> DRAIN: mark the step completed +
+        //                                     emit a `__cursor_drained` step.exit
+        //                                     so the transition loop below routes
+        //                                     its `next` arcs (event.name=loop.done)
+        //   - claim returned K rows, body
+        //     not all dispatched           -> dispatch body command(s) per row,
+        //                                     bounded by frame.row_concurrency
+        //   - all K body rows done         -> re-claim the next frame
+        // The claim runs as a normal tool command on a worker; no long-lived
+        // worker holds a slot (honors agents/rules/execution-model.md).
+        if matches!(
+            trigger_event_type,
+            Some("command.completed") | Some("action_completed")
+        ) {
+            let drain_ts = latest_ts;
+            let cursor_steps: Vec<String> = state
+                .steps
+                .iter()
+                .filter(|(name, info)| info.is_cursor && !state.is_step_completed(name))
+                .map(|(name, _)| name.clone())
+                .collect();
+
+            for step_name in cursor_steps {
+                let Some(step_def) = steps.get(step_name.as_str()) else {
+                    continue;
+                };
+                let Some(loop_cfg) = step_def.r#loop.as_ref() else {
+                    continue;
+                };
+                let Some(cursor) = loop_cfg.cursor.as_ref() else {
+                    continue;
+                };
+                let frame_spec = loop_cfg.spec.as_ref().and_then(|s| s.frame.as_ref());
+                let max_rows = frame_spec.and_then(|f| f.max_rows).unwrap_or(1).max(1);
+                let row_concurrency = frame_spec
+                    .and_then(|f| f.row_concurrency)
+                    .unwrap_or(1)
+                    .max(1) as usize;
+
+                // Frame state is maintained incrementally on StepInfo by
+                // apply_event (no per-trigger event rescan).  Read the latest
+                // frame (clone so we can mutate state below for the drain).
+                let latest = state
+                    .steps
+                    .get(&step_name)
+                    .and_then(|si| si.cursor_frames.iter().next_back())
+                    .map(|(&idx, f)| (idx, f.clone()));
+                let (frame_idx, frame) = match latest {
+                    Some(v) => v,
+                    None => {
+                        // Entered but no claim issued yet — claim frame 0.
+                        let cmd = self.command_builder.build_cursor_claim_command(
+                            state.execution_id,
+                            state.catalog_id,
+                            step_def,
+                            cursor,
+                            context,
+                            0,
+                            max_rows,
+                        )?;
+                        commands.push(cmd);
+                        continue;
+                    }
+                };
+                if !frame.claim_completed {
+                    continue; // claim in flight; its completion re-triggers us
+                }
+                let k = frame.claim_rows.len();
+                if k == 0 {
+                    // DRAIN — the claim found no more work.  Complete the step
+                    // in-memory so the transition loop routes it this pass, and
+                    // emit a durable drain step.exit for replay.
+                    if let Some(si) = state.steps.get_mut(&step_name) {
+                        si.state = StepState::Completed;
+                        si.completed_at = drain_ts;
+                        if si.result.is_none() {
+                            si.result = Some(serde_json::json!({
+                                "cursor": "drained",
+                                "frames": frame_idx
+                            }));
+                        }
+                    }
+                    events_to_emit.push(EventToEmit {
+                        event_type: "step.exit".to_string(),
+                        node_name: Some(step_name.clone()),
+                        status: "COMPLETED".to_string(),
+                        context: Some(serde_json::json!({ "__cursor_drained": true })),
+                        result: Some(serde_json::json!({
+                            "cursor": "drained",
+                            "frames": frame_idx
+                        })),
+                        error: None,
+                    });
+                    info!(
+                        "Cursor loop '{}' drained after {} frame(s)",
+                        step_name,
+                        frame_idx + 1
+                    );
+                    continue;
+                }
+                if frame.body_completed >= k {
+                    // Frame fully processed — claim the next frame.
+                    let cmd = self.command_builder.build_cursor_claim_command(
+                        state.execution_id,
+                        state.catalog_id,
+                        step_def,
+                        cursor,
+                        context,
+                        frame_idx + 1,
+                        max_rows,
+                    )?;
+                    commands.push(cmd);
+                    continue;
+                }
+                // Dispatch the next body command(s), bounded by row_concurrency.
+                let in_flight = frame.body_issued.saturating_sub(frame.body_completed);
+                if frame.body_issued < k && in_flight < row_concurrency {
+                    let can_issue = (row_concurrency - in_flight).min(k - frame.body_issued);
+                    for r in frame.body_issued..(frame.body_issued + can_issue) {
+                        let iter_meta = IteratorMetadata {
+                            parent_execution_id: state.execution_id,
+                            iterator_step: step_name.clone(),
+                            item_var: loop_cfg.iterator.clone(),
+                            item: frame.claim_rows[r].clone(),
+                            index: r,
+                            total: k,
+                        };
+                        let mut body_cmd = self.command_builder.build_iteration_command(
+                            0,
+                            state.execution_id,
+                            state.catalog_id,
+                            0,
+                            step_def,
+                            context,
+                            iter_meta,
+                        )?;
+                        body_cmd.metadata = Some(serde_json::json!({
+                            "cursor": {
+                                "phase": "body",
+                                "step": step_name,
+                                "frame": frame_idx,
+                                "row": r
+                            }
+                        }));
+                        commands.push(body_cmd);
+                    }
+                }
+                // else: body in flight — wait for completions to re-trigger.
+            }
+        }
+
+        // #67: pre-compute the per-completed-step eval_results so
+        // we can do TWO ordered passes:
+        //   pass 1 — emit step.skipped for unmatched arc targets,
+        //            so `in_pass_skipped` is fully populated before
+        //            any barrier check;
+        //   pass 2 — dispatch matched arc targets, with the barrier
+        //            able to see every same-pass skip via the
+        //            collected in_pass_skipped set.
+        // Without this two-pass ordering, HashMap iteration order
+        // determined whether `summarize` got dispatched in the same
+        // pass as `start`'s step.skipped for `process_low`.
+        let mut per_step_evals: Vec<(String, &Step, Vec<crate::evaluator::EvaluationResult>)> =
+            Vec::new();
+        for step_name in state.steps.keys() {
+            if !state.is_step_completed(step_name) {
+                continue;
+            }
+            let step = match steps.get(step_name.as_str()) {
+                Some(s) => *s,
+                None => continue,
+            };
+            let mut shimmed = with_ctx_shims(context);
+            // noetl/ai-meta#100 (PFT parity): expose the producing step's
+            // result as `output` so arc `when:` conditions like
+            // `{{ output.data.row_count }}` resolve.  Python exposes the
+            // just-completed step's result under `output`; the same data is
+            // also available under the step name, but `output` is the
+            // step-agnostic alias the canonical playbooks use.  Without it the
+            // `when` references an undefined `output`, every arc evaluates
+            // false/errors, and the workflow stalls after the step.
+            if let Some(out) = output_namespace(state, step_name) {
+                shimmed.insert("output".to_string(), out);
+            }
+            // A completed loop step surfaces `event.name == "loop.done"`
+            // to its next-arc conditions — the canonical DSL gate for
+            // "after the loop finishes".  The Python runtime emits a
+            // literal `loop.done` event and fires the transition on it;
+            // the Rust orchestrator detects loop completion via iteration
+            // counting (`StepState::Completed` is only set once
+            // `iterations_completed >= iterations_expected`, see
+            // `state.rs` apply_event), so it injects the same `event.name`
+            // here.  Without this, every `when: {{ event.name ==
+            // "loop.done" }}` arc evaluates against an undefined `event`,
+            // never matches, the downstream step is skipped, and the
+            // execution hangs after the loop (in-step parallel/sequential
+            // `loop:` steps — e.g. the concurrency-probe + load-test
+            // fixtures).  noetl/ai-meta#84.
+            if step.r#loop.is_some() {
+                shimmed.insert(
+                    "event".to_string(),
+                    serde_json::json!({ "name": "loop.done" }),
+                );
+            }
+            let eval_results = self.evaluator.evaluate_next(step, &shimmed)?;
+            per_step_evals.push((step_name.clone(), step, eval_results));
+        }
+
+        // noetl/ai-meta#85: workflow-arc loop re-entry.
+        //
+        // A matched arc `src -> target` is a genuine loop back-edge
+        // when ALL of:
+        //   1. `target` is already terminal (`is_step_done`) — a
+        //      forward arc into a not-yet-run step dispatches normally
+        //      and never reaches here;
+        //   2. `target` can forward-reach `src` (there is a cycle
+        //      through this arc) — distinguishes a loop from a DAG
+        //      fan-in convergence, where the converge target cannot
+        //      reach its upstreams;
+        //   3. `src` completed *after* `target` — `src` is the more
+        //      recent completion, i.e. this is forward progress around
+        //      the loop.  This is what disambiguates the two arcs of a
+        //      2-cycle (`fetch_page -> check_pagination` and the
+        //      back-edge `check_pagination -> fetch_page`): both satisfy
+        //      (1) and (2) in the round where `check_pagination`
+        //      completes, but only the back-edge has src newer than
+        //      target, so only it re-enters.  Stale forward arcs from an
+        //      earlier iteration's completion are suppressed by the
+        //      normal guard.
+        //
+        // The fix re-dispatches the back-edge target WITHOUT resetting
+        // any step state: the re-dispatch's own `step.enter` /
+        // `command.issued` events move the target out of `Completed`
+        // during the next reconstruction (the later lifecycle event
+        // wins), and each iteration's `call.done` overwrites the step
+        // result.  Crucially, results are never cleared — so a loop
+        // variable carried by a step's result (e.g.
+        // `set: ctx.offset: {{ check_pagination.next_offset }}`)
+        // survives across iterations.  An earlier reset-the-loop-body
+        // approach broke exactly this: clearing the result dropped the
+        // loop variable back to its workload default on the next pass,
+        // and the loop thrashed instead of advancing.
+        //
+        // Re-entry alternates naturally around the cycle: each
+        // re-dispatch makes the target non-terminal (running), so the
+        // recency test (3) next fires for the *other* arc when the
+        // target completes again — driving one iteration per round
+        // until the loop's guard goes false and the back-edge arc no
+        // longer matches.
+        let mut loop_back_arcs: HashSet<(String, String)> = HashSet::new();
+        let mut loop_branch_points: HashSet<String> = HashSet::new();
+        for (src_name, _src, eval_results) in &per_step_evals {
+            for result in eval_results {
+                if !result.matched {
+                    continue;
+                }
+                let Some(target) = &result.next_step else {
+                    continue;
+                };
+                if target == "end" || !steps.contains_key(target.as_str()) {
+                    continue;
+                }
+                if !state.is_step_done(target) {
+                    continue;
+                }
+                // (2) cycle: target can reach src again.
+                if !forward_reachable(target, steps).contains(src_name.as_str()) {
+                    continue;
+                }
+                // (3) recency: src completed strictly after target — EXCEPT for a
+                // self-loop (`src == target`, e.g. a pagination step whose own
+                // `next` arc re-enters it under a `when:` guard off its `set:`
+                // ctx mutations).  A self-loop is its own back-edge: there is one
+                // step and one `completed_at`, so the strict recency comparison
+                // `s > t` can never hold (`s == t`) and the arc would never be
+                // recognised — the step wedges Completed, its exit arc stays
+                // Pending (protected by `structural_loop_branch_points`), and the
+                // execution hangs with no terminal event (the
+                // `test_pagination_max_iterations` / `test_pagination_retry`
+                // 14-event stall).  Conditions (1) `is_step_done` and (2) cycle
+                // already hold, so a self-loop is a genuine loop back-edge;
+                // classify it directly.  Termination stays guard-driven: the
+                // self arc's `when:` (e.g. `iteration_count < max_iterations`)
+                // goes false and the arc stops matching, so the exit arc fires.
+                if src_name != target {
+                    let src_done = state.steps.get(src_name).and_then(|s| s.completed_at);
+                    let tgt_done = state.steps.get(target).and_then(|s| s.completed_at);
+                    match (src_done, tgt_done) {
+                        (Some(s), Some(t)) if s > t => {}
+                        _ => continue,
+                    }
+                }
+                loop_back_arcs.insert((src_name.clone(), target.clone()));
+                loop_branch_points.insert(src_name.clone());
+            }
+        }
+
+        // noetl/ai-meta#85: a step is a **structural** loop branch point
+        // if any of its arcs targets a step that can forward-reach it (a
+        // cycle through that arc).  Its OTHER arcs are the loop's exit
+        // branches.  This is a property of the workflow graph, computed
+        // independently of runtime completion order — unlike the
+        // recency-based `loop_branch_points` above, which only sees the
+        // branch point on passes where it is the most-recent completion.
+        //
+        // The exit branch must never be marked `step.skipped` while the
+        // loop iterates.  The recency set alone is insufficient: on the
+        // pass triggered by the loop BODY completing (e.g. `work` /
+        // `fetch_page`), the branch point (`gate` / `check_pagination`)
+        // looks *older* than the just-completed body, so it is NOT in
+        // the recency set — pass 1 would then emit `step.skipped` for
+        // its unmatched exit arc, making the exit branch terminal.  When
+        // the loop later exits, the `is_step_done` guard suppresses the
+        // exit dispatch and the execution hangs.  Keying the
+        // exit-protection on the structural set keeps the exit branch
+        // Pending across every iterating pass.
+        let structural_loop_branch_points: HashSet<&str> = steps
+            .iter()
+            .filter_map(|(name, step)| {
+                let has_back_edge = collect_arc_targets(step).iter().any(|t| {
+                    steps
+                        .get_key_value(t.as_str())
+                        .map(|(tk, _)| forward_reachable(tk, steps).contains(*name))
+                        .unwrap_or(false)
+                });
+                if has_back_edge {
+                    Some(*name)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // Pass 1: emit step.skipped for every unmatched arc target
+        // across ALL completed steps, before any dispatch barrier
+        // check.  Under `mode: exclusive`, the untaken sibling
+        // arc's target never runs; without step.skipped it would
+        // stay Pending forever and the R4 fan-in barrier on
+        // downstream merge points would deadlock.
+        for (completed_step_name, _completed_step, eval_results) in &per_step_evals {
+            // noetl/ai-meta#85: a loop branch point is iterating, not
+            // terminally routing.  Its unmatched arcs (the loop's exit
+            // branch, e.g. `validate_results` while `has_more == true`)
+            // are "not this iteration", not permanently dead — emitting
+            // `step.skipped` for them would make the exit branch
+            // terminal and the final iteration's exit dispatch would then
+            // be suppressed by the `is_step_done` guard, hanging the loop
+            // at exit.  Leave them Pending until the loop exits.  Use the
+            // structural set so this holds on body-completion passes too,
+            // not only on the branch point's own completion pass.
+            if loop_branch_points.contains(completed_step_name)
+                || structural_loop_branch_points.contains(completed_step_name.as_str())
+            {
+                continue;
+            }
+            for result in eval_results {
+                if result.matched {
+                    continue;
+                }
+                let Some(target_name) = &result.next_step else {
+                    continue;
+                };
+                // Skip if already terminal / running / dispatched
+                // (already emitted in this loop).
+                if state.is_step_done(target_name)
+                    || state.running_steps().contains(&target_name.as_str())
+                    || dispatched_in_pass.contains(target_name)
+                {
+                    continue;
+                }
+                if !steps.contains_key(target_name.as_str()) {
+                    continue;
+                }
+                info!(
+                    "Step '{}' skipped (exclusive routing chose a sibling)",
+                    target_name
+                );
+                events_to_emit.push(EventToEmit {
+                    event_type: "step.skipped".to_string(),
+                    node_name: Some(target_name.clone()),
+                    status: "SKIPPED".to_string(),
+                    context: None,
+                    result: None,
+                    error: None,
+                });
+                dispatched_in_pass.insert(target_name.clone());
+            }
+        }
+
+        // Pass 2: dispatch matched arc targets.
+        for (step_name, _step, eval_results) in per_step_evals {
+            let _ = step_name; // kept for parity with old log shape if needed
+            for result in eval_results {
+                if !result.matched {
+                    continue;
+                }
+
+                if let Some(next_step_name) = &result.next_step {
+                    // R3c parallel-branch completion: hitting `end`
+                    // no longer short-circuits the per-result loop.
+                    // We mark `reached_end` and continue so that
+                    // sibling matched arcs in the SAME completion
+                    // round (and other parallel branches in flight)
+                    // are still considered.  The final
+                    // should_complete decision happens after the
+                    // loops finish, gated on no remaining commands
+                    // queued and no other steps still running.
+                    if next_step_name == "end" {
+                        debug!("Branch reached 'end'; deferring completion decision");
+                        reached_end = true;
+
+                        // If `end` is defined as a real step in the
+                        // workflow (the canonical v10 shape — an
+                        // aggregator that may carry its own cleanup
+                        // tool), fall through to the normal dispatch
+                        // path below so the end step's action runs.
+                        // Without this, every `end:` step with a
+                        // `tool:` block (e.g. `test_end_with_action`'s
+                        // cleanup Python) was silently skipped — the
+                        // orchestrator went straight to
+                        // `playbook.completed` without executing the
+                        // end step.
+                        //
+                        // Skip dispatch only when `end` is not a
+                        // defined step (legacy "pure terminal" case);
+                        // `reached_end_quiescent` then handles the
+                        // completion transition.
+                        if !steps.contains_key("end") {
+                            continue;
+                        }
+                    }
+
+                    // Get next step definition
+                    let next_step = match steps.get(next_step_name.as_str()) {
+                        Some(s) => *s,
+                        None => {
+                            warn!("Next step '{}' not found in workflow", next_step_name);
+                            continue;
+                        }
+                    };
+
+                    // noetl/ai-meta#85: a recognized loop back-edge
+                    // re-enters an already-`Completed` target.  Bypass
+                    // the done-guard so the re-dispatch goes through:
+                    // the dispatch below emits a fresh `step.enter` +
+                    // `command.issued` for the target, and on the next
+                    // reconstruction those later lifecycle events move
+                    // the step out of `Completed` (the step is re-run,
+                    // not reset — its prior result stays available to
+                    // context assembly until the new iteration's
+                    // `call.done` overwrites it, so loop variables
+                    // carried by step results survive the iteration).
+                    let is_loop_reentry =
+                        loop_back_arcs.contains(&(step_name.clone(), next_step_name.clone()));
+
+                    // Skip if already completed or running
+                    if state.is_step_done(next_step_name) && !is_loop_reentry {
+                        debug!("Step '{}' already done, skipping", next_step_name);
+                        continue;
+                    }
+
+                    if state.running_steps().contains(&next_step_name.as_str()) {
+                        debug!("Step '{}' already running, skipping", next_step_name);
+                        continue;
+                    }
+
+                    // Same-pass dedup: a sibling arc may have just
+                    // queued a command for this step in this round.
+                    if dispatched_in_pass.contains(next_step_name) {
+                        debug!(
+                            "Step '{}' already dispatched in this pass, skipping",
+                            next_step_name
+                        );
+                        continue;
+                    }
+
+                    // R4 fan-in / reduce barrier
+                    // (noetl/ai-meta#49 Phase D R4, noetl/server#142).
+                    // If the target step has more than one upstream
+                    // arc, defer dispatch until every upstream is
+                    // terminal.  `is_step_done` treats Skipped (the
+                    // step.when guard-false path) and Failed as done
+                    // for barrier purposes; the dedicated
+                    // command.failed path at the top of this function
+                    // owns terminal-status-on-failure, so reaching
+                    // this branch with any upstream Failed is
+                    // structurally impossible (we'd have returned
+                    // ExecutionState::Failed first).
+                    if let Some(upstreams) = incoming_arcs.get(next_step_name.as_str()) {
+                        if upstreams.len() > 1 {
+                            // #67: also treat upstreams that this
+                            // same pass just emitted `step.skipped`
+                            // for as terminal.  Without this, the
+                            // skip event lands in `events_to_emit`
+                            // but `state.is_step_done` won't see it
+                            // until the next orchestrator pass (when
+                            // trigger_orchestrator persists the
+                            // events and re-triggers).  Letting
+                            // `summarize` dispatch in the SAME pass
+                            // is structurally fine — the worker
+                            // pulls commands from NATS after the
+                            // events are persisted, by which point
+                            // the skip event is already durable.
+                            let in_pass_skipped: std::collections::HashSet<&str> = events_to_emit
+                                .iter()
+                                .filter(|e| e.event_type == "step.skipped")
+                                .filter_map(|e| e.node_name.as_deref())
+                                .collect();
+                            // #120: an upstream only blocks the barrier
+                            // if it can still run on the taken path.
+                            // Seed the live frontier with the in-flight
+                            // (entered, not-yet-terminal) steps, the
+                            // step driving this pass (`step_name`, whose
+                            // forward wave we're now expanding), and the
+                            // steps entered earlier in this same pass
+                            // (their `step.enter` is queued but not yet
+                            // applied to `state`).  An upstream that is
+                            // neither done, skipped, in-flight, nor
+                            // reachable from that frontier is a severed
+                            // open / asymmetric loop predecessor — it
+                            // never runs, so counting it would deadlock
+                            // dispatch forever (`commands=0`).  Genuine
+                            // fan-in (a live parallel branch still
+                            // running or reachable from one) and closed
+                            // loops are unaffected.
+                            let mut live_seeds: Vec<&str> = state.running_steps();
+                            live_seeds.push(step_name.as_str());
+                            for ev in events_to_emit
+                                .iter()
+                                .filter(|e| e.event_type == "step.enter")
+                            {
+                                if let Some(n) = ev.node_name.as_deref() {
+                                    live_seeds.push(n);
+                                }
+                            }
+                            let live = live_reachable(&live_seeds, steps);
+                            let pending: Vec<&str> = upstreams
+                                .iter()
+                                .copied()
+                                .filter(|up| {
+                                    !state.is_step_done(up)
+                                        && !in_pass_skipped.contains(up)
+                                        && live.contains(up)
+                                })
+                                .collect();
+                            if !pending.is_empty() {
+                                debug!(
+                                    "Reduce step '{}' deferring dispatch — {} of {} upstream(s) still pending: {:?}",
+                                    next_step_name,
+                                    pending.len(),
+                                    upstreams.len(),
+                                    pending,
+                                );
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Build context for next step with additional params.
+                    // Two sources:
+                    //
+                    // 1. Legacy `with_params` (Targets path, plain merge — no
+                    //    rendering, no scope-stripping).
+                    // 2. `arc_set_vars` (Router/NextArc path): render each
+                    //    template value against the producing step's completion
+                    //    context, then apply scope-prefix stripping via
+                    //    `apply_set_mutations`.  Mirrors Python's arc-level
+                    //    `set:` semantics in transitions.py:786-791.
+                    let mut step_context = context.clone();
+                    if let Some(serde_json::Value::Object(params)) = &result.with_params {
+                        for (k, v) in params {
+                            step_context.insert(k.clone(), v.clone());
+                        }
+                    }
+                    if let Some(set_vars) = &result.arc_set_vars {
+                        // Render template values against the current context
+                        // (which includes the producing step's result fields),
+                        // then apply scope-stripping.  Add ctx/workload shims
+                        // so {{ ctx.X }} templates resolve during set rendering.
+                        let shimmed_set = with_ctx_shims(&step_context);
+                        let mut rendered: HashMap<String, serde_json::Value> =
+                            HashMap::with_capacity(set_vars.len());
+                        for (key, val) in set_vars {
+                            let rendered_val = match self.renderer.render_value(val, &shimmed_set) {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    warn!(
+                                        "arc set: template render error for key '{}': {}",
+                                        key, e
+                                    );
+                                    val.clone()
+                                }
+                            };
+                            rendered.insert(key.clone(), rendered_val);
+                        }
+                        apply_set_mutations(&mut step_context, &rendered);
+                    }
+
+                    // Iterative `step.when` enable-guard chain.  When a
+                    // step's `when` expression evaluates false we emit
+                    // `step.skipped` instead of `step.enter`, then walk
+                    // forward to that step's own `next` arcs and try
+                    // again — repeats until we land on either a step
+                    // whose guard passes (emit step.enter + command) or
+                    // a terminal/end transition (mark completion).
+                    //
+                    // Doing this inline in the same orchestrator pass
+                    // avoids the re-trigger gymnastics that would
+                    // otherwise be needed: `step.skipped` has no
+                    // `command.completed` to fire the next round on.
+                    let mut current_step: &Step = next_step;
+                    let mut current_step_name: String = next_step_name.clone();
+                    let mut current_with_params = result.with_params.clone();
+                    let mut current_ctx = step_context;
+                    let mut should_dispatch = true;
+                    let mut hit_end = false;
+                    let mut completion: Option<CompletionStatus> = None;
+
+                    loop {
+                        let shimmed_ctx = with_ctx_shims(&current_ctx);
+                        let guard_ok = self
+                            .evaluator
+                            .evaluate_step_when(current_step, &shimmed_ctx)?;
+                        if guard_ok {
+                            break;
+                        }
+
+                        info!("Step '{}' skipped (when guard false)", current_step_name);
+                        events_to_emit.push(EventToEmit {
+                            event_type: "step.skipped".to_string(),
+                            node_name: Some(current_step_name.clone()),
+                            status: "SKIPPED".to_string(),
+                            context: current_with_params.clone(),
+                            result: None,
+                            error: None,
+                        });
+
+                        // Follow the skipped step's transitions.  Pick
+                        // the first matched arc — once we've decided
+                        // to skip, we've already committed to the
+                        // single-path chain.
+                        let chained = self.evaluator.evaluate_next(current_step, &shimmed_ctx)?;
+                        let next_after_skip = chained
+                            .into_iter()
+                            .find(|r| r.matched && r.next_step.is_some());
+
+                        let Some(arc) = next_after_skip else {
+                            // No further transition.  Treat the skipped
+                            // step as terminal — workflow ends here
+                            // unless another step is still running.
+                            should_dispatch = false;
+                            break;
+                        };
+                        let target_name = arc.next_step.expect("matched arc has next_step");
+
+                        if target_name == "end" {
+                            hit_end = true;
+                            should_dispatch = false;
+                            completion = Some(CompletionStatus {
+                                status: "COMPLETED".to_string(),
+                                error: None,
+                                failed_steps: None,
+                            });
+                            break;
+                        }
+
+                        let Some(target_step) = steps.get(target_name.as_str()) else {
+                            warn!("Chained next step '{}' not found in workflow", target_name);
+                            should_dispatch = false;
+                            break;
+                        };
+
+                        // Merge any with_params / arc_set_vars from the
+                        // chained arc into the context for the next
+                        // iteration.
+                        if let Some(serde_json::Value::Object(params)) = &arc.with_params {
+                            for (k, v) in params {
+                                current_ctx.insert(k.clone(), v.clone());
+                            }
+                        }
+                        if let Some(set_vars) = &arc.arc_set_vars {
+                            let shimmed_arc = with_ctx_shims(&current_ctx);
+                            let mut rendered: HashMap<String, serde_json::Value> =
+                                HashMap::with_capacity(set_vars.len());
+                            for (key, val) in set_vars {
+                                let rendered_val =
+                                    match self.renderer.render_value(val, &shimmed_arc) {
+                                        Ok(v) => v,
+                                        Err(e) => {
+                                            warn!(
+                                                "chained arc set: render error for key '{}': {}",
+                                                key, e
+                                            );
+                                            val.clone()
+                                        }
+                                    };
+                                rendered.insert(key.clone(), rendered_val);
+                            }
+                            apply_set_mutations(&mut current_ctx, &rendered);
+                        }
+
+                        current_step = *target_step;
+                        current_step_name = target_name;
+                        current_with_params = arc.with_params.clone();
+                    }
+
+                    if hit_end {
+                        // R3c: defer completion same as the direct
+                        // `end` arc above — sibling branches in this
+                        // same pass (or parallel branches in flight)
+                        // may still need to run.  Note the completion
+                        // status from the skip-chain (the caller
+                        // may have set it from a chained arc); if so,
+                        // remember it for the final decision.
+                        if reached_end {
+                            // Keep the existing reached_end flag.
+                        } else {
+                            reached_end = true;
+                        }
+                        let _ = completion;
+                        continue;
+                    }
+
+                    if !should_dispatch {
+                        continue;
+                    }
+
+                    // R3a skip-chain re-entry guard: after walking
+                    // forward through one or more skipped steps, the
+                    // chain target may itself already be Completed
+                    // or running.  Without this guard, every
+                    // subsequent command.completed event for any
+                    // later step in the workflow re-triggers the
+                    // orchestrator, which re-evaluates `start`'s
+                    // transitions, walks the skip chain again, and
+                    // emits a fresh step.enter + command.issued for
+                    // the chain target.  Surfaced by Phase D R3a
+                    // re-validation after noetl/ai-meta#53 unblocked
+                    // multi-trigger paths — the chain target was
+                    // `tail`, which got re-issued on every
+                    // tail.command.completed.
+                    // noetl/ai-meta#85: when the matched arc is a loop
+                    // re-entry and we landed directly on the back-edge
+                    // target (no `when`-guard skip chain walked, the
+                    // common loop-head case), bypass this done-guard too
+                    // — the fresh step.enter + command.issued emitted
+                    // below re-activate the target on the next
+                    // reconstruction.  If a skip chain WAS walked
+                    // (`current_step_name` moved off the re-entry
+                    // target), the normal guard applies to the chain
+                    // target.
+                    let reentry_head = is_loop_reentry && current_step_name == *next_step_name;
+                    if state.is_step_done(&current_step_name) && !reentry_head {
+                        debug!(
+                            "Skip-chain target '{}' already done, suppressing re-dispatch",
+                            current_step_name
+                        );
+                        continue;
+                    }
+                    if state.running_steps().contains(&current_step_name.as_str()) {
+                        debug!(
+                            "Skip-chain target '{}' already running, suppressing re-dispatch",
+                            current_step_name
+                        );
+                        continue;
+                    }
+
+                    // R3b iterator fan-out: if the landed step
+                    // declares `step.loop`, evaluate the loop
+                    // expression and emit commands.  The single
+                    // `step.enter` event carries `iterations_expected`
+                    // in its context so state reconstruction can
+                    // aggregate per-iteration `command.completed`
+                    // events into one step-level completion (see
+                    // `state.rs::apply_event`).
+                    //
+                    // #76: Parallel mode dispatches ALL items at
+                    // once.  Sequential mode (the default) dispatches
+                    // only iteration 0; the sequential-next-dispatch
+                    // block above handles subsequent iterations when
+                    // each command.completed arrives.
+                    if let Some(loop_cfg) = current_step.r#loop.as_ref() {
+                        // noetl/ai-meta#100: `mode: cursor` — claim-based work
+                        // loop.  On entry, emit a `step.enter` carrying the
+                        // `__cursor_loop` marker (so claim/body completions
+                        // don't complete the step) and dispatch the first
+                        // claim command.  The cursor-drive block then fans out
+                        // the body per claimed row, re-claims, and drains.
+                        if loop_cfg.mode() == LoopMode::Cursor {
+                            if let Some(cursor) = loop_cfg.cursor.as_ref() {
+                                let max_rows = loop_cfg
+                                    .spec
+                                    .as_ref()
+                                    .and_then(|s| s.frame.as_ref())
+                                    .and_then(|f| f.max_rows)
+                                    .unwrap_or(1)
+                                    .max(1);
+                                let mut enter_obj = match current_with_params.clone() {
+                                    Some(serde_json::Value::Object(m)) => m,
+                                    _ => serde_json::Map::new(),
+                                };
+                                enter_obj
+                                    .insert("__cursor_loop".to_string(), serde_json::json!(true));
+                                events_to_emit.push(EventToEmit {
+                                    event_type: "step.enter".to_string(),
+                                    node_name: Some(current_step_name.clone()),
+                                    status: "ENTERED".to_string(),
+                                    context: Some(serde_json::Value::Object(enter_obj)),
+                                    result: None,
+                                    error: None,
+                                });
+                                let claim_cmd = self.command_builder.build_cursor_claim_command(
+                                    state.execution_id,
+                                    state.catalog_id,
+                                    current_step,
+                                    cursor,
+                                    &current_ctx,
+                                    0,
+                                    max_rows,
+                                )?;
+                                commands.push(claim_cmd);
+                                info!(
+                                    "Cursor loop '{}' entered — claiming frame 0 (max_rows={})",
+                                    current_step_name, max_rows
+                                );
+                                continue;
+                            }
+                        }
+
+                        let shimmed_loop = with_ctx_shims(&current_ctx);
+                        // noetl/ai-meta#123: prepend the offending step name so the
+                        // surfaced `playbook.failed` names *which* loop step's `in:`
+                        // failed (a non-iterable here returns Err, which the caller
+                        // turns into a terminal FAILED — not a silent commands=0).
+                        let items = self
+                            .evaluator
+                            .evaluate_loop(loop_cfg.in_expr.as_deref().unwrap_or(""), &shimmed_loop)
+                            .map_err(|e| prefix_loop_step_error(&current_step_name, e))?;
+                        let total: usize = items.len();
+
+                        if total == 0 {
+                            // Empty collection — emit step.enter with
+                            // total=0 + a synthetic step.exit so
+                            // downstream transitions still fire.  No
+                            // command dispatched.
+                            info!(
+                                "Iterator step '{}' produced empty collection — short-circuiting",
+                                current_step_name
+                            );
+                            let enter_ctx = merge_iteration_context(
+                                current_with_params.clone(),
+                                0i32,
+                                &loop_cfg.iterator,
+                            );
+                            events_to_emit.push(EventToEmit {
+                                event_type: "step.enter".to_string(),
+                                node_name: Some(current_step_name.clone()),
+                                status: "ENTERED".to_string(),
+                                context: Some(enter_ctx),
+                                result: None,
+                                error: None,
+                            });
+                            events_to_emit.push(EventToEmit {
+                                event_type: "step.exit".to_string(),
+                                node_name: Some(current_step_name.clone()),
+                                status: "COMPLETED".to_string(),
+                                context: None,
+                                result: Some(serde_json::Value::Array(vec![])),
+                                error: None,
+                            });
+                            continue;
+                        }
+
+                        let is_parallel = loop_cfg
+                            .spec
+                            .as_ref()
+                            .map(|s| s.mode == LoopMode::Parallel)
+                            .unwrap_or(false);
+
+                        info!(
+                            "Fanning out {} iterations for step '{}' (iterator='{}', mode={})",
+                            total,
+                            current_step_name,
+                            loop_cfg.iterator,
+                            if is_parallel {
+                                "parallel"
+                            } else {
+                                "sequential"
+                            },
+                        );
+
+                        // One `step.enter` carries the total so
+                        // state.apply_event can stamp
+                        // iterations_expected onto the StepInfo.
+                        let enter_ctx = merge_iteration_context(
+                            current_with_params.clone(),
+                            total as i32,
+                            &loop_cfg.iterator,
+                        );
+                        events_to_emit.push(EventToEmit {
+                            event_type: "step.enter".to_string(),
+                            node_name: Some(current_step_name.clone()),
+                            status: "ENTERED".to_string(),
+                            context: Some(enter_ctx),
+                            result: None,
+                            error: None,
+                        });
+
+                        // #76: parallel = all items; sequential =
+                        // only iteration 0 (the rest are dispatched
+                        // one-at-a-time by the sequential-next-
+                        // dispatch block).
+                        let dispatch_count = if is_parallel { total } else { 1 };
+                        for (idx, item) in items.into_iter().take(dispatch_count).enumerate() {
+                            let iter_meta = IteratorMetadata {
+                                parent_execution_id: state.execution_id,
+                                iterator_step: current_step_name.clone(),
+                                item_var: loop_cfg.iterator.clone(),
+                                item,
+                                index: idx,
+                                total,
+                            };
+                            let command = self.command_builder.build_iteration_command(
+                                0,
+                                state.execution_id,
+                                state.catalog_id,
+                                0,
+                                current_step,
+                                &current_ctx,
+                                iter_meta,
+                            )?;
+                            commands.push(command);
+                        }
+
+                        continue;
+                    }
+
+                    info!("Transitioning to step: {}", current_step_name);
+
+                    // Create step.enter event for the step we landed
+                    // on (after walking the skip chain, if any).
+                    events_to_emit.push(EventToEmit {
+                        event_type: "step.enter".to_string(),
+                        node_name: Some(current_step_name.clone()),
+                        status: "ENTERED".to_string(),
+                        context: current_with_params,
+                        result: None,
+                        error: None,
+                    });
+
+                    // Build command
+                    let command = self.command_builder.build_command(
+                        0,
+                        state.execution_id,
+                        state.catalog_id,
+                        0,
+                        current_step,
+                        &current_ctx,
+                        None,
+                    )?;
+
+                    commands.push(command);
+                    dispatched_in_pass.insert(current_step_name.clone());
+                }
+            }
+        }
+
+        // R3c parallel-branch completion: complete when EITHER
+        // - check_completion returns true (existing semantic: every
+        //   step's terminal arc is satisfied + no running branches);
+        // - OR a branch reached `end` AND we didn't queue new commands
+        //   in this pass AND no other branches are still running.
+        // The second clause covers the case where multiple parallel
+        // branches converge on `end` — the LAST branch to arrive sees
+        // `reached_end == true` with everything else done and finalises
+        // the workflow.  The early-return that used to fire on the
+        // FIRST branch to hit `end` would have falsely completed the
+        // workflow while sibling branches were still in flight.
+        let check_says_done = self.check_completion(state, steps)?;
+        let reached_end_quiescent =
+            reached_end && commands.is_empty() && !state.has_running_steps();
+        let should_complete = check_says_done || reached_end_quiescent;
+
+        let completion_status = if should_complete {
+            // Check for failures
+            let failed_steps: Vec<String> = state
+                .steps
+                .iter()
+                .filter(|(_, info)| info.error.is_some())
+                .map(|(name, _)| name.clone())
+                .collect();
+
+            if failed_steps.is_empty() {
+                Some(CompletionStatus {
+                    status: "COMPLETED".to_string(),
+                    error: None,
+                    failed_steps: None,
+                })
+            } else {
+                Some(CompletionStatus {
+                    status: "FAILED".to_string(),
+                    error: Some(format!("Failed steps: {}", failed_steps.join(", "))),
+                    failed_steps: Some(failed_steps),
+                })
+            }
+        } else {
+            None
+        };
+
+        Ok(OrchestrationResult {
+            state: ExecutionState::InProgress,
+            commands,
+            should_complete,
+            completion_status,
+            events_to_emit,
+        })
+    }
+
+    /// Check if the execution should complete.
+    fn check_completion(
+        &self,
+        state: &WorkflowState,
+        steps: &HashMap<&str, &Step>,
+    ) -> CoreResult<bool> {
+        // Check if there are any running steps
+        if state.has_running_steps() {
+            return Ok(false);
+        }
+
+        // Check if 'end' step is completed
+        if state.is_step_completed("end") {
+            return Ok(true);
+        }
+
+        // Check if all steps with no successors are completed
+        for (name, step) in steps {
+            if step.next.is_none() && state.is_step_completed(name) {
+                // Found a terminal step that's completed
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
+    /// Handle a failed step.
+    pub fn handle_failure(
+        &self,
+        _state: &WorkflowState,
+        step_name: &str,
+        error: &str,
+    ) -> CoreResult<OrchestrationResult> {
+        info!("Handling failure for step '{}': {}", step_name, error);
+
+        let events_to_emit = vec![EventToEmit {
+            event_type: "step_failed".to_string(),
+            node_name: Some(step_name.to_string()),
+            status: "FAILED".to_string(),
+            context: None,
+            result: None,
+            error: Some(error.to_string()),
+        }];
+
+        Ok(OrchestrationResult {
+            state: ExecutionState::Failed,
+            commands: vec![],
+            should_complete: true,
+            completion_status: Some(CompletionStatus {
+                status: "FAILED".to_string(),
+                error: Some(error.to_string()),
+                failed_steps: Some(vec![step_name.to_string()]),
+            }),
+            events_to_emit,
+        })
+    }
+}
+
+/// Convert a serde_json::Value to HashMap (extracts top-level object keys).
+fn value_to_hashmap(value: &serde_json::Value) -> HashMap<String, serde_json::Value> {
+    match value {
+        serde_json::Value::Object(map) => map.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+        _ => HashMap::new(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::playbook::{Metadata, NextSpec, ToolDefinition, ToolKind, ToolSpec};
+    use chrono::{DateTime, Utc};
+
+    fn make_step(name: &str, next: Option<&str>) -> Step {
+        Step {
+            step: name.to_string(),
+            desc: None,
+            spec: None,
+            when: None,
+            args: None,
+            vars: None,
+            set_vars: None,
+            r#loop: None,
+            tool: ToolDefinition::Single(Box::new(ToolSpec {
+                kind: ToolKind::Python,
+                eval: None,
+                auth: None,
+                libs: None,
+                args: None,
+                code: Some("return {}".to_string()),
+                url: None,
+                method: None,
+                query: None,
+                command: None,
+                connection: None,
+                params: None,
+                headers: None,
+                output_select: None,
+                extra: HashMap::new(),
+            })),
+            next: next.map(|n| NextSpec::Single(n.to_string())),
+        }
+    }
+
+    fn make_event(event_type: &str, node_name: Option<&str>) -> Event {
+        Event {
+            event_id: 1,
+            execution_id: 12345,
+            catalog_id: 67890,
+            event_type: event_type.to_string(),
+            node_name: node_name.map(|s| s.to_string()),
+            status: "".to_string(),
+            context: None,
+            result: None,
+            meta: None,
+            // Fixed epoch — the core has no clock (deterministic fixtures).
+            timestamp: DateTime::from_timestamp(0, 0).unwrap(),
+            parent_execution_id: None,
+            attempt: None,
+        }
+    }
+
+    // Moved from state.rs when state moved into noetl-orchestrate-core
+    // (noetl/ai-meta#109): this is a state+orchestrator integration test, so it
+    // lives with the orchestrator (a server type) until the orchestrator moves too.
+    #[test]
+    fn test_auth0_login_full_orchestrator_arc_routing_repro() {
+        use crate::orchestrator::WorkflowOrchestrator;
+        let yaml = r#"
+apiVersion: noetl.io/v2
+kind: Playbook
+metadata:
+  name: t
+  path: t
+workload:
+  request_id: "req-123"
+workflow:
+  - step: start
+    tool:
+      kind: python
+      code: |
+        result = {"error": "Invalid JWT format"}
+    next:
+      spec:
+        mode: exclusive
+      arcs:
+        - step: err_cb
+          when: "{{ (start.error is defined) and request_id }}"
+        - step: end_step
+          when: "{{ start.error is defined and not request_id }}"
+        - step: create
+          when: "{{ start.sub is defined }}"
+  - step: err_cb
+    tool: { kind: python, code: "result = {}" }
+  - step: end_step
+    tool: { kind: python, code: "result = {}" }
+  - step: create
+    tool: { kind: python, code: "result = {}" }
+"#;
+        let playbook = serde_yaml::from_str::<crate::playbook::Playbook>(yaml).unwrap();
+
+        let mut e_started = make_event("playbook_started", None);
+        e_started.event_id = 1;
+        e_started.context = Some(serde_json::json!({
+            "workload": { "request_id": "req-123" },
+            "path": "t"
+        }));
+        let mut e_issued = make_event("command.issued", Some("start"));
+        e_issued.event_id = 2;
+        let mut e_done = make_event("call.done", Some("start"));
+        e_done.event_id = 3;
+        e_done.result = Some(serde_json::json!({
+            "status": "COMPLETED",
+            "context": { "result": { "status": "success", "context": {
+                "data": { "error": "Invalid JWT format" }, "status": "success" } } }
+        }));
+        let mut e_completed = make_event("command.completed", Some("start"));
+        e_completed.event_id = 4;
+        e_completed.result = Some(serde_json::json!({
+            "status": "success", "context": { "status": "success", "command_id": "x" }
+        }));
+
+        let events = vec![e_started, e_issued, e_done, e_completed];
+        let orch = WorkflowOrchestrator::new();
+        let result = orch
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .expect("evaluate ok");
+
+        let skipped: Vec<String> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.skipped")
+            .filter_map(|e| e.node_name.clone())
+            .collect();
+        let cmds: Vec<String> = result
+            .commands
+            .iter()
+            .map(|c| c.step_name.clone())
+            .collect();
+        assert!(
+            !skipped.contains(&"err_cb".to_string()),
+            "err_cb arc must fire (start.error defined + request_id truthy), not skip. \
+             skipped={skipped:?} commands={cmds:?}"
+        );
+    }
+
+    #[test]
+    fn cursor_frame_tracking_via_apply_event() {
+        // noetl/ai-meta#100: cursor frame progress is maintained INCREMENTALLY
+        // by WorkflowState::apply_event (no per-trigger log rescan).  Drive a
+        // state through the cursor lifecycle and assert StepInfo.cursor_frames.
+        let mut ws = WorkflowState::new(123, 456);
+        // step.enter carrying the __cursor_loop marker -> is_cursor.
+        let mut enter = make_event("step.enter", Some("cur"));
+        enter.result = Some(serde_json::json!({"context": {"__cursor_loop": true}}));
+        ws.apply_event(&enter);
+        assert!(ws.steps.get("cur").unwrap().is_cursor);
+
+        let mut claim0 = make_event("command.issued", Some("cur"));
+        claim0.meta =
+            Some(serde_json::json!({"command_id": "c0", "cursor": {"phase": "claim", "frame": 0}}));
+        ws.apply_event(&claim0);
+        // The claim's RETURNING rows arrive on call.done.
+        let mut claim0_data = make_event("call.done", Some("cur"));
+        claim0_data.result = Some(serde_json::json!({
+            "context": {"command_id": "c0", "data": {"rows": [{"id": 1}, {"id": 2}]}}
+        }));
+        ws.apply_event(&claim0_data);
+        let mut claim0_done = make_event("command.completed", Some("cur"));
+        claim0_done.meta = Some(serde_json::json!({"command_id": "c0"}));
+        ws.apply_event(&claim0_done);
+
+        let f0 = ws.steps.get("cur").unwrap().cursor_frames[&0].clone();
+        assert!(f0.claim_completed);
+        assert_eq!(f0.claim_rows.len(), 2, "claim returned 2 rows");
+        // The cursor sub-command completions must NOT complete the step.
+        assert_ne!(ws.steps.get("cur").unwrap().state, StepState::Completed);
+
+        // One body row issued + completed.
+        let mut body0 = make_event("command.issued", Some("cur"));
+        body0.meta =
+            Some(serde_json::json!({"command_id": "b0", "cursor": {"phase": "body", "frame": 0}}));
+        ws.apply_event(&body0);
+        let mut body0_done = make_event("command.completed", Some("cur"));
+        body0_done.meta = Some(serde_json::json!({"command_id": "b0"}));
+        ws.apply_event(&body0_done);
+        let f0 = ws.steps.get("cur").unwrap().cursor_frames[&0].clone();
+        assert_eq!(f0.body_issued, 1);
+        assert_eq!(f0.body_completed, 1);
+
+        // Repeated completion events for the same command_id are deduped.
+        ws.apply_event(&body0_done);
+        assert_eq!(
+            ws.steps.get("cur").unwrap().cursor_frames[&0].body_completed,
+            1,
+            "dedup repeat"
+        );
+
+        // Drain frame 1 (0 rows).
+        let mut claim1 = make_event("command.issued", Some("cur"));
+        claim1.meta =
+            Some(serde_json::json!({"command_id": "c1", "cursor": {"phase": "claim", "frame": 1}}));
+        ws.apply_event(&claim1);
+        let mut claim1_data = make_event("call.done", Some("cur"));
+        claim1_data.result =
+            Some(serde_json::json!({"context": {"command_id": "c1", "data": {"rows": []}}}));
+        ws.apply_event(&claim1_data);
+        let mut claim1_done = make_event("command.completed", Some("cur"));
+        claim1_done.meta = Some(serde_json::json!({"command_id": "c1"}));
+        ws.apply_event(&claim1_done);
+        let f1 = ws.steps.get("cur").unwrap().cursor_frames[&1].clone();
+        assert!(f1.claim_completed && f1.claim_rows.is_empty());
+
+        // Re-entry (loop-back): a fresh step.enter resets frame tracking.
+        ws.apply_event(&enter);
+        assert!(ws.steps.get("cur").unwrap().cursor_frames.is_empty());
+    }
+
+    #[test]
+    fn test_evaluate_initial_state() {
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let events = vec![{
+            let mut e = make_event("playbook_started", None);
+            e.context = Some(serde_json::json!({
+                "workload": {},
+                "path": "test",
+                "version": "1"
+            }));
+            e
+        }];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "test_playbook".to_string(),
+                path: Some("test/path".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![
+                make_step("start", Some("step2")),
+                make_step("step2", Some("end")),
+                make_step("end", None),
+            ],
+        };
+
+        let result = orchestrator.evaluate(&events, &playbook, None).unwrap();
+
+        assert_eq!(result.state, ExecutionState::InProgress);
+        assert!(!result.commands.is_empty());
+        assert!(!result.events_to_emit.is_empty());
+    }
+
+    #[test]
+    fn test_evaluate_errors_on_invalid_template_in_step_body() {
+        // noetl/ai-meta#54 (e2e regression sweep): a step whose tool
+        // `code` body carries an invalid Jinja expression (`{{ ctx.* }}`)
+        // must make `evaluate` return `Err` — deterministically, not
+        // `Ok`-with-no-commands and not a panic.  `handlers::events::
+        // trigger_orchestrator` relies on this contract to emit a
+        // terminal `playbook.failed` event instead of stranding the
+        // execution in RUNNING forever (the original symptom:
+        // `test_vars_template_access` hung after `set_variables`).
+        let orchestrator = WorkflowOrchestrator::new();
+
+        // `start` has completed; evaluate must now build the command for
+        // `bad_step`, which renders its invalid-template code body.
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let bad_step = {
+            let mut s = make_step("bad_step", Some("end"));
+            s.tool = ToolDefinition::Single(Box::new(ToolSpec {
+                kind: ToolKind::Python,
+                eval: None,
+                auth: None,
+                libs: None,
+                args: None,
+                code: Some("# uses {{ ctx.* }} templates\nresult = {}".to_string()),
+                url: None,
+                method: None,
+                query: None,
+                command: None,
+                connection: None,
+                params: None,
+                headers: None,
+                output_select: None,
+                extra: HashMap::new(),
+            }));
+            s
+        };
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "bad_template".to_string(),
+                path: Some("test/bad_template".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![
+                make_step("start", Some("bad_step")),
+                bad_step,
+                make_step("end", None),
+            ],
+        };
+
+        let result = orchestrator.evaluate(&events, &playbook, Some("command.completed"));
+        assert!(
+            result.is_err(),
+            "evaluate must return Err for an invalid template in a step body, got Ok"
+        );
+    }
+
+    #[test]
+    fn test_handle_failure() {
+        let orchestrator = WorkflowOrchestrator::new();
+        let state = WorkflowState::new(12345, 67890);
+
+        let result = orchestrator
+            .handle_failure(&state, "failed_step", "Something went wrong")
+            .unwrap();
+
+        assert_eq!(result.state, ExecutionState::Failed);
+        assert!(result.should_complete);
+        assert!(result.completion_status.is_some());
+        let status = result.completion_status.unwrap();
+        assert_eq!(status.status, "FAILED");
+        assert!(status.error.is_some());
+    }
+
+    #[test]
+    fn test_command_failed_emits_terminal_playbook_failed() {
+        // noetl/ai-meta#58 — process_in_progress used to early-return
+        // on command.failed and never emit the terminal playbook.failed
+        // event.  Execution would stall mid-flight forever.  With the
+        // fix, a command.failed trigger drains in-flight work and
+        // (when nothing is still running) marks the playbook as
+        // FAILED with the failed_steps list populated.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("eval_flag"));
+        let eval_flag = make_step("eval_flag", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("eval_flag")),
+            {
+                let mut e = make_event("call.error", Some("eval_flag"));
+                e.result = Some(serde_json::json!({"error": "Tool not found: workbook"}));
+                e
+            },
+            {
+                let mut e = make_event("command.failed", Some("eval_flag"));
+                e.result = Some(serde_json::json!({"error": "Tool not found: workbook"}));
+                e
+            },
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "fail_terminal".to_string(),
+                path: Some("test/fail_terminal".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, eval_flag, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.failed"))
+            .unwrap();
+
+        assert!(
+            result.should_complete,
+            "command.failed must terminate the playbook when no other steps are running"
+        );
+        assert_eq!(result.state, ExecutionState::Failed);
+        let status = result
+            .completion_status
+            .expect("completion_status must be populated on terminal failure");
+        assert_eq!(status.status, "FAILED");
+        assert_eq!(
+            status.failed_steps.as_ref().unwrap(),
+            &vec!["eval_flag".to_string()]
+        );
+        assert!(status.error.as_ref().unwrap().contains("eval_flag"));
+    }
+
+    #[test]
+    fn test_command_failed_defers_terminal_while_sibling_running() {
+        // Parallel-branch case: branch_a fails while branch_b is
+        // still in flight.  The orchestrator must NOT mark the
+        // playbook FAILED yet — wait for branch_b to drain so the
+        // event log carries every branch's outcome.  When branch_b
+        // eventually finishes (success or failure), the next trigger
+        // round re-checks and emits the terminal event then.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("end"));
+        let branch_b = make_step("branch_b", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            // Both branches entered + claimed.
+            make_event("step.enter", Some("branch_a")),
+            make_event("command.issued", Some("branch_a")),
+            make_event("step.enter", Some("branch_b")),
+            make_event("command.issued", Some("branch_b")),
+            // branch_a fails; branch_b still running.
+            {
+                let mut e = make_event("call.error", Some("branch_a"));
+                e.result = Some(serde_json::json!({"error": "branch_a blew up"}));
+                e
+            },
+            {
+                let mut e = make_event("command.failed", Some("branch_a"));
+                e.result = Some(serde_json::json!({"error": "branch_a blew up"}));
+                e
+            },
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "fail_with_sibling".to_string(),
+                path: Some("test/fail_with_sibling".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, branch_a, branch_b, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.failed"))
+            .unwrap();
+
+        assert!(
+            !result.should_complete,
+            "playbook must NOT terminate while branch_b is still running"
+        );
+        // State stays InProgress for the deferred outcome.
+        assert_eq!(result.state, ExecutionState::InProgress);
+    }
+
+    #[test]
+    fn test_step_when_guard_skips_step() {
+        // Playbook: start → middle (when=false) → end
+        // Expectation: orchestrator emits step.skipped(middle) and
+        // walks the chain forward to `end`, completing the workflow
+        // without ever dispatching a command for `middle`.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let mut start = make_step("start", Some("middle"));
+        // start has no guard
+        start.when = None;
+        let mut middle = make_step("middle", Some("end"));
+        middle.when = Some("{{ false }}".to_string());
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "skip_test".to_string(),
+                path: Some("test/skip".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, middle, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // No command dispatched (skip chain reached `end` directly).
+        assert!(
+            result.commands.is_empty(),
+            "skip chain should not dispatch any command, got {:?}",
+            result.commands
+        );
+        // Should complete with status=COMPLETED.
+        assert!(result.should_complete);
+        assert_eq!(
+            result.completion_status.as_ref().map(|c| c.status.as_str()),
+            Some("COMPLETED")
+        );
+        // A step.skipped event was emitted for `middle`.
+        let skipped: Vec<_> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.skipped")
+            .collect();
+        assert_eq!(skipped.len(), 1, "expected one step.skipped event");
+        assert_eq!(skipped[0].node_name.as_deref(), Some("middle"));
+    }
+
+    #[test]
+    fn test_step_when_guard_passes_dispatches_step() {
+        // Same shape but middle's when is true — orchestrator
+        // should dispatch a command for `middle` and emit
+        // step.enter(middle) (no step.skipped).
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("middle"));
+        let mut middle = make_step("middle", Some("end"));
+        middle.when = Some("{{ true }}".to_string());
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "guard_test".to_string(),
+                path: Some("test/guard".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, middle, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        assert_eq!(result.commands.len(), 1, "should dispatch middle");
+        let enters: Vec<_> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.enter")
+            .collect();
+        assert_eq!(enters.len(), 1);
+        assert_eq!(enters[0].node_name.as_deref(), Some("middle"));
+        let skipped = result
+            .events_to_emit
+            .iter()
+            .any(|e| e.event_type == "step.skipped");
+        assert!(!skipped, "should NOT emit step.skipped when guard passes");
+    }
+
+    #[test]
+    fn test_step_loop_fans_out_iterations() {
+        // Playbook: start → looped (loop.in=[1,2,3], mode=parallel) → end.
+        // Expectation: orchestrator emits one step.enter(looped)
+        // carrying iterations_expected=3 in context, and dispatches
+        // three commands (one per item) each with iterator metadata.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", Some("end"));
+        looped.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ [1, 2, 3] }}".to_string()),
+            cursor: None,
+            iterator: "n".to_string(),
+            spec: Some(crate::playbook::LoopSpec {
+                mode: LoopMode::Parallel,
+                max_in_flight: None,
+                frame: None,
+            }),
+        });
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "loop_test".to_string(),
+                path: Some("test/loop".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Three iteration commands.
+        assert_eq!(
+            result.commands.len(),
+            3,
+            "expected 3 iteration commands, got {}",
+            result.commands.len()
+        );
+        // All carry iterator metadata.
+        for (idx, cmd) in result.commands.iter().enumerate() {
+            let iter = cmd.iterator.as_ref().expect("iterator metadata present");
+            assert_eq!(iter.index, idx);
+            assert_eq!(iter.total, 3);
+            assert_eq!(iter.iterator_step, "looped");
+            assert_eq!(iter.item_var, "n");
+        }
+        // Exactly one step.enter, with iterations_expected=3.
+        let enters: Vec<_> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.enter")
+            .collect();
+        assert_eq!(enters.len(), 1);
+        assert_eq!(enters[0].node_name.as_deref(), Some("looped"));
+        let enter_ctx = enters[0].context.as_ref().unwrap();
+        assert_eq!(
+            enter_ctx
+                .get("iterations_expected")
+                .and_then(|v| v.as_i64()),
+            Some(3)
+        );
+        assert_eq!(
+            enter_ctx.get("iterator_var").and_then(|v| v.as_str()),
+            Some("n")
+        );
+    }
+
+    #[test]
+    fn test_step_loop_sequential_dispatches_only_first() {
+        // #76: Playbook: start → looped (loop.in=[1,2,3],
+        // mode=sequential) → end.  Sequential mode dispatches only
+        // iteration 0 at fan-out time; subsequent iterations are
+        // dispatched one at a time as each command.completed arrives.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", Some("end"));
+        looped.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ [1, 2, 3] }}".to_string()),
+            cursor: None,
+            iterator: "n".to_string(),
+            spec: Some(crate::playbook::LoopSpec {
+                mode: LoopMode::Sequential,
+                max_in_flight: None,
+                frame: None,
+            }),
+        });
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "seq_loop_test".to_string(),
+                path: Some("test/seq_loop".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Sequential: only ONE command for iteration 0.
+        assert_eq!(
+            result.commands.len(),
+            1,
+            "sequential mode should dispatch only iteration 0, got {} commands",
+            result.commands.len()
+        );
+        let iter = result.commands[0]
+            .iterator
+            .as_ref()
+            .expect("iterator metadata present");
+        assert_eq!(iter.index, 0);
+        assert_eq!(iter.total, 3);
+        assert_eq!(iter.iterator_step, "looped");
+        assert_eq!(iter.item_var, "n");
+
+        // step.enter still carries the full iterations_expected=3.
+        let enters: Vec<_> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.enter")
+            .collect();
+        assert_eq!(enters.len(), 1);
+        let enter_ctx = enters[0].context.as_ref().unwrap();
+        assert_eq!(
+            enter_ctx
+                .get("iterations_expected")
+                .and_then(|v| v.as_i64()),
+            Some(3)
+        );
+    }
+
+    #[test]
+    fn test_step_loop_sequential_dispatches_next_on_completion() {
+        // #76: After iteration 0 completes, the sequential-next-
+        // dispatch block should dispatch iteration 1.  Simulate the
+        // state where iteration 0 has completed (step.enter with
+        // iterations_expected=3, command.issued iteration 0,
+        // command.completed iteration 0) and verify that the
+        // orchestrator dispatches iteration 1.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", Some("end"));
+        looped.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ [10, 20, 30] }}".to_string()),
+            cursor: None,
+            iterator: "n".to_string(),
+            spec: Some(crate::playbook::LoopSpec {
+                mode: LoopMode::Sequential,
+                max_in_flight: None,
+                frame: None,
+            }),
+        });
+        let end = make_step("end", None);
+
+        // Build event sequence: start completes → looped enters
+        // (iterations_expected=3) → iteration 0 issued + completed.
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            {
+                // step.enter with iterations_expected=3 (result
+                // envelope shape as persisted by trigger_orchestrator).
+                let mut e = make_event("step.enter", Some("looped"));
+                e.result = Some(serde_json::json!({
+                    "status": "ENTERED",
+                    "context": {
+                        "iterations_expected": 3,
+                        "iterator_var": "n",
+                    },
+                }));
+                e
+            },
+            {
+                // command.issued for iteration 0
+                let mut e = make_event("command.issued", Some("looped"));
+                e.meta = Some(serde_json::json!({
+                    "command_id": "1:looped:100:i0",
+                    "iteration_index": 0,
+                    "iteration_total": 3,
+                }));
+                e
+            },
+            {
+                // command.completed for iteration 0
+                let mut e = make_event("command.completed", Some("looped"));
+                e.meta = Some(serde_json::json!({
+                    "command_id": "1:looped:100:i0",
+                }));
+                e.result = Some(serde_json::json!({
+                    "status": "success",
+                    "context": {"command_id": "1:looped:100:i0"},
+                    "data": {"value": 10},
+                }));
+                e
+            },
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "seq_next_test".to_string(),
+                path: Some("test/seq_next".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Should dispatch exactly one command for iteration 1.
+        assert_eq!(
+            result.commands.len(),
+            1,
+            "expected 1 command for iteration 1, got {}",
+            result.commands.len()
+        );
+        let iter = result.commands[0]
+            .iterator
+            .as_ref()
+            .expect("iterator metadata present");
+        assert_eq!(iter.index, 1, "expected iteration index 1");
+        assert_eq!(iter.total, 3);
+    }
+
+    #[test]
+    fn test_loop_done_event_name_dispatches_gated_downstream() {
+        // noetl/ai-meta#84 regression: a fully-completed loop step must
+        // surface `event.name == "loop.done"` to its next-arc conditions
+        // so a `when: {{ event.name == "loop.done" }}` arc fires.  Before
+        // the fix, `event` was never injected, the arc never matched, the
+        // downstream step was skipped, and the execution hung after the
+        // loop (concurrency-probe + load-test fixtures).
+        use crate::playbook::{Loop, LoopSpec, NextArc, NextRouter, NextRouterSpec};
+
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", None);
+        looped.r#loop = Some(Loop {
+            in_expr: Some("{{ [10, 20, 30] }}".to_string()),
+            cursor: None,
+            iterator: "n".to_string(),
+            spec: Some(LoopSpec {
+                mode: LoopMode::Sequential,
+                max_in_flight: None,
+                frame: None,
+            }),
+        });
+        // next: validate WHEN event.name == "loop.done"
+        looped.next = Some(NextSpec::Router(NextRouter {
+            spec: Some(NextRouterSpec {
+                mode: Some("exclusive".to_string()),
+            }),
+            arcs: vec![NextArc {
+                step: "validate".to_string(),
+                when: Some("{{ event.name == \"loop.done\" }}".to_string()),
+                set_vars: None,
+            }],
+        }));
+        let validate = make_step("validate", Some("end"));
+        let end = make_step("end", None);
+
+        // start completes → looped enters (iterations_expected=3) → all
+        // three iterations issued + completed.  After the third completes
+        // `looped` reaches StepState::Completed.
+        let mut events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            {
+                let mut e = make_event("step.enter", Some("looped"));
+                e.result = Some(serde_json::json!({
+                    "status": "ENTERED",
+                    "context": { "iterations_expected": 3, "iterator_var": "n" },
+                }));
+                e
+            },
+        ];
+        for i in 0..3 {
+            let cid = format!("1:looped:100:i{}", i);
+            let mut issued = make_event("command.issued", Some("looped"));
+            issued.meta = Some(serde_json::json!({
+                "command_id": cid, "iteration_index": i, "iteration_total": 3,
+            }));
+            events.push(issued);
+            let mut done = make_event("command.completed", Some("looped"));
+            done.meta = Some(serde_json::json!({ "command_id": cid }));
+            done.result = Some(serde_json::json!({
+                "status": "success", "context": {"command_id": cid}, "data": {"value": (i + 1) * 10},
+            }));
+            events.push(done);
+        }
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "loop_done_test".to_string(),
+                path: Some("test/loop_done".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, validate, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // The loop.done-gated arc must dispatch `validate`...
+        assert!(
+            result.commands.iter().any(|c| c.step_name == "validate"),
+            "expected `validate` to dispatch on loop.done; got commands: {:?}",
+            result
+                .commands
+                .iter()
+                .map(|c| c.step_name.clone())
+                .collect::<Vec<_>>(),
+        );
+        // ...and `validate` must NOT be skipped.
+        assert!(
+            !result
+                .events_to_emit
+                .iter()
+                .any(|e| e.event_type == "step.skipped"
+                    && e.node_name.as_deref() == Some("validate")),
+            "`validate` must not be skipped when the loop completes",
+        );
+    }
+
+    #[test]
+    fn test_step_loop_default_mode_is_sequential() {
+        // #76: When no spec is provided, default LoopMode is
+        // Sequential.  Verify that spec: None behaves like
+        // sequential (dispatches only 1 command).
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", Some("end"));
+        looped.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ [1, 2] }}".to_string()),
+            cursor: None,
+            iterator: "x".to_string(),
+            spec: None, // default = Sequential
+        });
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "default_mode_test".to_string(),
+                path: Some("test/default_mode".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Default mode = sequential → only 1 command.
+        assert_eq!(
+            result.commands.len(),
+            1,
+            "default mode should be sequential (1 command), got {}",
+            result.commands.len()
+        );
+    }
+
+    #[test]
+    fn test_step_loop_empty_collection_short_circuits() {
+        // Loop expression evaluates to []; orchestrator should
+        // emit step.enter (iterations_expected=0) AND a synthetic
+        // step.exit so transitions downstream still fire.  No
+        // commands dispatched.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("looped"));
+        let mut looped = make_step("looped", Some("end"));
+        looped.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ [] }}".to_string()),
+            cursor: None,
+            iterator: "x".to_string(),
+            spec: None,
+        });
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "loop_empty".to_string(),
+                path: Some("test/loop_empty".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, looped, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+        assert!(
+            result.commands.is_empty(),
+            "empty collection should dispatch no commands"
+        );
+        let types: Vec<&str> = result
+            .events_to_emit
+            .iter()
+            .map(|e| e.event_type.as_str())
+            .collect();
+        assert!(types.contains(&"step.enter"));
+        assert!(types.contains(&"step.exit"));
+    }
+
+    #[test]
+    fn test_step_loop_non_iterable_in_fails_loudly() {
+        // noetl/ai-meta#123: a loop whose `in:` renders to a NON-iterable
+        // (here `{{ workload.batch_slots }}` with `batch_slots` absent →
+        // undefined → renders empty → null) must return a deterministic Err
+        // naming the step + expression — NOT silently produce zero iterations
+        // (commands=0) and leave the execution wedged in RUNNING.  The server
+        // boundary turns this Err into a terminal `playbook.failed`.
+        //
+        // Contrast with `test_step_loop_empty_collection_short_circuits`: an
+        // *empty* iterable (`[]`) is legitimate and short-circuits to `next`;
+        // a *non-iterable* expression is the bug this guards against.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("process"));
+        let mut process = make_step("process", Some("end"));
+        process.r#loop = Some(crate::playbook::Loop {
+            in_expr: Some("{{ workload.batch_slots }}".to_string()),
+            cursor: None,
+            iterator: "slot".to_string(),
+            spec: None,
+        });
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                // `workload` present but WITHOUT `batch_slots` — the repro shape.
+                e.context = Some(serde_json::json!({
+                    "workload": { "other_key": 1 },
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "loop_non_iterable".to_string(),
+                path: Some("test/loop_non_iterable".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, process, end],
+        };
+
+        let result = orchestrator.evaluate(&events, &playbook, Some("command.completed"));
+        let err = result.expect_err(
+            "a non-iterable loop `in:` must return Err, not Ok(commands=0) — the silent wedge",
+        );
+        let msg = err.to_string();
+        assert!(
+            msg.contains("did not evaluate to an iterable"),
+            "error should explain the non-iterable loop, got: {msg}"
+        );
+        assert!(
+            msg.contains("process"),
+            "error should name the offending loop step, got: {msg}"
+        );
+        assert!(
+            msg.contains("workload.batch_slots"),
+            "error should carry the rendered expression, got: {msg}"
+        );
+    }
+
+    /// Helper: build a step with a Router-style `next` that has
+    /// multiple unconditional arcs (parallel fan-out) in inclusive
+    /// mode.
+    fn make_step_with_parallel_next(name: &str, targets: &[&str]) -> Step {
+        use crate::playbook::{NextArc, NextRouter, NextRouterSpec};
+        let mut step = make_step(name, None);
+        step.next = Some(NextSpec::Router(NextRouter {
+            spec: Some(NextRouterSpec {
+                mode: Some("inclusive".to_string()),
+            }),
+            arcs: targets
+                .iter()
+                .map(|t| NextArc {
+                    step: t.to_string(),
+                    when: None,
+                    set_vars: None,
+                })
+                .collect(),
+        }));
+        step
+    }
+
+    #[test]
+    fn test_67_exclusive_routing_emits_step_skipped_for_unmatched_siblings() {
+        // noetl/ai-meta#67: under `mode: exclusive` routing, only
+        // one arc fires; the untaken sibling arcs' targets never
+        // run.  Pre-fix the orchestrator silently dropped those
+        // siblings (the R4 fan-in barrier then waited for them
+        // forever on any downstream merge point that joined on
+        // both branches — deadlock).
+        //
+        // This test pins the fix: after start.command.completed,
+        // the orchestrator emits `step.skipped` for the untaken
+        // sibling (`process_low`) in the SAME orchestrator pass.
+        // The downstream merge target (`summarize`) — declared with
+        // two upstreams in the static planner — now dispatches in
+        // the same pass because the barrier check treats
+        // in-pass step.skipped as terminal.
+        //
+        // Reproduces the comprehensive_test.yaml shape: summarize's
+        // `input:` block has a Jinja conditional `{{ A if A else B.x }}`
+        // referencing the untaken sibling — that's the surface
+        // symptom, but the underlying bug was the missing
+        // step.skipped, not the template render.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        // start → process_high (mode: exclusive; only the start
+        // event sets up the routing). process_high → summarize.
+        let start = {
+            let mut s = make_step("start", None);
+            s.next = Some(NextSpec::Router(crate::playbook::NextRouter {
+                spec: Some(crate::playbook::NextRouterSpec {
+                    mode: Some("exclusive".to_string()),
+                }),
+                arcs: vec![
+                    crate::playbook::NextArc {
+                        step: "process_high".to_string(),
+                        when: Some("{{ start.random_value > 10 }}".to_string()),
+                        set_vars: None,
+                    },
+                    crate::playbook::NextArc {
+                        step: "process_low".to_string(),
+                        when: Some("{{ start.random_value <= 10 }}".to_string()),
+                        set_vars: None,
+                    },
+                ],
+            }));
+            s
+        };
+        let process_high = make_step("process_high", Some("summarize"));
+        let process_low = make_step("process_low", Some("summarize"));
+        // summarize's tool has `args` with a Jinja conditional that
+        // references the untaken sibling step.  Mirrors the
+        // comprehensive_test fixture.
+        let summarize = {
+            let mut s = make_step("summarize", Some("end"));
+            s.tool = ToolDefinition::Single(Box::new(ToolSpec {
+                kind: ToolKind::Python,
+                eval: None,
+                auth: None,
+                libs: None,
+                args: Some(serde_json::json!({
+                    "category": "{{ process_high.category if process_high else process_low.category }}",
+                    "final_value": "{{ process_high.processed if process_high else process_low.processed }}"
+                })),
+                code: Some("result = {\"category\": category}".to_string()),
+                url: None,
+                method: None,
+                query: None,
+                command: None,
+                connection: None,
+                params: None,
+                headers: None,
+                output_select: None,
+                extra: HashMap::new(),
+            }));
+            s
+        };
+        let end = make_step("end", None);
+
+        // Events: playbook started, start completed (random_value=15
+        // surfaces process_high), process_high completed.
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {"threshold": 10},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            {
+                let mut e = make_event("call.done", Some("start"));
+                e.result = Some(serde_json::json!({
+                    "status": "COMPLETED",
+                    "context": {
+                        "result": {
+                            "status": "success",
+                            "context": {
+                                "data": {
+                                    "random_value": 15,
+                                    "status": "initialized"
+                                }
+                            }
+                        }
+                    }
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            {
+                let mut e = make_event("call.done", Some("process_high"));
+                e.result = Some(serde_json::json!({
+                    "status": "COMPLETED",
+                    "context": {
+                        "result": {
+                            "status": "success",
+                            "context": {
+                                "data": {
+                                    "category": "high",
+                                    "original": 15,
+                                    "processed": 30,
+                                    "status": "high_processed"
+                                }
+                            }
+                        }
+                    }
+                }));
+                e
+            },
+            make_event("command.completed", Some("process_high")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "comprehensive_repro".to_string(),
+                path: Some("test/comprehensive_repro".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, process_high, process_low, summarize, end],
+        };
+
+        // Triggered by process_high.command.completed.  Expected
+        // after the #67 fix:
+        // - exactly 1 command for `summarize`
+        // - 1 step.skipped event for `process_low` (the untaken
+        //   exclusive sibling)
+        // - 1 step.enter event for `summarize`
+        // - !should_complete (summarize hasn't run yet)
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .expect("evaluate should succeed after #67 fix");
+
+        let commands: Vec<&str> = result
+            .commands
+            .iter()
+            .map(|c| c.step_name.as_str())
+            .collect();
+        let skipped: Vec<&str> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.skipped")
+            .filter_map(|e| e.node_name.as_deref())
+            .collect();
+        let entered: Vec<&str> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.enter")
+            .filter_map(|e| e.node_name.as_deref())
+            .collect();
+
+        assert_eq!(
+            commands,
+            vec!["summarize"],
+            "expected 1 command for summarize, got {:?}",
+            commands
+        );
+        assert_eq!(
+            skipped,
+            vec!["process_low"],
+            "expected step.skipped for process_low (the untaken exclusive sibling), got {:?}",
+            skipped
+        );
+        assert!(
+            entered.contains(&"summarize"),
+            "expected step.enter for summarize, got entries: {:?}",
+            entered
+        );
+        assert!(
+            !result.should_complete,
+            "summarize is queued but not yet completed — must not should_complete"
+        );
+    }
+
+    #[test]
+    fn test_parallel_branches_dispatch_both_in_one_pass() {
+        // start → [branch_a, branch_b] (mode: inclusive)
+        // After start completes, orchestrator should emit 2 commands
+        // (one per branch) and 2 step.enter events; no step.skipped.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("end"));
+        let branch_b = make_step("branch_b", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "parallel_test".to_string(),
+                path: Some("test/parallel".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, branch_a, branch_b, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Both parallel branches must dispatch in the same pass.
+        assert_eq!(
+            result.commands.len(),
+            2,
+            "expected 2 parallel commands, got {}",
+            result.commands.len()
+        );
+        let dispatched: Vec<String> = result
+            .commands
+            .iter()
+            .map(|c| c.step_name.clone())
+            .collect();
+        assert!(dispatched.contains(&"branch_a".to_string()));
+        assert!(dispatched.contains(&"branch_b".to_string()));
+
+        // One step.enter event per branch.
+        let enters: Vec<&str> = result
+            .events_to_emit
+            .iter()
+            .filter(|e| e.event_type == "step.enter")
+            .filter_map(|e| e.node_name.as_deref())
+            .collect();
+        assert_eq!(enters.len(), 2);
+        assert!(enters.contains(&"branch_a"));
+        assert!(enters.contains(&"branch_b"));
+
+        // Workflow is NOT yet complete — both branches still need to
+        // run before `end` can finalise.
+        assert!(!result.should_complete);
+    }
+
+    #[test]
+    fn test_parallel_one_branch_done_defers_completion() {
+        // start → [branch_a, branch_b]; branch_a is completed but
+        // branch_b is still entered (running).  Orchestrator's
+        // evaluate should NOT mark the workflow done just because
+        // branch_a transitioned to `end`.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("end"));
+        let branch_b = make_step("branch_b", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            // branch_b is "entered" but not yet completed (state
+            // transitions: Entered → CommandIssued via subsequent
+            // events that we don't include here).
+            make_event("step.enter", Some("branch_b")),
+            make_event("command.issued", Some("branch_b")),
+            // branch_a completed.
+            make_event("step.enter", Some("branch_a")),
+            make_event("command.completed", Some("branch_a")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "parallel_defer".to_string(),
+                path: Some("test/parallel_defer".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, branch_a, branch_b, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // branch_a hit `end` but branch_b still pending — workflow
+        // should NOT be marked complete.
+        assert!(
+            !result.should_complete,
+            "workflow must not complete while branch_b is still running"
+        );
+    }
+
+    #[test]
+    fn test_parallel_all_branches_done_dispatches_end_once() {
+        // Both branches completed and both routed to `end`.  With
+        // the noetl/ai-meta#54 fix, `end` is now a real dispatchable
+        // step (not a pure terminal sentinel) — the orchestrator
+        // queues a single command for it, and same-pass dedup
+        // prevents the second branch's arc from double-dispatching.
+        // Completion happens later, on `end`'s own command.completed.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("end"));
+        let branch_b = make_step("branch_b", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("branch_a")),
+            make_event("command.completed", Some("branch_a")),
+            make_event("step.enter", Some("branch_b")),
+            make_event("command.completed", Some("branch_b")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "parallel_done".to_string(),
+                path: Some("test/parallel_done".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, branch_a, branch_b, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        assert_eq!(
+            result.commands.len(),
+            1,
+            "end step must be dispatched exactly once, not duplicated by sibling arcs"
+        );
+        assert!(
+            !result.should_complete,
+            "should not complete until end's own command.completed lands"
+        );
+    }
+
+    #[test]
+    fn test_parallel_all_branches_plus_end_completed_finalises() {
+        // Follow-on round: once `end`'s own command.completed is in
+        // the event log, check_completion fires and the workflow
+        // terminates with status COMPLETED.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("end"));
+        let branch_b = make_step("branch_b", Some("end"));
+        let end = make_step("end", None);
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("branch_a")),
+            make_event("command.completed", Some("branch_a")),
+            make_event("step.enter", Some("branch_b")),
+            make_event("command.completed", Some("branch_b")),
+            make_event("step.enter", Some("end")),
+            make_event("command.completed", Some("end")),
+        ];
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "parallel_done_end".to_string(),
+                path: Some("test/parallel_done_end".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, branch_a, branch_b, end],
+        };
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        assert!(
+            result.should_complete,
+            "all branches done + end's own command.completed ⇒ COMPLETED"
+        );
+        assert_eq!(
+            result.completion_status.as_ref().map(|c| c.status.as_str()),
+            Some("COMPLETED")
+        );
+    }
+
+    #[test]
+    fn test_orchestration_result_serialization() {
+        let result = OrchestrationResult {
+            state: ExecutionState::InProgress,
+            commands: vec![],
+            should_complete: false,
+            completion_status: None,
+            events_to_emit: vec![],
+        };
+
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("in_progress"));
+    }
+
+    // ============================================================
+    // R4 fan-in / reduce barrier tests (noetl/server#142).
+    //
+    // Topology under test:
+    //
+    //     start
+    //       ├── branch_a ─┐
+    //       └── branch_b ─┴── reduce → end
+    //
+    // `reduce` has TWO incoming arcs (branch_a, branch_b).  The
+    // orchestrator must defer its dispatch until BOTH branches
+    // finish.
+    // ============================================================
+
+    /// Build the fanout_reduce topology used across the R4 tests.
+    /// Mirrors `tests/fixtures/playbooks/fanout_reduce/fanout_reduce_phase6.yaml`
+    /// in `repos/noetl`.
+    fn make_fanout_reduce_workflow() -> Vec<Step> {
+        let start = make_step_with_parallel_next("start", &["branch_a", "branch_b"]);
+        let branch_a = make_step("branch_a", Some("reduce"));
+        let branch_b = make_step("branch_b", Some("reduce"));
+        let reduce = make_step("reduce", Some("end"));
+        let end = make_step("end", None);
+        vec![start, branch_a, branch_b, reduce, end]
+    }
+
+    fn fanout_reduce_playbook(workflow: Vec<Step>) -> Playbook {
+        Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "fanout_reduce_test".to_string(),
+                path: Some("test/fanout_reduce".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow,
+        }
+    }
+
+    #[test]
+    fn test_reduce_step_defers_when_one_upstream_still_running() {
+        // start fans out to branch_a + branch_b; both target `reduce`.
+        // Events show branch_a COMPLETED, branch_b only ENTERED
+        // (still running).  Expected: orchestrator does NOT dispatch
+        // `reduce` — the second upstream hasn't finished.
+        let orchestrator = WorkflowOrchestrator::new();
+        let workflow = make_fanout_reduce_workflow();
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test/fanout_reduce",
+                    "version": "1"
+                }));
+                e
+            },
+            // start was the previous round; both branches have been
+            // dispatched.
+            make_event("step.enter", Some("start")),
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("branch_a")),
+            make_event("step.enter", Some("branch_b")),
+            // branch_a finishes; branch_b is still running.
+            make_event("command.completed", Some("branch_a")),
+        ];
+
+        let playbook = fanout_reduce_playbook(workflow);
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // The orchestrator must NOT have dispatched `reduce` yet —
+        // branch_b is still in-flight.
+        let dispatched: Vec<String> = result
+            .commands
+            .iter()
+            .map(|c| c.step_name.clone())
+            .collect();
+        assert!(
+            !dispatched.contains(&"reduce".to_string()),
+            "reduce should not dispatch while branch_b is still running; got commands: {:?}",
+            dispatched,
+        );
+        assert!(!result.should_complete);
+    }
+
+    #[test]
+    fn test_reduce_step_dispatches_after_all_upstreams_complete() {
+        // Same topology; events now show BOTH branches completed.
+        // Expected: orchestrator dispatches `reduce` exactly once.
+        let orchestrator = WorkflowOrchestrator::new();
+        let workflow = make_fanout_reduce_workflow();
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test/fanout_reduce",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("step.enter", Some("start")),
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("branch_a")),
+            make_event("step.enter", Some("branch_b")),
+            make_event("command.completed", Some("branch_a")),
+            // branch_b finishes last; this is the trigger event.
+            make_event("command.completed", Some("branch_b")),
+        ];
+
+        let playbook = fanout_reduce_playbook(workflow);
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Both branches done → `reduce` dispatches exactly once.
+        let reduce_dispatches: usize = result
+            .commands
+            .iter()
+            .filter(|c| c.step_name == "reduce")
+            .count();
+        assert_eq!(
+            reduce_dispatches, 1,
+            "expected reduce to dispatch exactly once after both upstreams done; got commands: {:?}",
+            result.commands.iter().map(|c| c.step_name.clone()).collect::<Vec<_>>(),
+        );
+    }
+
+    /// Phase D R4 slice 2 (noetl/server#144) flipped this from
+    /// `#[ignore]` to active by adding the `step.skipped` arm to
+    /// `state::apply_event`.  The barrier check already treated
+    /// Skipped as terminal via `is_step_done` (state.rs:540); the
+    /// missing piece was the apply_event mapping that records the
+    /// skipped step into `state.steps` with `StepState::Skipped`.
+    #[test]
+    fn test_reduce_step_treats_skipped_upstream_as_done() {
+        // Same topology but branch_b is SKIPPED (the step.when
+        // guard-false path emits `step.skipped`, which apply_event
+        // marks as terminal `StepState::Skipped`).  branch_a
+        // COMPLETED.  Expected: `reduce` dispatches — `is_step_done`
+        // already treats Skipped as terminal, so the barrier check
+        // should clear and dispatch should proceed.
+        let orchestrator = WorkflowOrchestrator::new();
+        let workflow = make_fanout_reduce_workflow();
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test/fanout_reduce",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("step.enter", Some("start")),
+            make_event("command.completed", Some("start")),
+            make_event("step.enter", Some("branch_a")),
+            // branch_b never enters — it's skipped via a step.skipped
+            // event instead (the canonical when-guard-false path).
+            {
+                let mut e = make_event("step.skipped", Some("branch_b"));
+                e.status = "SKIPPED".to_string();
+                e
+            },
+            // branch_a finishes; trigger event for the orchestrator.
+            make_event("command.completed", Some("branch_a")),
+        ];
+
+        let playbook = fanout_reduce_playbook(workflow);
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        let reduce_dispatches: usize = result
+            .commands
+            .iter()
+            .filter(|c| c.step_name == "reduce")
+            .count();
+        assert_eq!(
+            reduce_dispatches, 1,
+            "expected reduce to dispatch once after branch_a Completed + branch_b Skipped; got commands: {:?}",
+            result.commands.iter().map(|c| c.step_name.clone()).collect::<Vec<_>>(),
+        );
+    }
+
+    #[test]
+    fn test_build_incoming_arcs_identifies_reduce_boundary() {
+        // Unit-level coverage of the helper used by the barrier
+        // check.  fanout_reduce topology: `reduce` has 2 upstreams,
+        // every other step has at most 1.
+        let workflow = make_fanout_reduce_workflow();
+        let steps: HashMap<&str, &Step> = workflow.iter().map(|s| (s.step.as_str(), s)).collect();
+
+        let incoming = build_incoming_arcs(&steps);
+
+        // `reduce` has two upstreams (branch_a + branch_b).
+        let reduce_upstreams = incoming
+            .get("reduce")
+            .expect("reduce should have an upstream set");
+        assert_eq!(
+            reduce_upstreams.len(),
+            2,
+            "expected reduce to have 2 upstreams; got {:?}",
+            reduce_upstreams,
+        );
+        assert!(reduce_upstreams.contains("branch_a"));
+        assert!(reduce_upstreams.contains("branch_b"));
+
+        // Single-upstream + no-upstream steps.
+        assert_eq!(incoming.get("branch_a").map(|u| u.len()).unwrap_or(0), 1);
+        assert_eq!(incoming.get("branch_b").map(|u| u.len()).unwrap_or(0), 1);
+        // `end` is referenced only from `reduce` (single upstream).
+        assert_eq!(incoming.get("end").map(|u| u.len()).unwrap_or(0), 1);
+        // `start` has no upstreams.
+        assert!(!incoming.contains_key("start"));
+    }
+
+    #[test]
+    fn test_build_incoming_arcs_excludes_loop_back_edge() {
+        // noetl/ai-meta#83 regression: the canonical pagination loop
+        //   start -> fetch_page -> check_pagination
+        //   check_pagination -> fetch_page (when has_more) | validate (else)
+        //   validate -> end
+        // `fetch_page` is the target of TWO arcs (start + the
+        // check_pagination loop back-edge).  The back-edge must be
+        // excluded so `fetch_page` is NOT treated as a reduce boundary
+        // — otherwise the barrier waits on `check_pagination`, which
+        // only runs *after* `fetch_page`, deadlocking the loop.
+        use crate::playbook::{NextArc, NextRouter, NextRouterSpec};
+
+        let start = make_step("start", Some("fetch_page"));
+        let fetch_page = make_step("fetch_page", Some("check_pagination"));
+        let check_pagination = {
+            let mut s = make_step("check_pagination", None);
+            s.next = Some(NextSpec::Router(NextRouter {
+                spec: Some(NextRouterSpec {
+                    mode: Some("exclusive".to_string()),
+                }),
+                arcs: vec![
+                    NextArc {
+                        step: "fetch_page".to_string(),
+                        when: Some("{{ ctx.has_more == true }}".to_string()),
+                        set_vars: None,
+                    },
+                    NextArc {
+                        step: "validate".to_string(),
+                        when: Some("{{ ctx.has_more != true }}".to_string()),
+                        set_vars: None,
+                    },
+                ],
+            }));
+            s
+        };
+        let validate = make_step("validate", Some("end"));
+        let end = make_step("end", None);
+        let workflow = [start, fetch_page, check_pagination, validate, end];
+        let steps: HashMap<&str, &Step> = workflow.iter().map(|s| (s.step.as_str(), s)).collect();
+
+        let incoming = build_incoming_arcs(&steps);
+
+        // fetch_page keeps only its forward upstream `start`; the
+        // check_pagination back-edge is dropped -> NOT a reduce
+        // boundary (len 1, so the barrier's len() > 1 check is false).
+        let fetch_upstreams = incoming
+            .get("fetch_page")
+            .expect("fetch_page should retain its forward upstream");
+        assert_eq!(
+            fetch_upstreams.len(),
+            1,
+            "fetch_page back-edge must be excluded; got {:?}",
+            fetch_upstreams,
+        );
+        assert!(fetch_upstreams.contains("start"));
+        assert!(
+            !fetch_upstreams.contains("check_pagination"),
+            "the loop back-edge check_pagination -> fetch_page must not gate the barrier",
+        );
+    }
+
+    #[test]
+    fn test_open_loop_back_edge_does_not_block_dispatch() {
+        // noetl/ai-meta#120 regression: an OPEN / asymmetric loop join.
+        //
+        //   start -> setup_facility_work -> process_batches -> end
+        //   load_next_facility -> setup_facility_work   (back-edge)
+        //
+        // `setup_facility_work` is the target of TWO static arcs:
+        // `start` (taken) and `load_next_facility` (the per-facility
+        // cursor loop's back-edge).  Unlike the CLOSED pagination loop
+        // above, the forward return path is ABSENT — `setup_facility_work`
+        // does NOT forward-reach `load_next_facility` (the loop is
+        // bypassed by the action-batch refactor).  So the static
+        // `build_incoming_arcs` back-edge filter cannot strip it: the arc
+        // looks exactly like a genuine fan-in (`incoming_arcs.len() == 2`).
+        //
+        // The runtime barrier must NOT treat `load_next_facility` as a
+        // pending dependency, because it never runs on the taken path —
+        // it is not done, not skipped, not in-flight, and not reachable
+        // from any live step (`start` does not forward-reach it).  Pre-fix
+        // the barrier deferred forever -> `commands=0`.  This asserts
+        // `setup_facility_work` IS dispatched after `start` completes.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = make_step("start", Some("setup_facility_work"));
+        let setup = make_step("setup_facility_work", Some("process_batches"));
+        let process = make_step("process_batches", Some("end"));
+        // The severed back-edge source: declares `next -> setup` but is
+        // never entered on the taken path (no inbound forward arc).
+        let load_next_facility = make_step("load_next_facility", Some("setup_facility_work"));
+        let end = make_step("end", None);
+        let workflow = vec![start, setup, process, load_next_facility, end];
+
+        // Sanity: statically, setup has TWO upstreams — the back-edge is
+        // NOT stripped because setup cannot forward-reach load_next_facility.
+        {
+            let steps: HashMap<&str, &Step> =
+                workflow.iter().map(|s| (s.step.as_str(), s)).collect();
+            let incoming = build_incoming_arcs(&steps);
+            let setup_upstreams = incoming
+                .get("setup_facility_work")
+                .expect("setup should have an upstream set");
+            assert_eq!(
+                setup_upstreams.len(),
+                2,
+                "open back-edge cannot be stripped statically; got {:?}",
+                setup_upstreams,
+            );
+            assert!(setup_upstreams.contains("start"));
+            assert!(setup_upstreams.contains("load_next_facility"));
+        }
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "open_loop_test".to_string(),
+                path: Some("test/open_loop".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow,
+        };
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {},
+                    "path": "test/open_loop",
+                    "version": "1"
+                }));
+                e
+            },
+            make_event("step.enter", Some("start")),
+            // start completes; load_next_facility never entered.
+            make_event("command.completed", Some("start")),
+        ];
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        let dispatched: Vec<String> = result
+            .commands
+            .iter()
+            .map(|c| c.step_name.clone())
+            .collect();
+        assert!(
+            dispatched.contains(&"setup_facility_work".to_string()),
+            "setup_facility_work must dispatch despite the open back-edge from \
+             load_next_facility (which never runs); got commands: {:?}",
+            dispatched,
+        );
+    }
+
+    #[test]
+    fn test_orchestrator_dispatches_with_arc_set_mutations_applied() {
+        // Integration-level pin: an arc with `set: { ctx.x: 42 }` must
+        // result in the downstream step's command context carrying
+        // `x = 42` (scope-stripped bare key, literal value — no
+        // rendering needed for a constant).
+        //
+        // Topology: start → use_vars (via Router arc with set: { ctx.x: 42 }).
+        // After start.command.completed the orchestrator evaluates the arc,
+        // applies the mutation, and builds the command for use_vars.
+        // We inspect the command's context (tool_config.args) for the key.
+        use crate::playbook::{
+            NextArc, NextRouter, NextRouterSpec, ToolDefinition, ToolKind, ToolSpec,
+        };
+
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let start = {
+            let mut s = make_step("start", None);
+            s.next = Some(NextSpec::Router(NextRouter {
+                spec: Some(NextRouterSpec {
+                    mode: Some("exclusive".to_string()),
+                }),
+                arcs: vec![NextArc {
+                    step: "use_vars".to_string(),
+                    when: None,
+                    set_vars: Some(
+                        [("ctx.x".to_string(), serde_json::json!(42))]
+                            .into_iter()
+                            .collect(),
+                    ),
+                }],
+            }));
+            s
+        };
+
+        // use_vars step reads x from its input template.
+        let use_vars = {
+            let mut s = make_step("use_vars", Some("end"));
+            s.tool = ToolDefinition::Single(Box::new(ToolSpec {
+                kind: ToolKind::Python,
+                eval: None,
+                auth: None,
+                libs: None,
+                args: Some({
+                    let mut m = serde_json::Map::new();
+                    // Template that should resolve to 42 via ctx.x → x.
+                    m.insert("the_value".to_string(), serde_json::json!("{{ x }}"));
+                    serde_json::Value::Object(m)
+                }),
+                code: Some("result = {}".to_string()),
+                url: None,
+                method: None,
+                query: None,
+                command: None,
+                connection: None,
+                params: None,
+                headers: None,
+                output_select: None,
+                extra: HashMap::new(),
+            }));
+            s
+        };
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: crate::playbook::Metadata {
+                name: "arc_set_test".to_string(),
+                path: None,
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, use_vars],
+        };
+
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            make_event("command.completed", Some("start")),
+        ];
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .expect("orchestrator must not error");
+
+        assert!(
+            !result.commands.is_empty(),
+            "expected a command for use_vars"
+        );
+        // The command for use_vars should carry x=42 in its context
+        // (the rendered `{{ x }}` → 42).
+        let cmd = &result.commands[0];
+        let ctx = cmd
+            .context
+            .as_ref()
+            .expect("command context must be populated");
+        // `ctx.x` mutation strips to bare key `x`; the command builder
+        // renders the step's `input.the_value: {{ x }}` against that.
+        // Verify the raw context passed to build_command contains `x`.
+        assert_eq!(
+            ctx.get("x"),
+            Some(&serde_json::json!(42)),
+            "arc set: ctx.x = 42 must appear as bare key x in command context; ctx = {:?}",
+            ctx
+        );
+    }
+
+    /// Regression test: `{{ ctx.X }}` must resolve inside a `loop.in`
+    /// expression (not just in tool templates).  Before the
+    /// `with_ctx_shims` fix the orchestrator passed raw context (no
+    /// `ctx` namespace) to `evaluate_loop`, so the loop errored with
+    /// "Loop expression did not evaluate to an iterable".
+    #[test]
+    fn test_loop_in_resolves_ctx_namespace() {
+        use crate::playbook::{
+            Loop, NextArc, NextRouter, NextRouterSpec, ToolDefinition, ToolKind, ToolSpec,
+        };
+
+        let orchestrator = WorkflowOrchestrator::new();
+
+        // Step 1: `setup` — produces `items: [1,2,3]` in its result.
+        let setup = make_step("setup", None);
+
+        // Arc from setup → loop_step with `set: { ctx.items: "{{ setup.items }}" }`.
+        // Then loop_step has `loop: { in: "{{ ctx.items }}", iterator: item }`.
+        let mut setup_with_arc = setup;
+        setup_with_arc.next = Some(NextSpec::Router(NextRouter {
+            spec: Some(NextRouterSpec {
+                mode: Some("exclusive".to_string()),
+            }),
+            arcs: vec![NextArc {
+                step: "loop_step".to_string(),
+                when: None,
+                set_vars: Some(
+                    [(
+                        "ctx.items".to_string(),
+                        serde_json::json!("{{ setup.items }}"),
+                    )]
+                    .into_iter()
+                    .collect(),
+                ),
+            }],
+        }));
+
+        let mut loop_step = make_step("loop_step", Some("end"));
+        loop_step.r#loop = Some(Loop {
+            in_expr: Some("{{ ctx.items }}".to_string()),
+            cursor: None,
+            iterator: "item".to_string(),
+            spec: None,
+        });
+        loop_step.tool = ToolDefinition::Single(Box::new(ToolSpec {
+            kind: ToolKind::Python,
+            eval: None,
+            auth: None,
+            libs: None,
+            args: None,
+            code: Some("result = {}".to_string()),
+            url: None,
+            method: None,
+            query: None,
+            command: None,
+            connection: None,
+            params: None,
+            headers: None,
+            output_select: None,
+            extra: HashMap::new(),
+        }));
+
+        let playbook = Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: crate::playbook::Metadata {
+                name: "ctx_loop_test".to_string(),
+                path: None,
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![setup_with_arc, loop_step],
+        };
+
+        // Simulate: playbook_started → setup completes with result { items: [1,2,3] }
+        let events = vec![
+            {
+                let mut e = make_event("playbook_started", None);
+                e.context = Some(serde_json::json!({
+                    "workload": {}, "path": "test", "version": "1"
+                }));
+                e
+            },
+            {
+                let mut e = make_event("command.completed", Some("setup"));
+                e.result = Some(serde_json::json!({ "items": [1, 2, 3] }));
+                e
+            },
+        ];
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .expect("orchestrator must not error — ctx.items must resolve in loop.in");
+
+        // The orchestrator should have produced iteration commands for the
+        // loop_step.  Default mode is sequential, so only iteration 0
+        // dispatches, but step.enter + at least one command must appear.
+        assert!(
+            !result.commands.is_empty(),
+            "expected at least one iteration command for loop_step; got none — \
+             ctx.items did not resolve in the loop expression"
+        );
+
+        // Verify the iterator metadata
+        let cmd = &result.commands[0];
+        let iter = cmd
+            .iterator
+            .as_ref()
+            .expect("command must carry iterator metadata");
+        assert_eq!(iter.item_var, "item");
+        assert_eq!(iter.total, 3);
+        assert_eq!(iter.index, 0);
+        assert_eq!(iter.item, serde_json::json!(1));
+    }
+
+    // ----- noetl/ai-meta#85: workflow-arc loop re-entry -----
+
+    /// Build the canonical pagination loop:
+    ///   start -> fetch_page -> check_pagination
+    ///   check_pagination -> fetch_page (when has_more) | validate_results (else)
+    ///   validate_results -> end
+    fn make_pagination_workflow() -> Vec<Step> {
+        use crate::playbook::{NextArc, NextRouter, NextRouterSpec};
+        let start = make_step("start", Some("fetch_page"));
+        let fetch_page = make_step("fetch_page", Some("check_pagination"));
+        let check_pagination = {
+            let mut s = make_step("check_pagination", None);
+            s.next = Some(NextSpec::Router(NextRouter {
+                spec: Some(NextRouterSpec {
+                    mode: Some("exclusive".to_string()),
+                }),
+                arcs: vec![
+                    NextArc {
+                        step: "fetch_page".to_string(),
+                        when: Some("{{ ctx.has_more == true }}".to_string()),
+                        set_vars: None,
+                    },
+                    NextArc {
+                        step: "validate_results".to_string(),
+                        when: Some("{{ ctx.has_more != true }}".to_string()),
+                        set_vars: None,
+                    },
+                ],
+            }));
+            s
+        };
+        let validate_results = make_step("validate_results", Some("end"));
+        let end = make_step("end", None);
+        vec![start, fetch_page, check_pagination, validate_results, end]
+    }
+
+    #[test]
+    fn test_forward_reachable_detects_the_cycle() {
+        // The back-edge detector keys on `target` being able to
+        // forward-reach `src`.  In the pagination loop, fetch_page can
+        // reach check_pagination (so check_pagination -> fetch_page is a
+        // cycle), and check_pagination can reach fetch_page — both arcs
+        // of the 2-cycle qualify on reachability, which is why the
+        // recency tiebreak (covered by the evaluate-level tests) is
+        // required.  validate_results cannot reach fetch_page, so a
+        // fan-out tail is never a cycle.
+        let workflow = make_pagination_workflow();
+        let steps: HashMap<&str, &Step> = workflow.iter().map(|s| (s.step.as_str(), s)).collect();
+
+        assert!(forward_reachable("fetch_page", &steps).contains("check_pagination"));
+        assert!(forward_reachable("check_pagination", &steps).contains("fetch_page"));
+        assert!(
+            !forward_reachable("validate_results", &steps).contains("fetch_page"),
+            "the loop's exit branch must not reach back into the loop head",
+        );
+    }
+
+    fn make_pagination_playbook() -> Playbook {
+        Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "pagination".to_string(),
+                path: Some("test/pagination".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: make_pagination_workflow(),
+        }
+    }
+
+    #[test]
+    fn test_loop_back_arc_reenters_completed_step() {
+        // The core #85 regression: when check_pagination completes
+        // with has_more == true, its matched back-edge to the already-
+        // Completed fetch_page must RE-ENTER fetch_page (re-dispatch the
+        // head) rather than be suppressed by the is_step_done guard.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+        let mut started = make_event("playbook_started", None);
+        started.context = Some(serde_json::json!({
+            "workload": { "has_more": true },
+            "path": "test/pagination",
+            "version": "1",
+        }));
+        started.timestamp = t0;
+
+        let mut fetch_done = make_event("command.completed", Some("fetch_page"));
+        fetch_done.timestamp = t0 + chrono::Duration::seconds(1);
+        fetch_done.result = Some(serde_json::json!({"page": 1}));
+
+        let mut check_done = make_event("command.completed", Some("check_pagination"));
+        check_done.timestamp = t0 + chrono::Duration::seconds(2);
+        check_done.result = Some(serde_json::json!({"has_more": true}));
+
+        let events = vec![started, fetch_done, check_done];
+        let playbook = make_pagination_playbook();
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // fetch_page is re-dispatched exactly once.
+        assert_eq!(
+            result.commands.len(),
+            1,
+            "expected exactly one re-dispatch command; got {:?}",
+            result
+                .commands
+                .iter()
+                .map(|c| &c.step_name)
+                .collect::<Vec<_>>(),
+        );
+        assert_eq!(result.commands[0].step_name, "fetch_page");
+
+        // No state is reset — re-entry is a plain re-dispatch.  The loop
+        // head gets a fresh step.enter (which, paired with the command's
+        // command.issued, re-activates it on the next reconstruction).
+        assert!(result
+            .events_to_emit
+            .iter()
+            .any(|e| e.event_type == "step.enter" && e.node_name.as_deref() == Some("fetch_page")));
+
+        // The exit branch must NOT be skipped while the loop iterates —
+        // otherwise the final iteration's exit dispatch is suppressed.
+        assert!(
+            !result
+                .events_to_emit
+                .iter()
+                .any(|e| e.event_type == "step.skipped"
+                    && e.node_name.as_deref() == Some("validate_results")),
+            "validate_results must stay Pending during looping iterations",
+        );
+
+        assert!(!result.should_complete);
+    }
+
+    #[test]
+    fn test_exit_branch_not_skipped_on_loop_body_completion_pass() {
+        // noetl/ai-meta#85: regression for the loop-exit hang.  On the
+        // pass triggered by the loop BODY completing (`fetch_page`
+        // newer than `check_pagination`), `check_pagination` is not the
+        // most-recent completion, so the recency-based branch-point set
+        // misses it.  Without the structural-branch-point guard, pass 1
+        // emits `step.skipped` for `check_pagination`'s unmatched exit
+        // arc (`validate_results`), making it terminal — and the final
+        // iteration's exit dispatch is then suppressed by the
+        // `is_step_done` guard, hanging the loop at exit.  The exit
+        // branch must stay Pending here.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+        let mut started = make_event("playbook_started", None);
+        started.context = Some(serde_json::json!({
+            "workload": { "has_more": true },
+            "path": "test/pagination",
+            "version": "1",
+        }));
+        started.timestamp = t0;
+
+        // check_pagination completed FIRST (an earlier iteration), then
+        // fetch_page completed (the loop body, newer).
+        let mut check_done = make_event("command.completed", Some("check_pagination"));
+        check_done.timestamp = t0 + chrono::Duration::seconds(1);
+        check_done.result = Some(serde_json::json!({"has_more": true}));
+
+        let mut fetch_done = make_event("command.completed", Some("fetch_page"));
+        fetch_done.timestamp = t0 + chrono::Duration::seconds(2);
+        fetch_done.result = Some(serde_json::json!({"page": 2}));
+
+        let events = vec![started, check_done, fetch_done];
+        let playbook = make_pagination_playbook();
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        assert!(
+            !result
+                .events_to_emit
+                .iter()
+                .any(|e| e.event_type == "step.skipped"
+                    && e.node_name.as_deref() == Some("validate_results")),
+            "exit branch validate_results must not be skipped on a body-completion pass",
+        );
+    }
+
+    #[test]
+    fn test_loop_exit_dispatches_exit_branch_not_back_edge() {
+        // When has_more == false, the back-edge is NOT taken: no
+        // re-dispatch of fetch_page; the exit branch validate_results
+        // dispatches normally.
+        let orchestrator = WorkflowOrchestrator::new();
+
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+        let mut started = make_event("playbook_started", None);
+        started.context = Some(serde_json::json!({
+            "workload": { "has_more": false },
+            "path": "test/pagination",
+            "version": "1",
+        }));
+        started.timestamp = t0;
+
+        let mut fetch_done = make_event("command.completed", Some("fetch_page"));
+        fetch_done.timestamp = t0 + chrono::Duration::seconds(1);
+        fetch_done.result = Some(serde_json::json!({"page": 1}));
+
+        let mut check_done = make_event("command.completed", Some("check_pagination"));
+        check_done.timestamp = t0 + chrono::Duration::seconds(2);
+        check_done.result = Some(serde_json::json!({"has_more": false}));
+
+        let events = vec![started, fetch_done, check_done];
+        let playbook = make_pagination_playbook();
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // Exit branch dispatched, nothing else.
+        assert_eq!(result.commands.len(), 1);
+        assert_eq!(result.commands[0].step_name, "validate_results");
+    }
+
+    #[test]
+    fn test_fan_in_convergence_is_not_treated_as_loop_back() {
+        // Guard against over-matching: a DAG fan-in (diamond) where two
+        // branches converge on `reduce` must NOT be mistaken for a loop
+        // back-edge — `reduce` cannot reach its upstreams, so the cycle
+        // test (2) fails and the second arrival is handled by the
+        // existing barrier/done guard, not re-entered.
+        let workflow = make_fanout_reduce_workflow();
+        let steps: HashMap<&str, &Step> = workflow.iter().map(|s| (s.step.as_str(), s)).collect();
+        let reduce_reach = forward_reachable("reduce", &steps);
+        assert!(
+            !reduce_reach.contains("branch_a") && !reduce_reach.contains("branch_b"),
+            "reduce must not reach its upstreams; got {:?}",
+            reduce_reach,
+        );
+    }
+
+    // ----- noetl/ai-meta#85: durable loop-variable propagation -----
+
+    /// A step carrying a step-level `set:` map.
+    fn make_step_with_set(name: &str, next: NextSpec, set: &[(&str, &str)]) -> Step {
+        let mut s = make_step(name, None);
+        s.next = Some(next);
+        let mut m = HashMap::new();
+        for (k, v) in set {
+            m.insert(k.to_string(), serde_json::json!(v));
+        }
+        s.set_vars = Some(m);
+        s
+    }
+
+    /// The canonical workflow-arc counter loop, mirroring the
+    /// offset/cursor pagination fixtures' shape:
+    ///   start    (set ctx.counter = workload.counter) -> work
+    ///   work     -> gate
+    ///   gate     (set ctx.counter = {{ gate.next_counter }})
+    ///            -> work     when ctx.counter < 3   (back-edge)
+    ///            -> validate when ctx.counter >= 3  (exit to a REAL step)
+    ///   validate -> end
+    ///
+    /// The exit arc targets a real `validate` step (not the `end`
+    /// sentinel) so the harness exercises the loop-exit path the live
+    /// fixtures hit: `validate` must NOT be marked `step.skipped` while
+    /// the loop iterates, else its terminal state would suppress the
+    /// exit dispatch and hang the loop.
+    ///
+    /// `start`'s initializer `set` is the thrash trap: under the old
+    /// "apply every completed step's set every pass" loop it re-fired
+    /// `ctx.counter = 0` on every pass and competed non-deterministically
+    /// with `gate`'s advancing set.
+    fn make_counter_loop_playbook() -> Playbook {
+        use crate::playbook::{NextArc, NextRouter, NextRouterSpec};
+        let start = make_step_with_set(
+            "start",
+            NextSpec::Single("work".to_string()),
+            &[("ctx.counter", "{{ workload.counter }}")],
+        );
+        let work = make_step("work", Some("gate"));
+        let gate = {
+            let mut s = make_step_with_set(
+                "gate",
+                NextSpec::Router(NextRouter {
+                    spec: Some(NextRouterSpec {
+                        mode: Some("exclusive".to_string()),
+                    }),
+                    arcs: vec![
+                        NextArc {
+                            step: "work".to_string(),
+                            when: Some("{{ ctx.counter < 3 }}".to_string()),
+                            set_vars: None,
+                        },
+                        NextArc {
+                            step: "validate".to_string(),
+                            when: Some("{{ ctx.counter >= 3 }}".to_string()),
+                            set_vars: None,
+                        },
+                    ],
+                }),
+                &[("ctx.counter", "{{ gate.next_counter }}")],
+            );
+            s.desc = Some("brancher".to_string());
+            s
+        };
+        let validate = make_step("validate", Some("end"));
+        let end = make_step("end", None);
+        Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "counter_loop".to_string(),
+                path: Some("test/counter_loop".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, work, gate, validate, end],
+        }
+    }
+
+    /// A **self-loop** counter playbook: a single step `fetch` whose own `next`
+    /// arc re-enters `fetch` while the guard holds — the exact shape of
+    /// `tests/pagination/{max_iterations,retry}` (a step that loops to itself,
+    /// not a 2-cycle through a separate brancher). Regression fixture for the
+    /// self-loop back-edge classification (self-loop `src == target`, where the
+    /// strict recency test can never fire).
+    fn make_self_loop_playbook() -> Playbook {
+        use crate::playbook::{NextArc, NextRouter, NextRouterSpec};
+        let start = make_step_with_set(
+            "start",
+            NextSpec::Single("fetch".to_string()),
+            &[("ctx.counter", "{{ workload.counter }}")],
+        );
+        let fetch = {
+            let mut s = make_step_with_set(
+                "fetch",
+                NextSpec::Router(NextRouter {
+                    spec: Some(NextRouterSpec {
+                        mode: Some("exclusive".to_string()),
+                    }),
+                    arcs: vec![
+                        NextArc {
+                            step: "fetch".to_string(),
+                            when: Some("{{ ctx.counter < 3 }}".to_string()),
+                            set_vars: None,
+                        },
+                        NextArc {
+                            step: "validate".to_string(),
+                            when: Some("{{ ctx.counter >= 3 }}".to_string()),
+                            set_vars: None,
+                        },
+                    ],
+                }),
+                &[("ctx.counter", "{{ fetch.next_counter }}")],
+            );
+            s.desc = Some("self-loop pagination head".to_string());
+            s
+        };
+        let validate = make_step("validate", Some("end"));
+        let end = make_step("end", None);
+        Playbook {
+            api_version: "noetl.io/v2".to_string(),
+            kind: "Playbook".to_string(),
+            metadata: Metadata {
+                name: "self_loop".to_string(),
+                path: Some("test/self_loop".to_string()),
+                description: None,
+                labels: None,
+                extra: HashMap::new(),
+            },
+            workload: None,
+            vars: None,
+            keychain: None,
+            workbook: None,
+            workflow: vec![start, fetch, validate, end],
+        }
+    }
+
+    /// Persist an `EventToEmit` into a growing event log the way
+    /// `handlers::events::trigger_orchestrator` does: a `context`
+    /// payload is wrapped in the `{status, context}` result envelope so
+    /// state reconstruction reads it back from `result.context`.
+    fn persist_emit(
+        log: &mut Vec<Event>,
+        emit: &EventToEmit,
+        seq: &mut i64,
+        t0: chrono::DateTime<Utc>,
+    ) {
+        *seq += 1;
+        let mut e = make_event(&emit.event_type, emit.node_name.as_deref());
+        e.event_id = *seq;
+        e.event_id = *seq;
+        e.timestamp = t0 + chrono::Duration::milliseconds(*seq);
+        let status = if emit.status.is_empty() {
+            "STARTED".to_string()
+        } else {
+            emit.status.clone()
+        };
+        e.result = match &emit.context {
+            Some(serde_json::Value::Object(_)) => Some(serde_json::json!({
+                "status": status,
+                "context": emit.context.clone().unwrap(),
+            })),
+            _ => Some(serde_json::json!({ "status": status })),
+        };
+        log.push(e);
+    }
+
+    /// Append a worker lifecycle (`command.issued` → `call.done` →
+    /// `command.completed`) for a dispatched command, attaching
+    /// `done_result` as the step's user result.
+    fn simulate_worker(
+        log: &mut Vec<Event>,
+        step_name: &str,
+        done_result: serde_json::Value,
+        seq: &mut i64,
+        t0: chrono::DateTime<Utc>,
+    ) {
+        for ev in ["command.issued", "call.done", "command.completed"] {
+            *seq += 1;
+            let mut e = make_event(ev, Some(step_name));
+            e.event_id = *seq;
+            e.event_id = *seq;
+            e.timestamp = t0 + chrono::Duration::milliseconds(*seq);
+            e.meta = Some(serde_json::json!({ "command_id": format!("{step_name}-{seq}") }));
+            if ev == "call.done" {
+                e.result = Some(done_result.clone());
+            }
+            log.push(e);
+        }
+    }
+
+    #[test]
+    fn test_counter_loop_advances_monotonically_across_iterations() {
+        // The end-to-end #85 regression: a workflow-arc counter loop
+        // driven by step-level `set: ctx.counter` must advance
+        // 0 -> 1 -> 2 and terminate, NOT thrash (0,0,1,0,1,2,…) or hang.
+        // Drives the orchestrator pass-by-pass through a faithful
+        // worker + event-log simulation.
+        let orchestrator = WorkflowOrchestrator::new();
+        let playbook = make_counter_loop_playbook();
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+        let mut seq = 0i64;
+
+        let mut log: Vec<Event> = Vec::new();
+        {
+            let mut started = make_event("playbook_started", None);
+            started.event_id = 0;
+            started.event_id = 0;
+            started.timestamp = t0;
+            started.context = Some(serde_json::json!({
+                "workload": { "counter": 0 },
+                "path": "test/counter_loop",
+                "version": "1",
+            }));
+            log.push(started);
+        }
+
+        // What `work` was dispatched with each time (the loop variable
+        // value reaching the loop body).
+        let mut work_dispatched_counters: Vec<i64> = Vec::new();
+        let mut trigger: Option<&str> = None;
+        let mut completed = false;
+
+        for _pass in 0..40 {
+            let result = orchestrator
+                .evaluate(&log, &playbook, trigger)
+                .expect("evaluate must not error");
+
+            if result.should_complete {
+                completed = true;
+                break;
+            }
+
+            // Persist emitted events (ctx.updated, step.enter, …).
+            for emit in &result.events_to_emit {
+                persist_emit(&mut log, emit, &mut seq, t0);
+            }
+
+            if result.commands.is_empty() {
+                // Nothing dispatched and not complete — stuck.
+                break;
+            }
+
+            for command in &result.commands {
+                let step = command.step_name.as_str();
+                let seen = command
+                    .context
+                    .as_ref()
+                    .and_then(|c| c.get("counter"))
+                    .and_then(|v| v.as_i64())
+                    .unwrap_or(-1);
+                let done_result = match step {
+                    "gate" => serde_json::json!({ "next_counter": seen + 1 }),
+                    _ => serde_json::json!({}),
+                };
+                if step == "work" {
+                    work_dispatched_counters.push(seen);
+                }
+                simulate_worker(&mut log, step, done_result, &mut seq, t0);
+            }
+
+            trigger = Some("command.completed");
+        }
+
+        assert!(
+            completed,
+            "loop did not terminate; work dispatched with counters {:?}",
+            work_dispatched_counters,
+        );
+        assert_eq!(
+            work_dispatched_counters,
+            vec![0, 1, 2],
+            "counter must advance 0->1->2 monotonically, not thrash",
+        );
+    }
+
+    #[test]
+    fn test_self_loop_reenters_and_terminates() {
+        // Regression for the pagination self-loop wedge
+        // (tests/pagination/{max_iterations,retry}): a step whose own `next` arc
+        // re-enters itself (`src == target`) must be recognised as a loop
+        // back-edge and re-dispatch each iteration until its guard goes false,
+        // then take the exit arc. Before the fix the strict recency test
+        // (`src.completed_at > target.completed_at`) could never hold for a
+        // self-loop (same step, same `completed_at`), so the arc was never
+        // classified, the step wedged `Completed`, and the execution hung with
+        // no terminal event (the 14-event stall).
+        let orchestrator = WorkflowOrchestrator::new();
+        let playbook = make_self_loop_playbook();
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+        let mut seq = 0i64;
+
+        let mut log: Vec<Event> = Vec::new();
+        {
+            let mut started = make_event("playbook_started", None);
+            started.event_id = 0;
+            started.timestamp = t0;
+            started.context = Some(serde_json::json!({
+                "workload": { "counter": 0 },
+                "path": "test/self_loop",
+                "version": "1",
+            }));
+            log.push(started);
+        }
+
+        let mut fetch_dispatched_counters: Vec<i64> = Vec::new();
+        let mut trigger: Option<&str> = None;
+        let mut completed = false;
+
+        for _pass in 0..40 {
+            let result = orchestrator
+                .evaluate(&log, &playbook, trigger)
+                .expect("evaluate must not error");
+
+            if result.should_complete {
+                completed = true;
+                break;
+            }
+            for emit in &result.events_to_emit {
+                persist_emit(&mut log, emit, &mut seq, t0);
+            }
+            if result.commands.is_empty() {
+                // Nothing dispatched and not complete — the self-loop wedge.
+                break;
+            }
+            for command in &result.commands {
+                let step = command.step_name.as_str();
+                let seen = command
+                    .context
+                    .as_ref()
+                    .and_then(|c| c.get("counter"))
+                    .and_then(|v| v.as_i64())
+                    .unwrap_or(-1);
+                let done_result = match step {
+                    "fetch" => serde_json::json!({ "next_counter": seen + 1 }),
+                    _ => serde_json::json!({}),
+                };
+                if step == "fetch" {
+                    fetch_dispatched_counters.push(seen);
+                }
+                simulate_worker(&mut log, step, done_result, &mut seq, t0);
+            }
+            trigger = Some("command.completed");
+        }
+
+        assert!(
+            completed,
+            "self-loop did not terminate; fetch dispatched with counters {:?}",
+            fetch_dispatched_counters,
+        );
+        assert_eq!(
+            fetch_dispatched_counters,
+            vec![0, 1, 2],
+            "self-loop must re-enter fetch 0->1->2 then exit, not wedge after the first iteration",
+        );
+    }
+
+    #[test]
+    fn test_step_set_emits_ctx_updated_and_reenters_with_advanced_value() {
+        // On the pass where `gate` completes with the loop guard still
+        // true, the orchestrator (a) emits a `ctx.updated` event
+        // carrying the advanced loop variable, and (b) re-dispatches the
+        // loop head `work` with that advanced value — not the workload
+        // default.
+        let orchestrator = WorkflowOrchestrator::new();
+        let playbook = make_counter_loop_playbook();
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+
+        let mut started = make_event("playbook_started", None);
+        started.timestamp = t0;
+        started.event_id = 1;
+        started.context = Some(serde_json::json!({
+            "workload": { "counter": 0 }, "path": "test/counter_loop", "version": "1",
+        }));
+
+        // start completed (counter initialized to 0 and already
+        // persisted), work completed, gate completed with next_counter=1.
+        let mut start_done = make_event("command.completed", Some("start"));
+        start_done.event_id = 2;
+        start_done.timestamp = t0 + chrono::Duration::seconds(1);
+
+        // start's set already persisted at its completion — `gen`
+        // references start's command.completed event_id (= 2).
+        let mut start_ctx = make_event("ctx.updated", None);
+        start_ctx.event_id = 3;
+        start_ctx.timestamp = t0 + chrono::Duration::seconds(1);
+        start_ctx.result = Some(serde_json::json!({
+            "status": "CONTEXT",
+            "context": {
+                "step": "start",
+                "gen": 2,
+                "values": { "counter": 0 },
+            },
+        }));
+
+        let mut work_done = make_event("command.completed", Some("work"));
+        work_done.event_id = 4;
+        work_done.timestamp = t0 + chrono::Duration::seconds(2);
+
+        let mut gate_call = make_event("call.done", Some("gate"));
+        gate_call.event_id = 5;
+        gate_call.timestamp = t0 + chrono::Duration::seconds(3);
+        gate_call.result = Some(serde_json::json!({ "next_counter": 1 }));
+
+        let mut gate_done = make_event("command.completed", Some("gate"));
+        gate_done.event_id = 6;
+        gate_done.timestamp = t0 + chrono::Duration::seconds(3);
+        gate_done.meta = Some(serde_json::json!({ "command_id": "gate-1" }));
+
+        let events = vec![
+            started, start_done, start_ctx, work_done, gate_call, gate_done,
+        ];
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        // (a) ctx.updated emitted for gate carrying counter = 1.
+        let ctx_evt = result
+            .events_to_emit
+            .iter()
+            .find(|e| e.event_type == "ctx.updated")
+            .expect("gate completion must emit ctx.updated");
+        let payload = ctx_evt.context.as_ref().unwrap();
+        assert_eq!(payload.get("step").unwrap(), "gate");
+        assert_eq!(payload.get("values").unwrap().get("counter").unwrap(), 1);
+
+        // start's set must NOT be re-emitted — its mark already matches.
+        assert!(
+            result
+                .events_to_emit
+                .iter()
+                .filter(|e| e.event_type == "ctx.updated")
+                .all(|e| e.context.as_ref().unwrap().get("step").unwrap() != "start"),
+            "start's already-persisted set must not re-emit (no thrash)",
+        );
+
+        // (b) work re-dispatched with counter = 1.
+        let work_cmd = result
+            .commands
+            .iter()
+            .find(|c| c.step_name == "work")
+            .expect("work must be re-dispatched on the back-edge");
+        assert_eq!(
+            work_cmd
+                .context
+                .as_ref()
+                .and_then(|c| c.get("counter"))
+                .and_then(|v| v.as_i64()),
+            Some(1),
+            "loop head must re-enter with the advanced counter, not the workload default",
+        );
+    }
+
+    #[test]
+    fn test_persisted_set_not_re_emitted_for_same_completion() {
+        // Idempotency: once a step's set is persisted (a `ctx.updated`
+        // event records its completion event_id), re-evaluating the same
+        // log must NOT emit a duplicate ctx.updated for that completion.
+        let orchestrator = WorkflowOrchestrator::new();
+        let playbook = make_counter_loop_playbook();
+        let t0 = DateTime::from_timestamp(0, 0).unwrap();
+
+        let mut started = make_event("playbook_started", None);
+        started.timestamp = t0;
+        started.context = Some(serde_json::json!({
+            "workload": { "counter": 0 }, "path": "test/counter_loop", "version": "1",
+        }));
+
+        let mut start_done = make_event("command.completed", Some("start"));
+        start_done.event_id = 2;
+        start_done.timestamp = t0 + chrono::Duration::seconds(1);
+
+        // gen references start's command.completed event_id (= 2).
+        let mut start_ctx = make_event("ctx.updated", None);
+        start_ctx.event_id = 3;
+        start_ctx.timestamp = t0 + chrono::Duration::seconds(1);
+        start_ctx.result = Some(serde_json::json!({
+            "status": "CONTEXT",
+            "context": {
+                "step": "start",
+                "gen": 2,
+                "values": { "counter": 0 },
+            },
+        }));
+
+        let events = vec![started, start_done, start_ctx];
+
+        let result = orchestrator
+            .evaluate(&events, &playbook, Some("command.completed"))
+            .unwrap();
+
+        assert!(
+            result
+                .events_to_emit
+                .iter()
+                .all(|e| e.event_type != "ctx.updated"),
+            "start's set is already persisted for this completion — must not re-emit",
+        );
+        // work is still dispatched (start -> work), carrying counter = 0
+        // from the durable overlay.
+        let work_cmd = result.commands.iter().find(|c| c.step_name == "work");
+        assert!(work_cmd.is_some(), "work should be dispatched from start");
+        assert_eq!(
+            work_cmd
+                .unwrap()
+                .context
+                .as_ref()
+                .and_then(|c| c.get("counter"))
+                .and_then(|v| v.as_i64()),
+            Some(0),
+        );
+    }
+}

@@ -38,7 +38,7 @@ is a stub today.
 | **P0** | Tooling: CI build, linkcheck, example tests, contributor guide | now |
 | **P1** | Foundations: the model, playbooks, tools, control flow | **now** |
 | **P2** | Getting started, first project, local runtime, daemon | **now** |
-| **P3** | Distributed runtime + the trace visualizer | now (needs P0 CI and a kind cluster) |
+| **P3** | Distributed runtime + the trace visualizer | now (needs P0 CI, and a kind cluster on tagged release images for the trace and Ch. 12) |
 | **P4** | EHDB, resources, measured overhead, operations | now |
 | **P5** | Interop and distribution (released, mostly behind flags) | now, with care over flag states |
 | **P6** | Edge / WASM + the in-browser runner | after the runner exists |
@@ -152,8 +152,9 @@ server. It shows the middle ground between a laptop and a cluster.
 (orchestrate-core drive) → EHDB command bus → worker pools. It covers
 slots, pool capacity, and KEDA autoscaling on EHDB feed lag, then
 follows one execution end to end. This chapter hosts the book's
-flagship visualization, the first `noetl-trace` step-through, so it
-waits for that tool.
+flagship visualization, the first `noetl-trace` step-through. Sections
+10.0–10.4 can land first; 10.5 waits for that tool and a trace captured
+from a stack running tagged releases.
 
 **Ch. 11 Choosing a Runtime** · REAL · P2. A comparison of supported
 kinds, concurrency, durability, cost and refusals across the three

@@ -28,7 +28,7 @@ playbooks that opt in with `metadata.expose`
 - **agents**: `/api/agents/*`, for playbooks with `expose.agent`, with
   callbacks to origins allowed by `--callback-origin`.
 
-Defaults and limits (CLI v6.4.0 `noetl serve --help`):
+Defaults and limits (CLI v6.4.1 `noetl serve --help`):
 
 | Option | Default |
 |---|---|

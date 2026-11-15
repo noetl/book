@@ -16,7 +16,7 @@ and the playbook schema, fetched at a **pinned commit** of the server
 repository so that the data never changes. That lets the book's CI run
 this exact playbook on every change and compare its result.
 
-Everything here runs on the **local runtime** of CLI v6.4.0. It uses
+Everything here runs on the **local runtime** of CLI v6.4.1. It uses
 only kinds the local runtime supports: `duckdb`, `rhai` and `http`.
 
 ## The playbook
@@ -83,7 +83,7 @@ wins ([6.1](ch06-01-next-and-routers.md)). The arc back to `pick` is a
 
 Every `duckdb` step names its database file with `db:`. Without one,
 the local runtime uses `.noetl/state.duckdb` **next to the playbook
-file** (`default_duckdb_path`, CLI v6.4.0). A relative `db:` is also
+file** (`default_duckdb_path`, CLI v6.4.1). A relative `db:` is also
 resolved against the playbook's directory, not your current directory.
 
 ### Does the loop terminate?
@@ -112,7 +112,7 @@ Run it with `-v` to watch the routing decisions:
 ```
 
 and with `--event-buffer` to record the run's events
-([1.3](ch01-03-running-locally.md)). On CLI v6.4.0 the buffer held:
+([1.3](ch01-03-running-locally.md)). On CLI v6.4.1 the buffer held:
 
 ```text
 playbook.started
@@ -137,7 +137,7 @@ This is the vocabulary the rest of the book uses:
 
 ```admonish warning title="The local trail shows each step once"
 `pick`, `fetch`, `load` and `advance` ran **twice**, but the local
-buffer has one `step.exit` for each of them. At CLI v6.4.0 it records
+buffer has one `step.exit` for each of them. At CLI v6.4.1 it records
 one exit per step, at its first run, so a back-edge loop's later passes
 do not appear. `executed_steps` in the `--json` output works the same
 way. A NoETL server records every pass ([Chapter 10](ch10-05-one-execution.md)).

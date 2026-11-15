@@ -22,7 +22,7 @@ $ noetl subscribe examples/ch09/timer/subscription.yaml --events ./trail.jsonl -
   event-sourced trail: ./trail.jsonl
 ```
 
-That is the real summary line from a run on CLI v6.4.0. The book's CI
+That is the real summary line from a run on CLI v6.4.1. The book's CI
 does not run daemons, so this example is checked against the schema
 only.
 

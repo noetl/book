@@ -62,7 +62,7 @@ the old Python server, worker and tools, removed from `noetl/noetl` in
 2026-08 (523 files, `25bef859`). Each is now its own Rust repository.
 `kind: python` is still a supported tool. On a worker it runs your
 code in a `python3` subprocess (tools v4.6.0 `src/tools/python.rs`).
-What has no Python is the **local runtime**: CLI v6.4.0 refuses
+What has no Python is the **local runtime**: CLI v6.4.1 refuses
 `kind: python` before any step runs.
 ```
 
@@ -79,7 +79,7 @@ the schema but does not run it.
 
 ## Local kinds, and fields that differ
 
-The local runtime (CLI v6.4.0) accepts its own set of kinds:
+The local runtime (CLI v6.4.1) accepts its own set of kinds:
 `agent`, `auth`, `duckdb`, `http`, `mcp`, `noop`, `playbook`,
 `provider`, `rhai`, `shell` and `sink`. Any other kind is refused
 before the first step runs, with the list
@@ -90,7 +90,7 @@ accept them.
 Even a kind both runtimes accept can take **different fields**. The
 sharpest case is `shell`:
 
-| | Worker (tools v4.6.0) | Local (CLI v6.4.0) |
+| | Worker (tools v4.6.0) | Local (CLI v6.4.1) |
 |---|---|---|
 | Field | `command:` (one string) | `cmds:` (a string or a list) |
 | Written with the other runtime's field | `cmds:` alone fails: `command` is a required field of `ShellConfig` | `command:` is **ignored**: the step runs nothing |

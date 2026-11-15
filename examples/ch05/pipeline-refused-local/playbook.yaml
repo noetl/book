@@ -1,4 +1,4 @@
-# Chapter 5.2: the local runtime (CLI 6.4.0) cannot parse a tool list at all.
+# Chapter 5.2: the local runtime (CLI 6.4.1) cannot parse a tool list at all.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

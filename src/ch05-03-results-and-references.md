@@ -43,7 +43,7 @@ is a map keyed by label ([5.2](ch05-02-ordered-tool-list.md)).
 
 ## Reading a result locally
 
-The local runtime (CLI v6.4.0) keeps each step's result as **text**:
+The local runtime (CLI v6.4.1) keeps each step's result as **text**:
 
 - `{{ fetch_user.result }}` is the whole result as a string;
 - inside that step's own `vars:`, `{{ result.email }}` reads a field

@@ -3,7 +3,7 @@
 <span class="status status-real">REAL</span>
 
 The local runtime is a tree-walking interpreter in
-`src/playbook_runner.rs` (CLI v6.4.0). It reads the YAML, checks the
+`src/playbook_runner.rs` (CLI v6.4.1). It reads the YAML, checks the
 kinds, and then **calls** steps: running a step means running its tool
 and then calling `execute_step` on each `next` target it takes. So:
 
@@ -23,7 +23,7 @@ Every difference the book has found so far, in one place. Each row
 links to where it is shown, and most are CI examples that would fail
 if the behaviour changed.
 
-| Area | Server (v3.161.2) | Local (CLI v6.4.0) | Shown in |
+| Area | Server (v3.161.2) | Local (CLI v6.4.1) | Shown in |
 |---|---|---|---|
 | First step | `start` | first in the list | `examples/ch04/step-order` |
 | Templates | minijinja; undefined → empty | exact `{{ name }}` tokens, 4 filters; unknown left in place | `examples/ch04/templating` |

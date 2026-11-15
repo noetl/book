@@ -4,7 +4,7 @@
 
 The same playbook grammar runs in three places. They are not
 interchangeable. This page puts them side by side, with each cell tied
-to the chapter or source it comes from. Versions: **CLI v6.4.0**,
+to the chapter or source it comes from. Versions: **CLI v6.4.1**,
 **server v3.161.2** (resource model `as_of` 2026-11-11), worker
 v6.15.0.
 

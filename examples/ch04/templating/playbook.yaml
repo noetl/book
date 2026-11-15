@@ -1,4 +1,4 @@
-# Chapter 4.2: how the LOCAL runtime (CLI 6.4.0) renders templates.
+# Chapter 4.2: how the LOCAL runtime (CLI 6.4.1) renders templates.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

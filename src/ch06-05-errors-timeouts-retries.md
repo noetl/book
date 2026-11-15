@@ -101,7 +101,7 @@ status is decided when the last sibling finishes *successfully* is in
 code this book has read but not run. Treat that case as unverified.
 ```
 
-On the local runtime (CLI v6.4.0), the first failing step stops the
+On the local runtime (CLI v6.4.1), the first failing step stops the
 whole run with an error, and nothing after it runs. CI checks this
 (`examples/ch06/failure-local`).
 

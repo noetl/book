@@ -1,5 +1,5 @@
 # Chapter 2 project: fetch two documents over HTTP, store them in DuckDB,
-# write a summary file. Local runtime (CLI 6.4.0), local kinds only.
+# write a summary file. Local runtime (CLI 6.4.1), local kinds only.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

@@ -3,7 +3,7 @@ type = "MultipleChoice"
 prompt.prompt = "Your active context sets `runtime: distributed`. You run `noetl run job.yaml -r auto`. Where does it run?"
 prompt.distractors = ["Locally, because auto prefers local.", "It asks you.", "It fails: auto is invalid with a context."]
 answer.answer = "Distributed: `auto` counts as no flag, so the context's runtime wins."
-context = "The ladder is flag (unless auto) → context (unless auto/unset) → local (`resolve_runtime`, CLI v6.4.0)."
+context = "The ladder is flag (unless auto) → context (unless auto/unset) → local (`resolve_runtime`, CLI v6.4.1)."
 id = "9fae62df-8e5f-43f6-977f-338e30ad3056"
 
 [[questions]]

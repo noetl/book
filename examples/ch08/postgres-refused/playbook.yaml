@@ -1,4 +1,4 @@
-# Chapter 8: `kind: postgres` is refused by the local runtime (CLI 6.4.0) before any step runs.
+# Chapter 8: `kind: postgres` is refused by the local runtime (CLI 6.4.1) before any step runs.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

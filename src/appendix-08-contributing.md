@@ -39,7 +39,7 @@ page's, or that correct a common belief. They render like this:
 
 ```admonish myth
 "The local runtime runs `loop:` steps once per item." It does not. At
-CLI v6.4.0 it parses `loop:` and runs the step **once**, and the run
+CLI v6.4.1 it parses `loop:` and runs the step **once**, and the run
 still ends `ok`. The example `examples/ch08/loop-runs-once` checks this
 in CI.
 ```

@@ -13,7 +13,7 @@ Every `tool.kind` the server's parser accepts, whether it is on by default, how 
 
 *Parser accepts by default* means the server accepts the kind in a playbook with no flag set; whether a given worker can execute it is a separate question (see the note below). An empty profile cell means the resource model has not profiled that kind.
 
-The **Accepted locally** column is not from the server: it is the local runtime's kind list at NoETL CLI **v6.4.0** (the `Tool` enum in noetl/cli executor/src/playbook.rs plus the `noop` pass-through in src/playbook_runner.rs (`NOOP_KINDS`); any other kind is refused before the first step runs (`reject_unsupported_kinds`)). Chapter 8 covers the local runtime.
+The **Accepted locally** column is not from the server: it is the local runtime's kind list at NoETL CLI **v6.4.1** (the `Tool` enum in noetl/cli executor/src/playbook.rs plus the `noop` pass-through in src/playbook_runner.rs (`NOOP_KINDS`); any other kind is refused before the first step runs (`reject_unsupported_kinds`)). Chapter 8 covers the local runtime.
 
 > Kinds the parser accepts. Which kinds a live worker can execute is reported by workers (RFC dsl-knowledge-base Phase 3) and is not known to this process.
 

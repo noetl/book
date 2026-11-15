@@ -17,8 +17,10 @@ then ran `noetl --version` and the Chapter 1 example. Results as of
 | PyPI | `pip install noetl` | **5.3.2** | yes |
 | Homebrew (macOS) | `brew tap noetl/tap`, `brew trust noetl/tap`, `brew install noetl` | **6.4.0** (built from source) | yes |
 
-The latest CLI release is **v6.4.0** (2026-11-11). The book's examples
-are tested against it.
+The latest CLI release is **v6.4.1** (2026-11-15). The book's examples
+are tested against it. The table above was taken on 2026-11-14, at
+v6.4.0; the only change in v6.4.1 is the local `sink` fix
+([8.2](ch08-02-local-kinds.md)).
 
 ## APT (Debian / Ubuntu)
 
@@ -52,8 +54,8 @@ you want NoETL inside a Python environment, for example to call
 
 ```admonish warning title="PyPI is behind"
 As of 2026-11-14 the newest PyPI release is **5.3.2**, uploaded
-2026-10-17. The CLI itself is at **6.4.0**. Behaviour in this book is
-checked against 6.4.0. Where you need a newer CLI, install it from APT
+2026-10-17. The CLI itself is at **6.4.1**. Behaviour in this book is
+checked against 6.4.1. Where you need a newer CLI, install it from APT
 or Homebrew.
 ```
 
@@ -68,8 +70,9 @@ noetl 6.4.0
 ```
 
 ```admonish warning title="`brew trust` is needed with current Homebrew"
-The tap's own instructions say only `brew tap noetl/tap` and
-`brew install noetl`. With **Homebrew 7.0.11** (the CI runner's version
+Until 2026-11-15 the tap's own instructions said only
+`brew tap noetl/tap` and `brew install noetl` (the step was added in
+noetl/homebrew-tap#2). With **Homebrew 7.0.11** (the CI runner's version
 on 2026-11-14), that fails: "Refusing to load formula noetl/tap/noetl
 from untrusted tap noetl/tap." Homebrew's suggested fix,
 `brew trust noetl/tap`, makes it work.

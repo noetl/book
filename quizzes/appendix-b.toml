@@ -19,7 +19,7 @@ prompt.prompt = "Which kind is accepted by the local runtime but NOT by the serv
 prompt.distractors = ["`rhai`", "`http`", "`noop`"]
 answer.answer = "`provider` (also `auth` and `sink`)"
 context = """
-Those three are local-only kinds at CLI v6.4.0. The server's manifest at
+Those three are local-only kinds at CLI v6.4.1. The server's manifest at
 v3.161.2 does not list them.
 """
 id = "c99407fe-1f34-4885-b77c-c8e2bfd13a4c"

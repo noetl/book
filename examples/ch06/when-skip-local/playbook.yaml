@@ -1,4 +1,4 @@
-# Chapter 6.2 (local, CLI 6.4.0): a false step `when` ends the branch locally. On a server, `a` is skipped and its `next` (b) is still followed.
+# Chapter 6.2 (local, CLI 6.4.1): a false step `when` ends the branch locally. On a server, `a` is skipped and its `next` (b) is still followed.
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

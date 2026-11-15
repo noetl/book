@@ -16,7 +16,7 @@ runtime: local (…)
 ```
 
 The first line says **which runtime** ran the playbook and why. The
-CLI picks it in this order (`noetl run --help`, CLI v6.4.0):
+CLI picks it in this order (`noetl run --help`, CLI v6.4.1):
 
 1. the `-r` / `--runtime` flag: `local`, `distributed` or `auto`;
 2. otherwise, the active **context**'s runtime, if it sets one
@@ -75,7 +75,7 @@ $ noetl buffer cat <execution_id>
 Each run gets a directory under `$NOETL_LOCAL_DIR` (default
 `~/.noetl/local`), holding `events.feather` (Apache Arrow) and
 `metadata.json`. `noetl buffer cat` prints the events as JSON lines.
-For the hello playbook on CLI v6.4.0 it printed four events, shown
+For the hello playbook on CLI v6.4.1 it printed four events, shown
 here trimmed to their key fields. Ids and times differ per run:
 
 ```json

@@ -5,7 +5,7 @@
   },
   "appendix-02-tool-kinds.md": {
     "landed": "2026-11-13 (#57, #63)",
-    "verified": "generated, server v3.161.2 (`983e36e`); local: CLI v6.4.0"
+    "verified": "generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1"
   },
   "appendix-03-flags.md": {
     "landed": "2026-11-13 (#57)",
@@ -41,23 +41,23 @@
   },
   "ch01-00-getting-started.md": {
     "landed": "2026-11-14 (#11)",
-    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+    "verified": "CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
   },
   "ch01-01-installation.md": {
     "landed": "2026-11-14 (#11)",
-    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+    "verified": "CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
   },
   "ch01-02-hello-playbook.md": {
     "landed": "2026-11-14 (#11)",
-    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+    "verified": "CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
   },
   "ch01-03-running-locally.md": {
     "landed": "2026-11-14 (#11)",
-    "verified": "CLI v6.4.0; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
+    "verified": "CLI v6.4.1; install channels on clean runners 2026-11-14 (`install-paths.yml`)"
   },
   "ch02-00-project-first-playbook.md": {
     "landed": "2026-11-13 (#12)",
-    "verified": "CLI v6.4.0 (run in CI); data pinned at server `983e36e`"
+    "verified": "CLI v6.4.1 (run in CI); data pinned at server `983e36e`"
   },
   "ch03-00-what-noetl-is.md": {
     "landed": "2026-11-15 (#64)",
@@ -81,67 +81,67 @@
   },
   "ch04-00-anatomy-of-a-playbook.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch04-01-header.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch04-02-workload-and-templating.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch04-03-steps.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch04-04-keychain.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch04-05-workbook.md": {
     "landed": "2026-11-13 (#58)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch05-00-tools.md": {
     "landed": "2026-11-13 (#59)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model"
   },
   "ch05-01-tool-kinds.md": {
     "landed": "2026-11-13 (#59)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model"
   },
   "ch05-02-ordered-tool-list.md": {
     "landed": "2026-11-13 (#59)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model"
   },
   "ch05-03-results-and-references.md": {
     "landed": "2026-11-13 (#59)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0; resource model"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1; resource model"
   },
   "ch06-00-control-flow.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch06-01-next-and-routers.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch06-02-when-guards.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch06-03-loop.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch06-04-back-edges.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch06-05-errors-timeouts-retries.md": {
     "landed": "2026-11-13 (#60)",
-    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.0"
+    "verified": "server v3.161.2 (`983e36e`), worker v6.15.0, tools v4.6.0, CLI v6.4.1"
   },
   "ch07-00-sub-playbooks.md": {
     "landed": "2026-11-14 (#17)",
@@ -157,39 +157,39 @@
   },
   "ch08-00-local-runtime.md": {
     "landed": "2026-11-14 (#18)",
-    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+    "verified": "CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table"
   },
   "ch08-01-in-process-interpreter.md": {
     "landed": "2026-11-14 (#18)",
-    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+    "verified": "CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table"
   },
   "ch08-02-local-kinds.md": {
     "landed": "2026-11-14 (#18)",
-    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+    "verified": "CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table"
   },
   "ch08-03-local-iteration.md": {
     "landed": "2026-11-14 (#18)",
-    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+    "verified": "CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table"
   },
   "ch08-04-event-buffer.md": {
     "landed": "2026-11-14 (#18)",
-    "verified": "CLI v6.4.0 (source + CI examples); server v3.161.2 for the comparison table"
+    "verified": "CLI v6.4.1 (source + CI examples); server v3.161.2 for the comparison table"
   },
   "ch09-00-daemon.md": {
     "landed": "2026-11-14 (#19)",
-    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+    "verified": "CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
   },
   "ch09-01-subscriptions.md": {
     "landed": "2026-11-14 (#19)",
-    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+    "verified": "CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
   },
   "ch09-02-spool-and-trail.md": {
     "landed": "2026-11-14 (#19)",
-    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+    "verified": "CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
   },
   "ch09-03-dispatch-to-server.md": {
     "landed": "2026-11-14 (#19)",
-    "verified": "CLI v6.4.0 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
+    "verified": "CLI v6.4.1 (`src/subscribe/`, `noetl serve --help`, a timer run); tools v4.6.0 `source/`"
   },
   "ch11-00-choosing-a-runtime.md": {
     "landed": "2026-11-14 (#20)",

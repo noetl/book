@@ -14,7 +14,7 @@ CLI running and starts playbooks when something happens:
 Both run playbooks on the **local runtime** ([Chapter 8](ch08-00-local-runtime.md)),
 with all of its rules and limits. Neither needs Kubernetes, a NoETL
 server or a database (`noetl instance --help`: "Run a kind:Subscription
-listener standalone in local mode (no k8s, no server)", CLI v6.4.0).
+listener standalone in local mode (no k8s, no server)", CLI v6.4.1).
 
 ```admonish note title="What the daemon is not"
 It is not a general-purpose service manager or scheduler. It runs one

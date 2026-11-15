@@ -1,4 +1,4 @@
-# Chapter 6.1 (local, CLI 6.4.0): a router with mode inclusive runs every matching arc (locally one after another).
+# Chapter 6.1 (local, CLI 6.4.1): a router with mode inclusive runs every matching arc (locally one after another).
 apiVersion: noetl.io/v2
 kind: Playbook
 metadata:

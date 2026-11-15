@@ -127,7 +127,7 @@ $ noetl credential set example_api      # prompts for the secret
 $ noetl credential list                 # aliases and types, never values
 ```
 
-At CLI v6.4.0, `credential: <alias>` in `http` and `agent` steps reads
+At CLI v6.4.1, `credential: <alias>` in `http` and `agent` steps reads
 from this store ([Chapter 8](ch08-00-local-runtime.md)).
 
 ## Check your understanding

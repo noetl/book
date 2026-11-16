@@ -306,9 +306,12 @@ these releases), the three `/metrics` surfaces, alert policies as code
 (applied by hand; nothing syncs file and live, ai-meta#471), and scrape
 coverage as its own risk.
 
-**Ch. 31 Credentials and Secrets** · REAL · P4. Explicit aliases and no
-default connection; business secrets in the keychain, never in worker
-env or the event log.
+**Ch. 31 Credentials and Secrets** · REAL · P4 · written 2026-11-15.
+Envelope-encrypted storage that fails closed; delivery to the worker
+and the three protections that ship off (route gate in shadow, sealed
+delivery, mTLS); what keeps secrets out of the event log; worker env as
+a convention; bootstrap secrets as CSI files; features that ship inert
+(the audit table has no writer).
 
 **Ch. 32 Representation Drift: Keeping What You Know True** · REAL · P7.
 Every copy (doc, dashboard, memory, this book) is true only while

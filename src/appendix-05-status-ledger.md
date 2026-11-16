@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**70 pages written, 64 not yet written** (of 134 in `SUMMARY.md`).
+**71 pages written, 63 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -146,7 +146,7 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Deploy by Digest | REAL | not written | | |
 | Releases and Version Pinning | REAL | not written | | |
 | Rollout and Rollback Discipline | REAL | not written | | |
-| Observability and Alerting | REAL | not written | | |
+| [Observability and Alerting](ch30-00-observability.md) | **REAL** | written | server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471 | 2026-11-15 |
 | Credentials and Secrets | REAL | not written | | |
 | Representation Drift: Keeping What You Know True | REAL | not written | | |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |

@@ -291,8 +291,10 @@ hand-edit versions or push tags.
 **Ch. 29 Rollout and Rollback Discipline** · REAL · P4. Smoke before
 *and* after every roll; one pool at a time; rollback by digest.
 
-**Ch. 30 Observability and Alerting** · REAL · P4. `execution_id` as the
-trace key, metrics over logs, alert policies as code, and scrape
+**Ch. 30 Observability and Alerting** · REAL · P4 · written 2026-11-15.
+`execution_id` as the trace key (the event log; no span exporter at
+these releases), the three `/metrics` surfaces, alert policies as code
+(applied by hand; nothing syncs file and live, ai-meta#471), and scrape
 coverage as its own risk.
 
 **Ch. 31 Credentials and Secrets** · REAL · P4. Explicit aliases and no

@@ -275,6 +275,10 @@
     "landed": "2026-11-15 (#79)",
     "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
   },
+  "ch30-00-observability.md": {
+    "landed": "2026-11-15",
+    "verified": "server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471"
+  },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",
     "verified": "\u2014"

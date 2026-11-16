@@ -29,7 +29,7 @@ and Home pages) and its issues, and each carries its date.
 - [13.2 The append log](ch13-02-append-log.md): parts, sealing, the manifest
 - [13.3 Bloom filters and the prune floor](ch13-03-bloom-and-floor.md)
 - [13.4 Two buses](ch13-04-two-buses.md)
-- [13.5 Writer election and fencing](ch13-05-election-and-fencing.md) <span class="status status-partial">PARTIAL</span>
+- [13.5 Writer election and fencing](ch13-05-election-and-fencing.md)
 - [13.6 Durability](ch13-06-durability.md) <span class="status status-partial">PARTIAL</span>
 - [13.7 The chain store](ch13-07-chain-store.md) <span class="status status-partial">PARTIAL</span>
 

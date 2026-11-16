@@ -78,7 +78,7 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[The Append Log: Parts, Segments, Manifest](ch13-02-append-log.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Bloom Filters and the Prune Floor](ch13-03-bloom-and-floor.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Two Buses: Commands and Events](ch13-04-two-buses.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Writer Election and Fencing](ch13-05-election-and-fencing.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Writer Election and Fencing](ch13-05-election-and-fencing.md) | **REAL** | written | ehdb v0.15.1, worker v6.15.0; prod fence mode from the dated wiki read 2026-11-16 (writer worker 6.11.9) | 2026-11-15 (#83); REAL 2026-11-16 |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Durability: Tail Replication and the Unsealed Tail](ch13-06-durability.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[The Chain Store](ch13-07-chain-store.md) | **PARTIAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | EHDB as the State Substrate | TARGET | not written | | |

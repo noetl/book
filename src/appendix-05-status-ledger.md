@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**77 pages written, 57 not yet written** (of 134 in `SUMMARY.md`).
+**78 pages written, 56 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -147,7 +147,7 @@ this table is stale.
 | [Releases and Version Pinning](ch28-00-releases.md) | **REAL** | written | semantic-release.yml, release.yml, .releaserc.json on main of server, worker, tools, cli, gateway (read 2026-11-15); run logs; commit-analyzer default rules | 2026-11-15 |
 | [Rollout and Rollback Discipline](ch29-00-rollout-rollback.md) | **REAL** | written | ai-meta playbooks 516, 517 at `0e835fd`; noetl/e2e prod_regression_validate.py; dated record (ai-meta#202, #203, #504, #511, #517, #523; wiki Sessions-Log 2026-09-30) | 2026-11-15 |
 | [Observability and Alerting](ch30-00-observability.md) | **REAL** | written | server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471 | 2026-11-15 |
-| Credentials and Secrets | REAL | not written | | |
+| [Credentials and Secrets](ch31-00-credentials.md) | **REAL** | written | server v3.161.2, worker v6.15.0; noetl/ops `6c55cbe` manifests; dated record (ai-meta wiki Umbrella-Secrets-Wallet, 2026-08-28) | 2026-11-15 |
 | Representation Drift: Keeping What You Know True | REAL | not written | | |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |
 | [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1 | 2026-11-13 (#57, #63) |

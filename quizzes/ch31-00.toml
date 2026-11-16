@@ -1,0 +1,59 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The server starts with no `NOETL_ENCRYPTION_KEY`. What happens?"""
+prompt.distractors = [
+  "It uses a built-in default key.",
+  "It stores credentials unencrypted.",
+  "It generates a key and keeps it in Postgres.",
+]
+answer.answer = "It refuses to start; the old all-zero default key is gone."
+context = """Only `NOETL_ALLOW_INSECURE_DEFAULT_KEY=true` overrides that, with a per-process random key."""
+id = "8f55671b-46e1-4643-a862-3c9f9bf1ac3c"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """At code defaults, who can read decrypted credentials from the server's credential routes?"""
+prompt.distractors = [
+  "Only workers with a sealed key.",
+  "Only the gateway.",
+  "Nobody without mTLS.",
+]
+answer.answer = "Anything that can reach them: the gate defaults to shadow, which rejects nothing."
+context = """Set `NOETL_INTERNAL_AUTH_MODE=enforce` and give every caller the token."""
+id = "6ec8ae6c-4dea-4828-ab3c-b56a0ef54d35"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why does a `{{ keychain.api.token }}` template never reach `command.issued`?"""
+prompt.distractors = [
+  "The event log encrypts it.",
+  "The worker deletes the event afterwards.",
+  "Templates are not stored.",
+]
+answer.answer = "The server leaves `keychain.*` unrendered, and the worker never resolves it for the drive command."
+context = """The drive guard shipped 2026-07-08 in worker v5.70.3 after a token reached `command.issued`."""
+id = "13b14714-b5b5-4a3f-897f-e476ebb9330a"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why can `POSTGRES_PASSWORD` not be stored in the NoETL wallet?"""
+prompt.distractors = [
+  "It is too long.",
+  "Postgres rejects encrypted passwords.",
+  "The wallet only stores API keys.",
+]
+answer.answer = "The wallet is a Postgres table: the credential system would depend on itself."
+context = """Bootstrap secrets arrive as CSI-mounted files instead."""
+id = "4279d66f-7ff7-4647-b059-f8d9adfb16ca"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Your audit query on `noetl.secret_audit` returns no rows. Most likely?"""
+prompt.distractors = [
+  "No secret has ever been read.",
+  "Audit rows expire after an hour.",
+  "You need `NOETL_SECRET_AUDIT_REQUIRED=true`.",
+]
+answer.answer = "Nothing writes the table at v3.161.2; it is created and readable but has no writer."
+context = """That flag is parsed and has no effect at this release."""
+id = "15e4c71d-af11-4f5a-bb37-a5b69a42d769"

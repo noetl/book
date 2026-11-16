@@ -50,6 +50,9 @@ Answered by the authoring agent from code and public sources, under the owner's 
 - Q: Is a resource-model figure enough to state a number in Ch. 21? → A: Yes, with its label, its `as_of` and the model's own source. Where the code at the pin says otherwise, the page reports both; the model is a representation, not the code.
 - Q: Should Appendix C list every runtime flag? → A: Every flag the chapters cite, generated from `tools/flags-cited.json`, with a CI check that no chapter cites an unlisted one. Not every variable the binaries read.
 - Q: Ch. 13's draft said the chain store "cannot serve yet" and the fence is "enforce staged". What does the evidence say? → A: The chain store serves on prod behind three default-off gates, armed per the dated record (2026-09-30 to 2026-10-09). For the fence, no dated public record states its prod mode; the worker v6.15.0 code records that enforce was not armed while the election started ~5.5 min late. The page says exactly that.
+- Q: Ch. 30 asks for "execution_id as trace key". What actually carries it at v3.161.2? → A: the event log. `execution_id` is a server-side snowflake (`src/handlers/execute.rs:366-371`) and every event, command and read route (`GET /api/executions/{id}`) is keyed by it. There is no span exporter (no OpenTelemetry dependency); a W3C `trace` object, if a caller supplies one, is stored on `playbook_started` and inherited by child executions as data. The ai-meta observability rule is a rule for contributors, not evidence of what ships, so the page cites code for each claim.
+- Q: Which alerting facts are REAL, and as of when? → A: what `noetl/ops` commits at a named commit (26 Cloud Monitoring policies at `3f63656`, 2026-11-02; the apply script; the GMP `Rules` path documented inert), plus the dated public record of what was live (23 committed == 23 live on 2026-10-16, ai-meta#471). Whether the three policies added after that date are live is not in a dated record; the page says so. No project ids, channel ids or addresses.
+- Q: How is "scrape coverage as a risk" evidenced? → A: by the two dated selector defects fixed in `noetl/ops` `ceb49bc` (2026-10-04): the server PodMonitoring selected a workload with no pods for 25 days, and an enumerated worker selector missed two pods. The lesson is the selector shape (select by a stable label that must exist, not by enumerated names).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -718,16 +721,21 @@ Sources: ai-meta wiki Deployment-Validation.md; ai-meta playbooks/
 
 ### CH-30
 
-**Observability and Alerting** · Badge **REAL** · Phase **P4** · Issue [#40](https://github.com/noetl/book/issues/40) · Draft (stub; refine with /speckit-clarify before starting)
+**Observability and Alerting** · Badge **REAL** · Phase **P4** · Issue [#40](https://github.com/noetl/book/issues/40) · Specified (clarified 2026-11-15)
 
 Files: `src/ch30-00-observability.md`
 
 Acceptance criteria:
 
-1. execution_id as trace key; alert policies as code; scrape coverage as a risk.
-2. Meets [CH-ALL](#ch-all).
+1. Code facts verified at server **v3.161.2**, worker **v6.15.0**, gateway **v3.22.1**; alerting facts at `noetl/ops` commit `3f63656` plus the dated public record (ai-meta#238, #471), each with its date.
+2. `execution_id` as the trace key: where it is generated, what is keyed by it, how to read one execution's events; the W3C `trace` object as an optional external join; no span exporter at these releases (said plainly, not implied).
+3. The three metric surfaces (`/metrics` on the server's HTTP port, the worker's `:9090`, the gateway's `/metrics`), with metric names quoted only when found in code.
+4. Alert policies as code: the file, the manual idempotent apply that never deletes, the two alerting paths (only one delivers), the `duration` default trap, and that nothing syncs file and live (ai-meta#471, open).
+5. Scrape coverage as a risk, from the 2026-10-04 selector fix.
+6. No private identifiers (project ids, channel ids, addresses, hostnames).
+7. Meets [CH-ALL](#ch-all).
 
-Sources: ai-meta agents/rules/observability.md; `noetl/ops` ci/monitoring/
+Sources: server v3.161.2, worker v6.15.0, gateway v3.22.1; `noetl/ops` `ci/monitoring/`, `ci/manifests/noetl/gmp/`; ai-meta#238, #471; ai-meta agents/rules/observability.md
 
 ### CH-31
 

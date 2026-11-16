@@ -1,0 +1,59 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Where is the trace of one NoETL run, at server v3.161.2?"""
+prompt.distractors = [
+  "In an OpenTelemetry backend the server exports spans to.",
+  "In the gateway's request log.",
+  "In a metric labelled with the execution id.",
+]
+answer.answer = "Its event log, keyed by the `execution_id` the server generates before any I/O."
+context = """There is no span exporter; `GET /api/executions/{id}` and `noetl status` read the events."""
+id = "48db0927-d425-4905-b127-f946ff4dcab7"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why is `execution_id` never a Prometheus label?"""
+prompt.distractors = [
+  "Prometheus forbids numeric labels.",
+  "The id is secret.",
+  "Metrics are per pod, not per cluster.",
+]
+answer.answer = "A value per run would grow the registry without bound; metrics say how much, the event log says which run."
+context = """Find the window in the metric, then list executions in that window."""
+id = "db98107e-c7a8-4093-9d2f-ac5ee38ded3b"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A policy is attached to a notification channel. Does that prove someone will be paged?"""
+prompt.distractors = [
+  "Yes, attachment is delivery.",
+  "Yes, if the policy is enabled.",
+  "Only if the channel id is in the README.",
+]
+answer.answer = "No. An unverified email channel accepts the setting and delivers nothing; only a test page proves delivery."
+context = """Delivery was proven on 2026-08-19 by firing a temporary policy and receiving the mail."""
+id = "44c7601b-8b5b-4f0f-b918-5041aedfdaad"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why did a stable divergence count page immediately on 2026-10-15?"""
+prompt.distractors = [
+  "The PromQL was wrong.",
+  "The alert fired on a Rules object.",
+  "The channel was misconfigured.",
+]
+answer.answer = "The policy had no `duration` key, and the apply script applies a missing one as `0s`."
+context = """`pol.get('duration', '0s')`; every policy at `3f63656` now sets it explicitly (ai-meta#471)."""
+id = "2401591a-dd51-42af-a456-3085bdafe878"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The server's PodMonitoring selected `app: noetl-server-rust`. What went wrong?"""
+prompt.distractors = [
+  "Nothing; the selector was correct.",
+  "The pod rejected scrapes without a token.",
+  "Pod annotations overrode the selector.",
+]
+answer.answer = "That Deployment was at 0 replicas; the serving StatefulSet pod was scraped by nothing for 25 days."
+context = """Fixed 2026-10-04 by selecting `component: server`, a label every server pod carries."""
+id = "e9004fb4-21b7-41c9-9d14-cc6f8ad607fe"

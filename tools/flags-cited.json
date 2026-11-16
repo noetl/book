@@ -252,6 +252,27 @@
       "default": "on",
       "what": "clean up replicated tail objects; false keeps every tail object",
       "source": "server v3.161.2 src/handlers/ehdb_embedded.rs:1004"
+    },
+    {
+      "var": "NOETL_DISABLE_METRICS",
+      "read_by": "server",
+      "default": "false",
+      "what": "remove the unauthenticated `/metrics` route",
+      "source": "server v3.161.2 src/config/app.rs:38-40, src/main.rs:100-104"
+    },
+    {
+      "var": "WORKER_METRICS_BIND",
+      "read_by": "worker",
+      "default": "0.0.0.0:9090",
+      "what": "address of the worker's `/metrics`, health and EHDB query routes",
+      "source": "worker v6.15.0 src/config.rs:124-134"
+    },
+    {
+      "var": "GATEWAY_AUTH_BYPASS",
+      "read_by": "gateway",
+      "default": "false",
+      "what": "accept any session token (only exactly `true` or `1` enables it); reported by `noetl_gateway_auth_bypass_enabled`",
+      "source": "gateway v3.22.1 src/auth/middleware.rs:13-18"
     }
   ]
 }

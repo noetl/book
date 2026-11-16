@@ -59,6 +59,7 @@ Variables the server, worker, gateway or CLI read that the DSL artifacts do not 
 
 | Variable | Read by | Default | What it does | Source | Cited in |
 |---|---|---|---|---|---|
+| `GATEWAY_AUTH_BYPASS` | gateway | false | accept any session token (only exactly `true` or `1` enables it); reported by `noetl_gateway_auth_bypass_enabled` | gateway v3.22.1 src/auth/middleware.rs:13-18 | [30.0](ch30-00-observability.md) |
 | `GATEWAY_SESSION_VALIDATE_VIA_PLAYBOOK` | gateway | true | validate an uncached session by running the auth playbook | gateway v3.22.1 src/auth/mod.rs:174-181 | [10.1](ch10-01-gateway.md) |
 | `NOETL_AUTHZ_SYNC` | gateway | false | the same synchronous path for authorization checks | gateway v3.22.1 src/auth/mod.rs:231-235 | [10.1](ch10-01-gateway.md) |
 | `NOETL_AUTH_SYNC` | gateway | false | validate sessions through the server's synchronous auth path instead of a playbook (a code comment says prod runs it on) | gateway v3.22.1 src/auth/mod.rs:205-209, 224 | [10.1](ch10-01-gateway.md) |
@@ -70,6 +71,7 @@ Variables the server, worker, gateway or CLI read that the DSL artifacts do not 
 | `NOETL_COMMAND_BUS` | server, worker | none (required) | the command bus; only the EHDB bus is accepted, NATS is refused | server v3.161.2 src/command_bus.rs:47-90; worker v6.15.0 src/command_bus.rs:85-115 | [10.3](ch10-03-bus-and-pools.md), [13.1](ch13-01-why-replace-nats.md) |
 | `NOETL_COMMAND_BUS_ACK_WAIT_SECS` | worker (writer) | 30 | seconds before an unacked command is redelivered | worker v6.15.0 src/command_bus.rs:191 | [10.3](ch10-03-bus-and-pools.md) |
 | `NOETL_COMMAND_BUS_HOST` | worker | false | run this worker process as the command-bus writer (the cmdbus-writer) | worker v6.15.0 src/command_bus.rs:178 (env_bool), src/worker.rs:159-204 | [10.3](ch10-03-bus-and-pools.md), [13.4](ch13-04-two-buses.md) |
+| `NOETL_DISABLE_METRICS` | server | false | remove the unauthenticated `/metrics` route | server v3.161.2 src/config/app.rs:38-40, src/main.rs:100-104 | [30.0](ch30-00-observability.md) |
 | `NOETL_DSL_KB` | server | false | mount the DSL knowledge-base routes | server v3.161.2 src/main.rs:1064 | [4.0](ch04-00-anatomy-of-a-playbook.md) |
 | `NOETL_EHDB_ELECTION` | worker (writer) | off | run the shard writer election (Kubernetes Lease `ehdb-shard-<shard>`) | worker v6.15.0 src/ehdb/lease_store.rs:162-166 | [13.5](ch13-05-election-and-fencing.md) |
 | `NOETL_EHDB_ELECTION_LEASE_SECS` | worker (writer) | 15 | lease duration | worker v6.15.0 src/ehdb/election.rs:95; ehdb v0.15.1 crates/ehdb-reference/src/election.rs:53 | [13.5](ch13-05-election-and-fencing.md) |
@@ -95,3 +97,4 @@ Variables the server, worker, gateway or CLI read that the DSL artifacts do not 
 | `NOETL_ORPHAN_SWEEP_ENABLED` | server | false | fail (playbook.failed) a RUNNING execution whose outstanding claim belongs to a dead worker | server v3.161.2 src/config/app.rs:600-627 | [10.3](ch10-03-bus-and-pools.md) |
 | `NOETL_PLAYBOOK_AWAIT_CHILD_RESULT` | worker (playbook tool) | true | kill-switch: false reverts an awaited child's result to the legacy status payload | tools v4.6.0 src/tools/playbook.rs:51-53 | [7.1](ch07-01-child-executions.md) |
 | `NOETL_TASK_SEQUENCE_MAX_ITERATIONS` | worker (task_sequence tool) | 1000000 | cap on iterations inside one tool list | tools v4.6.0 src/tools/task_sequence.rs:252-257 | [5.2](ch05-02-ordered-tool-list.md) |
+| `WORKER_METRICS_BIND` | worker | 0.0.0.0:9090 | address of the worker's `/metrics`, health and EHDB query routes | worker v6.15.0 src/config.rs:124-134 | [30.0](ch30-00-observability.md) |

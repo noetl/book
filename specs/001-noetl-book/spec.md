@@ -55,6 +55,9 @@ Answered by the authoring agent from code and public sources, under the owner's 
 - Q: How is "scrape coverage as a risk" evidenced? → A: by the two dated selector defects fixed in `noetl/ops` `ceb49bc` (2026-10-04): the server PodMonitoring selected a workload with no pods for 25 days, and an enumerated worker selector missed two pods. The lesson is the selector shape (select by a stable label that must exist, not by enumerated names).
 - Q: Ch. 28's sources are a contributor rule (ai-meta `release-versioning.md`). Is that evidence? → A: No. The page cites the workflows and `.releaserc.json` at `origin/main` of each repo (read 2026-11-15), the semantic-release run logs, and the commit-analyzer's default rules. Where the rule disagrees with them, the page follows the pipeline: semantic-release reads every commit since the last tag, not the merge subject; `perf:` and `revert:` also release a patch; and on server, worker and tools the bot no longer commits the bump, so `Cargo.toml` is a floor below the tag.
 - Q: Is "`chore:` releases nothing" the whole story? → A: For semantic-release, yes, and silently. But `release.yml` can be dispatched by hand with a version: server v3.153.0 (2026-11-08) was published that way after semantic-release found no relevant changes in four `chore:` PRs (both runs' logs). The page states the escape hatch and that it bypasses the commit-type check.
+- Q: Ch. 27's sources are contributor rules. Which kind path does the page teach? → A: the one `noetl/ops` maintains for the current topology, `automation/ehdb/ehdb_platform.yaml` (`plan`/`converge`/`status`/`verify`/`teardown`, `profile=kind|prod` as a guard), read at ops `6c55cbe`. The older `automation/development/noetl.yaml` that the rules name still builds the legacy Python image and applies NATS manifests (last changed 2026-05-23); the page says it is stale rather than teaching it. Facts the book did not run are labelled as read, not run.
+- Q: Can Ch. 27/29 describe production at all without reading it? → A: Only as the committed manifests declare it (at a named ops commit) and as dated public records describe it, and the page says which. The manifests are "shape-only" by design and are known to differ from live (ai-meta#267, open), so they are not evidence of what runs.
+- Q: Which rollout facts are REAL for Ch. 29? → A: the procedure as written and executed in ai-meta `playbooks/` (516, 517, 460, 257) at a named commit, and the dated outcomes in the public record (#504, #511, #517, the wiki Sessions-Log). Smoke specifics that name private hosts or products are described generically.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -684,16 +687,19 @@ Sources: private repo — owner
 
 ### CH-27
 
-**Deployment Modes** · Badge **REAL** · Phase **P4** · Issue [#37](https://github.com/noetl/book/issues/37) · Draft (stub; refine with /speckit-clarify before starting)
+**Deployment Modes** · Badge **REAL** · Phase **P4** · Issue [#37](https://github.com/noetl/book/issues/37) · Specified (clarified 2026-11-15)
 
 Files: `src/ch27-*.md`
 
 Acceptance criteria:
 
-1. Kind first; GKE; deploy by digest with explicit rollback; no project IDs or internal hostnames.
-2. Meets [CH-ALL](#ch-all).
+1. Facts from `noetl/ops` at `6c55cbe`, ai-meta `playbooks/` at a named commit, and dated public records; no project ids, registry paths with project ids, cluster contexts or hostnames.
+2. 27.1 kind first: `ehdb_platform.yaml` with `profile=kind` and its guard; `ci/kind/config.yaml`; the stale `development/noetl.yaml` named as stale.
+3. 27.2 GKE: the topology the manifests declare (server StatefulSet of 1, retired Deployment at 0, three worker Deployments, the writer StatefulSet, the gateway), Autopilot, images from the release pipeline; shape-only manifests and why committed ≠ live (#267, the system-pool ScaledObject).
+4. 27.3 deploy by digest: image-only patch of a named container, server-side dry-run with a whole-object diff, the digest ledger and its rollback row, verify by `*_build_info`; the 2026-09-08 manifest-apply outage (~55 min).
+5. Meets [CH-ALL](#ch-all).
 
-Sources: ai-meta agents/rules/{deployment-validation,ops-deploy,apply-safety}.md
+Sources: `noetl/ops` automation/ehdb/, ci/kind/, ci/manifests/noetl/ (incl. ledger/), automation/development/noetl.yaml; ai-meta playbooks/257-*, 460-*; ai-meta#267, #323; ai-meta wiki Sessions-Log (2026-09-08); ai-meta agents/rules (checked, not trusted)
 
 ### CH-28
 
@@ -714,16 +720,20 @@ Sources: noetl/{server,worker,tools,gateway,cli} workflows and `.releaserc.json`
 
 ### CH-29
 
-**Rollout and Rollback Discipline** · Badge **REAL** · Phase **P4** · Issue [#39](https://github.com/noetl/book/issues/39) · Draft (stub; refine with /speckit-clarify before starting)
+**Rollout and Rollback Discipline** · Badge **REAL** · Phase **P4** · Issue [#39](https://github.com/noetl/book/issues/39) · Specified (clarified 2026-11-15)
 
 Files: `src/ch29-00-rollout-rollback.md`
 
 Acceptance criteria:
 
-1. Smoke before and after; one pool at a time; rollback by digest.
-2. Meets [CH-ALL](#ch-all).
+1. Smoke before and after every roll, regression ⇒ roll back: what the smoke exercises (described without private hosts), and that it checks it reached the intended cluster.
+2. One pool at a time: the 2026-11-03 system-pool stall (~7–10 min of no-op drives while a fresh pod replays the feed; readiness says nothing); worker SIGTERM drain (v6.11.3, grace 180 s).
+3. Rollback by digest, recorded before the roll; at least two dated real rollbacks or holds with their reason.
+4. Ordering for multi-component changes: readers before writers, and the rollback floor that moves once writers arm (#517, 2026-11-06/07).
+5. Dated restart costs (writer failover ~21 s; the lost gateway owner record, #523).
+6. Meets [CH-ALL](#ch-all).
 
-Sources: ai-meta wiki Deployment-Validation.md; ai-meta playbooks/
+Sources: ai-meta playbooks/516-*, 517-*, 460-*, 257-*; ai-meta#504, #511, #517, #523, #202, #203; ai-meta wiki Sessions-Log
 
 ### CH-30
 

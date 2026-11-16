@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why must the server StatefulSet stay at one replica?"""
+prompt.distractors = [
+  "GKE Autopilot allows one pod per StatefulSet.",
+  "The license allows one server.",
+  "The gateway can reach only one server.",
+]
+answer.answer = "A second replica is a second snowflake generator with the same machine id, so duplicate event ids."
+context = """`server-rust-embedded-sts-prod.yaml`; the retired Deployment is held at 0 for the same reason."""
+id = "dce12c2a-9bb3-47f3-a568-ca262c49d533"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The worker manifest has no `image:` field. Why?"""
+prompt.distractors = [
+  "The image is set by a Helm chart.",
+  "It is a mistake to be fixed.",
+  "Autopilot chooses the image.",
+]
+answer.answer = "It is shape-only: the deploy sets the image by digest, and a stale pin had rolled prod back on re-apply."
+context = """ai-meta#323; server-side apply leaves unclaimed fields alone."""
+id = "0b0ac289-d9c6-4f72-84fb-611eea3d16c4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Do the committed manifests describe what runs?"""
+prompt.distractors = [
+  "Yes, CI applies them on every merge.",
+  "Yes, a drift check enforces it.",
+  "Only for the gateway.",
+]
+answer.answer = "No: ai-meta#267 found 84 live environment variables missing from them."
+context = """Read the cluster, and `*_build_info` for the version."""
+id = "19c6fcf7-3c1e-419c-885a-2b700c0dc85f"

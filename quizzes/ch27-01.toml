@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which playbook converges the current topology on kind?"""
+prompt.distractors = [
+  "`automation/development/noetl.yaml action=redeploy`.",
+  "`kubectl apply -f ci/manifests/noetl/`.",
+  "`helm install noetl`.",
+]
+answer.answer = "`automation/ehdb/ehdb_platform.yaml` with `profile=kind`."
+context = """The older playbook builds the Python image and applies NATS."""
+id = "712faecd-330f-40ef-98ff-228fcd59aab1"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What does `profile=kind` guard against?"""
+prompt.distractors = [
+  "Running without network access.",
+  "Running as root.",
+  "Nothing; it only sets defaults.",
+]
+answer.answer = "Running against any context that is not `kind-*`."
+context = """`profile=prod` refuses a `kind-*` context in turn."""
+id = "e7d510cd-cf2c-4e58-b528-bb5e371537d5"

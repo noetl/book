@@ -53,6 +53,8 @@ Answered by the authoring agent from code and public sources, under the owner's 
 - Q: Ch. 30 asks for "execution_id as trace key". What actually carries it at v3.161.2? → A: the event log. `execution_id` is a server-side snowflake (`src/handlers/execute.rs:366-371`) and every event, command and read route (`GET /api/executions/{id}`) is keyed by it. There is no span exporter (no OpenTelemetry dependency); a W3C `trace` object, if a caller supplies one, is stored on `playbook_started` and inherited by child executions as data. The ai-meta observability rule is a rule for contributors, not evidence of what ships, so the page cites code for each claim.
 - Q: Which alerting facts are REAL, and as of when? → A: what `noetl/ops` commits at a named commit (26 Cloud Monitoring policies at `3f63656`, 2026-11-02; the apply script; the GMP `Rules` path documented inert), plus the dated public record of what was live (23 committed == 23 live on 2026-10-16, ai-meta#471). Whether the three policies added after that date are live is not in a dated record; the page says so. No project ids, channel ids or addresses.
 - Q: How is "scrape coverage as a risk" evidenced? → A: by the two dated selector defects fixed in `noetl/ops` `ceb49bc` (2026-10-04): the server PodMonitoring selected a workload with no pods for 25 days, and an enumerated worker selector missed two pods. The lesson is the selector shape (select by a stable label that must exist, not by enumerated names).
+- Q: Ch. 28's sources are a contributor rule (ai-meta `release-versioning.md`). Is that evidence? → A: No. The page cites the workflows and `.releaserc.json` at `origin/main` of each repo (read 2026-11-15), the semantic-release run logs, and the commit-analyzer's default rules. Where the rule disagrees with them, the page follows the pipeline: semantic-release reads every commit since the last tag, not the merge subject; `perf:` and `revert:` also release a patch; and on server, worker and tools the bot no longer commits the bump, so `Cargo.toml` is a floor below the tag.
+- Q: Is "`chore:` releases nothing" the whole story? → A: For semantic-release, yes, and silently. But `release.yml` can be dispatched by hand with a version: server v3.153.0 (2026-11-08) was published that way after semantic-release found no relevant changes in four `chore:` PRs (both runs' logs). The page states the escape hatch and that it bypasses the commit-type check.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -695,16 +697,20 @@ Sources: ai-meta agents/rules/{deployment-validation,ops-deploy,apply-safety}.md
 
 ### CH-28
 
-**Releases and Version Pinning** · Badge **REAL** · Phase **P4** · Issue [#38](https://github.com/noetl/book/issues/38) · Draft (stub; refine with /speckit-clarify before starting)
+**Releases and Version Pinning** · Badge **REAL** · Phase **P4** · Issue [#38](https://github.com/noetl/book/issues/38) · Specified (clarified 2026-11-15)
 
 Files: `src/ch28-00-releases.md`
 
 Acceptance criteria:
 
-1. semantic-release rules; `chore:` releases nothing; tag vs Cargo.toml may disagree.
-2. Meets [CH-ALL](#ch-all).
+1. Pipeline facts from each repo's `.github/workflows/semantic-release.yml`, `release.yml` and `.releaserc.json` at `origin/main` (read 2026-11-15), run logs, and `@semantic-release/commit-analyzer`'s default release rules.
+2. The commit-type table (`feat` minor, `fix`/`perf`/`revert` patch, breaking major, anything else nothing and silently), and that every commit since the last tag is analysed.
+3. The tag is the version: where `Cargo.toml` is a floor (server, worker, tools) and where the bot still commits it (CLI, gateway); the build stamps the tag's version into the binary (`*_build_info`).
+4. Never hand-edit the version: the 2026-08-03 regression (ai-meta#224). The manual-dispatch escape hatch and its one dated use (server v3.153.0).
+5. A commit type is a semver claim nothing checks (ai-meta#330, open). How the book pins versions (`examples/NOETL_CLI_VERSION`, `tools/SERVER_SCHEMA_PIN`).
+6. Meets [CH-ALL](#ch-all).
 
-Sources: ai-meta agents/rules/release-versioning.md
+Sources: noetl/{server,worker,tools,gateway,cli} workflows and `.releaserc.json`; semantic-release run logs; ai-meta#224, #330; ai-meta agents/rules/release-versioning.md (checked, not trusted)
 
 ### CH-29
 

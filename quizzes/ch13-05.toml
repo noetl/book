@@ -12,12 +12,12 @@ id = "0bf7018e-0b1a-4a0e-9d87-902c97293fe6"
 
 [[questions]]
 type = "MultipleChoice"
-prompt.prompt = """What does the public record say about the fence's mode on prod?"""
+prompt.prompt = """What mode does the EHDB fence run in on prod, per the dated record?"""
 prompt.distractors = [
-  "It has enforced since 2026-07-27.",
+  "Off, because worker v6.15.0 says enforce was not armed.",
   "It is permanently off; fencing was removed.",
   "It runs in shadow, per the 2026-11-04 Home page.",
 ]
-answer.answer = "Nothing dated; the code records that enforce was not armed while the election started ~5.5 min late."
-context = """The page claims no mode until a dated record does."""
+answer.answer = "Enforce, armed: `ehdb_engine_fence_active` 2 on both buses, fence epoch = election epoch (read 2026-11-16)."
+context = """Read off the writer on 2026-11-16 (writer worker 6.11.9). The v6.15.0 note is code history, not a cluster reading."""
 id = "ca8b0217-22a4-4d71-9801-78600bd8cbf5"

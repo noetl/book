@@ -1,6 +1,6 @@
 # Writer Election and Fencing
 
-<span class="status status-partial">PARTIAL</span>
+<span class="status status-real">REAL</span>
 
 An EHDB shard must have **one writer**. If two processes both believe
 they own the log, they can write conflicting histories. Two mechanisms
@@ -40,15 +40,31 @@ modes: `off`, `shadow` (count what it would refuse) and `enforce`
 accepted). The switch is `NOETL_EHDB_FENCING`, **default off**, and
 without a running election the fence is inert.
 
-```admonish partial title="What is not known publicly: the fence's prod mode"
-No dated public record states which mode the fence runs in on prod.
-What the code records, in worker v6.15.0 `src/worker.rs:133-147`: the
-election once acquired its lease **+332 s** after the writer started,
-behind two engine opens. Under `enforce` that would have refused every
-durable write for about 5.5 minutes per restart, on the one process
-hosting both buses, "and it is why enforce was not armed". The
-election's start was moved ahead of the bus hosts to fix that. This
-book does not claim a mode until a dated record does.
+## On prod: enforce, armed
+
+Read off the writer on **2026-11-16** (ai-meta wiki
+Umbrella-EHDB-Primary-Serve, 04:30 UTC; read only):
+
+- the writer StatefulSet sets `NOETL_EHDB_FENCING=enforce` and
+  `NOETL_EHDB_ELECTION=true`, in every retained revision back to
+  2026-10-21 (the true start is earlier and not recorded);
+- `ehdb_engine_fence_active` reads **2** (enforce) on both the command
+  bus and the event bus, and the fence's epoch (**33**) equals the
+  election's;
+- the binary is worker **6.11.9**, not v6.15.0;
+- what enforce had refused: 7 and 5 writes, all in the first ~10 s
+  after the pod started, before the first election token reached the
+  fence.
+
+```admonish note title="Code notes describe code, not a cluster"
+Worker v6.15.0 `src/worker.rs:133-147` records that the election once
+acquired its lease **+332 s** after the writer started, behind two
+engine opens. Under `enforce` that would have refused every durable
+write for about 5.5 minutes per restart, on the one process hosting
+both buses, "and it is why enforce was not armed". The election's start
+was moved ahead of the bus hosts to fix that. The note is history from
+the code, not a statement about what prod runs today; the reading above
+is.
 ```
 
 ## Why the order of start-up mattered

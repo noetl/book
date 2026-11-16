@@ -236,8 +236,8 @@
     "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
   },
   "ch13-05-election-and-fencing.md": {
-    "landed": "2026-11-15 (#83)",
-    "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
+    "landed": "2026-11-15 (#83); REAL 2026-11-16",
+    "verified": "ehdb v0.15.1, worker v6.15.0; prod fence mode from the dated wiki read 2026-11-16 (writer worker 6.11.9)"
   },
   "ch13-06-durability.md": {
     "landed": "2026-11-15 (#83)",

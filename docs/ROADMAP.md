@@ -170,11 +170,11 @@ proves the Part III claims with the reader's own trace.
 
 *What sits under the distributed runtime, and where it is heading.*
 
-**Ch. 13 EHDB** · REAL (13.5, 13.6, 13.7 PARTIAL) · P4. Why NATS was replaced
+**Ch. 13 EHDB** · REAL (13.6, 13.7 PARTIAL) · P4. Why NATS was replaced
 (the bus moved to EHDB in 2026-07 and NATS was deleted in 2026-08); the
 append log (parts, segments, manifest); bloom filters and the prune
-floor; the two buses; writer election and fencing (the lease is held on prod; the fence's
-prod mode is not in a public record); durability and the unsealed tail
+floor; the two buses; writer election and fencing (the lease is held on prod; the fence
+runs in enforce, armed, read 2026-11-16); durability and the unsealed tail
 (the bus stores are single-copy); the chain store (serving on prod
 behind default-off gates). Platform engineers need this to operate and debug the system.
 

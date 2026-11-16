@@ -393,7 +393,7 @@ def appendix_c(manifest, model, pin):
     return L
 
 
-FLAG_RE = re.compile(r"\b(?:NOETL|WORKER|GATEWAY)_[A-Z0-9_]*[A-Z0-9]\b")
+FLAG_RE = re.compile(r"(?<!/)\b(?:NOETL|WORKER|GATEWAY)_[A-Z0-9_]*[A-Z0-9]\b")
 
 
 def cited_flags(src_dir):

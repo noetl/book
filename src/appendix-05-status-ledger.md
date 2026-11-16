@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**71 pages written, 63 not yet written** (of 134 in `SUMMARY.md`).
+**72 pages written, 62 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -144,7 +144,7 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Local kind First | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Production on GKE | REAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Deploy by Digest | REAL | not written | | |
-| Releases and Version Pinning | REAL | not written | | |
+| [Releases and Version Pinning](ch28-00-releases.md) | **REAL** | written | semantic-release.yml, release.yml, .releaserc.json on main of server, worker, tools, cli, gateway (read 2026-11-15); run logs; commit-analyzer default rules | 2026-11-15 |
 | Rollout and Rollback Discipline | REAL | not written | | |
 | [Observability and Alerting](ch30-00-observability.md) | **REAL** | written | server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471 | 2026-11-15 |
 | Credentials and Secrets | REAL | not written | | |

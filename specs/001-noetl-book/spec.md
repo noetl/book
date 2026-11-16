@@ -58,6 +58,8 @@ Answered by the authoring agent from code and public sources, under the owner's 
 - Q: Ch. 27's sources are contributor rules. Which kind path does the page teach? → A: the one `noetl/ops` maintains for the current topology, `automation/ehdb/ehdb_platform.yaml` (`plan`/`converge`/`status`/`verify`/`teardown`, `profile=kind|prod` as a guard), read at ops `6c55cbe`. The older `automation/development/noetl.yaml` that the rules name still builds the legacy Python image and applies NATS manifests (last changed 2026-05-23); the page says it is stale rather than teaching it. Facts the book did not run are labelled as read, not run.
 - Q: Can Ch. 27/29 describe production at all without reading it? → A: Only as the committed manifests declare it (at a named ops commit) and as dated public records describe it, and the page says which. The manifests are "shape-only" by design and are known to differ from live (ai-meta#267, open), so they are not evidence of what runs.
 - Q: Which rollout facts are REAL for Ch. 29? → A: the procedure as written and executed in ai-meta `playbooks/` (516, 517, 460, 257) at a named commit, and the dated outcomes in the public record (#504, #511, #517, the wiki Sessions-Log). Smoke specifics that name private hosts or products are described generically.
+- Q: The wallet umbrella calls the secrets wallet "feature-complete". Can Ch. 31 say so? → A: No. Each feature is stated at server v3.161.2 / worker v6.15.0 with its code default. Several ship off (sealed delivery, mTLS, residency, KMS), the credentials route gate defaults to shadow, and the secret-audit table has no writer at all; the page says each plainly. Ch. 4.4 already covers aliases and templates, so Ch. 31 covers storage, delivery, the event-log guarantee, worker environment and bootstrap secrets.
+- Q: How does Ch. 31 treat open security issues about the production deployment? → A: It gives operators the code default and the setting that closes it, and does not describe the state of any deployment's secrets. It names no secret, store path, project or alias.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -755,16 +757,21 @@ Sources: server v3.161.2, worker v6.15.0, gateway v3.22.1; `noetl/ops` `ci/monit
 
 ### CH-31
 
-**Credentials and Secrets** · Badge **REAL** · Phase **P4** · Issue [#41](https://github.com/noetl/book/issues/41) · Draft (stub; refine with /speckit-clarify before starting)
+**Credentials and Secrets** · Badge **REAL** · Phase **P4** · Issue [#41](https://github.com/noetl/book/issues/41) · Specified (clarified 2026-11-15)
 
 Files: `src/ch31-00-credentials.md`
 
 Acceptance criteria:
 
-1. Explicit aliases; keychain; never in worker env or the event log.
-2. Meets [CH-ALL](#ch-all).
+1. Code facts at server **v3.161.2** and worker **v6.15.0**; manifest facts at `noetl/ops` `6c55cbe`; dated facts from the public record.
+2. Storage: envelope encryption under a KEK, fail-closed without `NOETL_ENCRYPTION_KEY`, the insecure escape hatch, optional Cloud KMS.
+3. Delivery to the worker: the `include_data` fetch, the route gate and its shadow default, sealed delivery (opt-in, `auth:` path only), mTLS (opt-in).
+4. Never in the event log: deferred `keychain.*` rendering, the drive-command guard, result scrubbing and its limits.
+5. Never in worker env: a convention, with the `NOETL_KEYCHAIN_ENV_VARS` bridge stated; bootstrap secrets as CSI-mounted files and why they cannot live in the wallet.
+6. What ships but does nothing at defaults, named plainly (the audit table has no writer).
+7. Meets [CH-ALL](#ch-all).
 
-Sources: ai-meta agents/rules/no-default-connection.md; ai-meta wiki Umbrella-Secrets-Wallet.md
+Sources: server v3.161.2 `src/crypto/`, `src/services/credential.rs`, `src/auth_gate.rs`, `src/secrets/`; worker v6.15.0 `src/executor/auth_alias.rs`, `src/client/`, `src/scrub.rs`; `noetl/ops` `ci/manifests/noetl/`; ai-meta wiki Umbrella-Secrets-Wallet (checked, not trusted)
 
 ### CH-32
 

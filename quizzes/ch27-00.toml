@@ -1,0 +1,23 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What is the fixed order for shipping an image change?"""
+prompt.distractors = [
+  "Production first, then kind to reproduce.",
+  "kind is optional for small changes.",
+  "Apply the manifest to production, then test.",
+]
+answer.answer = "Unit tests, then kind with the same images and topology, then production by digest."
+context = """Kind catches config and probe mistakes in minutes."""
+id = "a1349a18-c624-4d2a-9b6d-e7ab6af128d3"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """How is production changed?"""
+prompt.distractors = [
+  "By applying the committed manifests.",
+  "By pushing a new tag that pods pull.",
+  "By restarting the cluster.",
+]
+answer.answer = "An image-only patch of one container, by digest, one workload at a time."
+context = """27.3 has the steps."""
+id = "4cf6559f-56bc-4e0a-b71e-47d0010cd78f"

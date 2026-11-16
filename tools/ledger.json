@@ -275,6 +275,22 @@
     "landed": "2026-11-15 (#79)",
     "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
   },
+  "ch27-00-deployment.md": {
+    "landed": "2026-11-15",
+    "verified": "noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08)"
+  },
+  "ch27-01-kind.md": {
+    "landed": "2026-11-15",
+    "verified": "noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08)"
+  },
+  "ch27-02-gke.md": {
+    "landed": "2026-11-15",
+    "verified": "noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08)"
+  },
+  "ch27-03-deploy-by-digest.md": {
+    "landed": "2026-11-15",
+    "verified": "noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08)"
+  },
   "ch28-00-releases.md": {
     "landed": "2026-11-15",
     "verified": "semantic-release.yml, release.yml, .releaserc.json on main of server, worker, tools, cli, gateway (read 2026-11-15); run logs; commit-analyzer default rules"

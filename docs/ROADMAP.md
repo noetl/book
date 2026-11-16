@@ -281,8 +281,11 @@ is private, so this chapter needs the owner's sign-off before writing.
 *How NoETL is run in production. All REAL; written from the
 operational rules NoETL's own maintainers follow.*
 
-**Ch. 27 Deployment Modes** · REAL · P4. Kind first, production on GKE,
-and deploying by digest with an explicit rollback.
+**Ch. 27 Deployment Modes** · REAL · P4 · written 2026-11-15. Kind
+first (`automation/ehdb/ehdb_platform.yaml`, `profile` as a guard; the
+older `development/noetl.yaml` is stale), production on GKE as the
+shape-only manifests declare it (committed ≠ live, ai-meta#267), and
+deploying by digest with a whole-object dry-run and a recorded rollback.
 
 **Ch. 28 Releases and Version Pinning** · REAL · P4 · written 2026-11-15.
 semantic-release owns versions (`feat` minor; `fix`/`perf`/revert patch;

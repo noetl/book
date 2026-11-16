@@ -1,0 +1,35 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What do you record before patching an image?"""
+prompt.distractors = [
+  "The new tag.",
+  "Nothing; Kubernetes keeps history.",
+  "The manifest's line number.",
+]
+answer.answer = "The digest the workload runs now: the rollback target."
+context = """The ops ledger: the rollback target is the row above the one running."""
+id = "9c124fcf-6810-4aed-a28e-659884224f83"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What did the 2026-09-08 pre-apply dry-run miss?"""
+prompt.distractors = [
+  "A wrong image digest.",
+  "An expired certificate.",
+  "Nothing; the outage was unrelated.",
+]
+answer.answer = "A volume for a claim that never existed; the writer could not schedule and dispatch stopped ~55 min."
+context = """It checked one field. Diff the whole object."""
+id = "1c9db512-783b-4215-9cb9-c9761b512eda"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why patch a named container rather than `set image '*=…'`?"""
+prompt.distractors = [
+  "Wildcards are not supported.",
+  "It is slower.",
+  "It needs cluster-admin.",
+]
+answer.answer = "The wildcard also replaces init containers."
+context = """516 README; it broke a start-up check on kind."""
+id = "81fc5148-8aaa-4fa6-b693-d97c1fb50a3e"

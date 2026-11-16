@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**72 pages written, 62 not yet written** (of 134 in `SUMMARY.md`).
+**76 pages written, 58 not yet written** (of 134 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -140,10 +140,10 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;A Pipeline of Sub-Playbooks on the Local Runtime | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Classifying a Crypto Surface | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Signed Self-Update and Rollback | PARTIAL | not written | | |
-| Deployment Modes | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Local kind First | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Production on GKE | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Deploy by Digest | REAL | not written | | |
+| [Deployment Modes](ch27-00-deployment.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Local kind First](ch27-01-kind.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Production on GKE](ch27-02-gke.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Deploy by Digest](ch27-03-deploy-by-digest.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
 | [Releases and Version Pinning](ch28-00-releases.md) | **REAL** | written | semantic-release.yml, release.yml, .releaserc.json on main of server, worker, tools, cli, gateway (read 2026-11-15); run logs; commit-analyzer default rules | 2026-11-15 |
 | Rollout and Rollback Discipline | REAL | not written | | |
 | [Observability and Alerting](ch30-00-observability.md) | **REAL** | written | server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471 | 2026-11-15 |

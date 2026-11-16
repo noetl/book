@@ -1,0 +1,59 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why run the smoke BEFORE a roll as well as after?"""
+prompt.distractors = [
+  "To warm the caches.",
+  "Because the after-run is optional.",
+  "To measure latency for the release notes.",
+]
+answer.answer = "A smoke that already fails cannot tell you the roll broke anything."
+context = """"Run before AND after every roll; any FAIL => roll back" (`smoke.py`)."""
+id = "ff50620b-ae9b-4ec2-a453-6d0fca8e4fc3"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why must the two system pools never be rolled together?"""
+prompt.distractors = [
+  "They share one volume.",
+  "KEDA forbids it.",
+  "The gateway pins to one pool.",
+]
+answer.answer = "A fresh system-pool pod no-ops every drive for ~7–10 min while it replays the feed; both at once stops all executions."
+context = """ai-meta#504, 2026-11-03; readiness passes after ~8 s and says nothing about it."""
+id = "307bcbc2-39be-4314-871d-e8947b1f38dd"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What does the smoke check before it runs?"""
+prompt.distractors = [
+  "That the user is an admin.",
+  "That the manifests are applied.",
+  "That KEDA is idle.",
+]
+answer.answer = "That it can read `noetl_server_build_info`, so it knows which cluster it reached."
+context = """A port-forward can silently point at another cluster."""
+id = "bb9c6a19-2b62-49eb-9d9b-4efd6c7d5406"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """After Release B armed bloom scheme 2, why was the old digest no longer a safe rollback?"""
+prompt.distractors = [
+  "Old digests are deleted from the registry.",
+  "Kubernetes forbids downgrades.",
+  "The writer needs a restart first.",
+]
+answer.answer = "An old reader does not refuse scheme-2 data; it falls back silently, so the rollback floor moved up."
+context = """#517: readers before writers; rollback for B is unsetting `EHDB_BLOOM_SCHEME`."""
+id = "f33dad95-4f6a-488a-b4c7-5cf770328410"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The chain-store gates read 772/0 for ten minutes, then 13/839 an hour later. The lesson?"""
+prompt.distractors = [
+  "Ignore the second reading.",
+  "Use a larger sample over ten minutes.",
+  "Gates should never be rolled back.",
+]
+answer.answer = "Size a soak by duration, not volume: many engagements over a short window is not a sustained pass."
+context = """Wiki Sessions-Log, 2026-09-30."""
+id = "2455f1bb-47d2-4ce8-8355-f8bbddb2bd4f"

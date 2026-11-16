@@ -57,6 +57,7 @@ a correction gets into the book.
 | semantic-release reads only the merge subject. | It analyses every commit since the last tag; a "Merge pull request" subject counts for nothing. `perf:` and reverts also release a patch. | server `semantic-release.yml` run log, 2026-11-08; `@semantic-release/commit-analyzer` `lib/default-release-rules.js` | run log | [Ch. 28](ch28-00-releases.md) |
 | `Cargo.toml` holds a crate's released version. | On server, worker and tools it is a floor below the tag (2026-11-15: server 3.112.3 vs v3.163.1); builds stamp the tag's version in, and `*_build_info` reports it. | server `release.yml` `verify-version`; `ci/stamp-version.sh` | code read | [Ch. 28](ch28-00-releases.md) |
 | A production manifest says which image runs. | The worker and system-pool manifests are shape-only, with no `image:` field; images are set by digest, and the committed files are known to omit live settings (ai-meta#267). | `noetl/ops` `6c55cbe` `ci/manifests/noetl/worker-rust-deployment-prod.yaml:134-142` | code read + dated record | [Ch. 27.2](ch27-02-gke.md) |
+| A pod that reports ready is ready to serve. | A fresh system-pool pod reports ready in ~8 s, then no-ops every drive for ~7–10 min while it replays the feed; roll the system pools one at a time. | ai-meta#504, #166 (2026-11-03) | dated record | [Ch. 29](ch29-00-rollout-rollback.md) |
 
 Not yet added: the edge-compilation myth (planned for Ch. 23), which needs its source verified first.
 

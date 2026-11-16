@@ -295,6 +295,10 @@
     "landed": "2026-11-15",
     "verified": "semantic-release.yml, release.yml, .releaserc.json on main of server, worker, tools, cli, gateway (read 2026-11-15); run logs; commit-analyzer default rules"
   },
+  "ch29-00-rollout-rollback.md": {
+    "landed": "2026-11-15",
+    "verified": "ai-meta playbooks 516, 517 at `0e835fd`; noetl/e2e prod_regression_validate.py; dated record (ai-meta#202, #203, #504, #511, #517, #523; wiki Sessions-Log 2026-09-30)"
+  },
   "ch30-00-observability.md": {
     "landed": "2026-11-15",
     "verified": "server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471"

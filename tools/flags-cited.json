@@ -273,6 +273,13 @@
       "default": "false",
       "what": "accept any session token (only exactly `true` or `1` enables it); reported by `noetl_gateway_auth_bypass_enabled`",
       "source": "gateway v3.22.1 src/auth/middleware.rs:13-18"
+    },
+    {
+      "var": "NOETL_WORKER_DRAIN_TIMEOUT_SECS",
+      "read_by": "worker",
+      "default": "150 (20 on a writer host)",
+      "what": "how long a SIGTERM'd worker waits for in-flight commands before exiting; 0 abandons them at once",
+      "source": "worker v6.15.0 src/worker.rs:1139-1162"
     }
   ]
 }

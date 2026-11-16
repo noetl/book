@@ -294,8 +294,11 @@ commit since the last tag; the tag is the version and `Cargo.toml` a
 floor on server/worker/tools; the manual-dispatch escape hatch; a commit
 type is an unchecked semver claim (ai-meta#330); how the book pins.
 
-**Ch. 29 Rollout and Rollback Discipline** · REAL · P4. Smoke before
-*and* after every roll; one pool at a time; rollback by digest.
+**Ch. 29 Rollout and Rollback Discipline** · REAL · P4 · written 2026-11-15.
+Smoke before *and* after every roll; one pool at a time (the
+2026-11-03 system-pool stall); rollback by a recorded digest, with
+dated cases; readers before writers, and the rollback floor that moves
+(#517); restart costs.
 
 **Ch. 30 Observability and Alerting** · REAL · P4 · written 2026-11-15.
 `execution_id` as the trace key (the event log; no span exporter at

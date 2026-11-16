@@ -284,9 +284,12 @@ operational rules NoETL's own maintainers follow.*
 **Ch. 27 Deployment Modes** · REAL · P4. Kind first, production on GKE,
 and deploying by digest with an explicit rollback.
 
-**Ch. 28 Releases and Version Pinning** · REAL · P4. semantic-release
-owns versions (`fix`/`feat`/`!`; `chore:` releases nothing); never
-hand-edit versions or push tags.
+**Ch. 28 Releases and Version Pinning** · REAL · P4 · written 2026-11-15.
+semantic-release owns versions (`feat` minor; `fix`/`perf`/revert patch;
+`!` major; anything else releases nothing, silently), reading every
+commit since the last tag; the tag is the version and `Cargo.toml` a
+floor on server/worker/tools; the manual-dispatch escape hatch; a commit
+type is an unchecked semver claim (ai-meta#330); how the book pins.
 
 **Ch. 29 Rollout and Rollback Discipline** · REAL · P4. Smoke before
 *and* after every roll; one pool at a time; rollback by digest.

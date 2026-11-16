@@ -1,0 +1,59 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A PR's only commit is `refactor: split the claim loop`. What happens after it merges?"""
+prompt.distractors = [
+  "A patch release.",
+  "A minor release.",
+  "The build fails.",
+]
+answer.answer = "Nothing is released, and nothing says so; the change sits on `main` undeployable."
+context = """Only feat, fix, perf, reverts and breaking changes release."""
+id = "e7c2069f-6671-4074-a3c3-4c779bc1c446"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which commits does semantic-release analyse when a PR merges?"""
+prompt.distractors = [
+  "Only the merge commit's subject.",
+  "Only the PR title.",
+  "Only commits by maintainers.",
+]
+answer.answer = "Every commit since the last tag, including the branch's own commits."
+context = """The 2026-11-08 server log lists all ten commits it analysed."""
+id = "55610a35-8659-45b4-ae12-fa3170a6c491"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Server `Cargo.toml` says 3.112.3 and the newest tag is v3.163.1. Which is the version?"""
+prompt.distractors = [
+  "`Cargo.toml`; the tag is a label.",
+  "Neither; read the CHANGELOG.",
+  "Whichever is higher is a bug.",
+]
+answer.answer = "The tag; `Cargo.toml` is a floor the bot no longer updates, and the build stamps the tag in."
+context = """`release.yml`: "THE TAG IS AUTHORITATIVE". The binary reports it in `noetl_server_build_info`."""
+id = "bf2e8690-54c3-44b9-9f95-ef6b6b5254bf"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """How was server v3.153.0 published?"""
+prompt.distractors = [
+  "By semantic-release, from a `feat:` commit.",
+  "By a hand-pushed tag.",
+  "It was never published.",
+]
+answer.answer = "By a manual `release.yml` dispatch after semantic-release declined four `chore:` PRs."
+context = """Both runs' logs and the release timestamps, 2026-11-08."""
+id = "7b9179dd-2e89-4b0b-b23f-2ea7bc584818"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why can a `feat:` release break a caller?"""
+prompt.distractors = [
+  "semantic-release ignores feat.",
+  "Minor releases are always breaking.",
+  "Cargo rejects field additions.",
+]
+answer.answer = "The commit type is the only semver judgment; nothing checks it against the code."
+context = """noetl-tools v3.27.0 added a public field and broke a struct literal downstream (ai-meta#330)."""
+id = "e6e3fa25-7ef6-49a9-bd88-49e2f139a030"

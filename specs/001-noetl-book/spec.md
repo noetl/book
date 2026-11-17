@@ -141,6 +141,18 @@ supervision beyond review.
 - **Quiz**: `quizzes/chNN-MM.toml` (mdbook-quiz).
 - **Trace**: `traces/*.json`, a recorded event log.
 
+### Session 2026-11-17
+
+The owner asked for a worked-examples track built from real ecosystem projects (book#99). Answers by the authoring agent, each checked as cited.
+
+- Q: Where do the case studies go? → A: A new **Part X — In Practice: Case Studies** after Part IX (Ch. 33–36). After, because two of them (auth, platform) build on Ch. 10 and Ch. 27–31. Concept chapters link to the matching case-study section ("In practice: …") only when that section is written, so no link points at a stub. The placement map is BOOK-PLAN §2.8.
+- Q: Is a case study a tutorial? → A: No. The project chapters (2, 12, 19, 24) are things the reader builds. A case study reads a real project's playbooks at a named commit and explains why each one is shaped as it is, tying every defensive pattern to the runtime rule that forces it, verified in code. Readers do not need the project's credentials or data to follow it.
+- Q: What may be published from those repos? → A: Only what the public repos contain, and less: no project ids, real user or document ids, execution ids, hostnames, or third-party data, even where a source file carries them. For `noetl/quantum`: project level only, no competition data, scores, circuits or third-party hub content. All four repos were confirmed public without credentials on 2026-11-17.
+- Q: How does Ch. 35 (public VQCC project) relate to Ch. 26 (private quantum-readiness source, #36)? → A: They are different projects. Ch. 35 is written from a public repo and needs no sign-off. Whether Ch. 26 stays, or #51 Q4 is answered by swapping it for Ch. 35, is the owner's decision; until then both remain in the outline.
+- Q: Are the auth features the owner listed shipped? → A: Partly. At gateway v3.22.1 the two-role, deny-by-default model with a user-playbook allowlist and execution ownership is REAL (`src/authorization.rs`), and sign-in is validated by a playbook unless `NOETL_AUTH_SYNC` is on. A `grant_role` playbook, verified-email role inheritance, and admin-only rules on register / catalog get beyond the gateway's deny-by-default were not found on `main` of server, gateway, e2e or ops on 2026-11-17 (only on branches). Ch. 34 is PARTIAL and labels them until a tagged release carries them.
+- Q: The quantum repo says its playbooks were checked on "NoETL 5.3.2". Which binary is that? → A: Unresolved. `noetl/noetl` has a `pypi-v5.3.2` tag (2026-10-17) whose `pyproject.toml` says it is not a distribution; the CLI the book pins is v6.4.1. Ch. 35 resolves this before any claim depends on the runtime version; sample 35.2 depends only on the server's validate API.
+- Q: Does the public validate endpoint behave as the server code says? → A: Mostly. On 2026-11-17 `https://noetl.ai/api/dsl/version` reported server 3.165.1, and `POST /api/dsl/validate` returned the documented fields. But a mismatched `x-noetl-schema-digest` header produced no `schema_drift` field, although the server code adds one (v3.161.2 and v3.165.1, `src/handlers/dsl.rs`); something in front of the server drops the header. 35.2 says so and teaches comparing digests on the client.
+
 ## Book-wide chapter criteria
 
 ### CH-ALL
@@ -785,6 +797,72 @@ Acceptance criteria:
 2. Meets [CH-ALL](#ch-all).
 
 Sources: ai-meta agents/rules/representation-drift.md
+
+## Part X — In Practice: Case Studies
+
+Real projects from the NoETL ecosystem, read at a named commit. Each chapter explains why the project's playbooks are shaped as they are and points back to the concept chapter that states each rule. Placement map: BOOK-PLAN §2.8.
+
+### CH-33
+
+**Case Study: The Travel Playbooks** · Badge **REAL** · Phase **P5** · Issue [#95](https://github.com/noetl/book/issues/95) · Outlined 2026-11-17 (book#99); 33.2 written
+
+Files: `src/ch33-*.md`
+
+Acceptance criteria:
+
+1. Facts from `noetl/travel` at a named commit (outline: `cd210d7`) and the server, worker and tools releases that run them; no project ids, real user or document ids, execution ids or hostnames, even where the source files carry them.
+2. 33.1 the contract shape: the SPA posts its own object, the playbook persists it and returns a render-ready payload; the gateway allowlist that lets a regular user start these playbooks (forward to Ch. 34).
+3. 33.2 the profile flow: validate → (read | save → read back) → suggestions; why `merge: true`, why read-after-write, why suggestions never fail the save, and the arc-shape rules (first match wins; a losing sibling is skipped and is not dispatched again; a python step sees only its `input:` names), each verified in code.
+4. 33.3 provider calls (HotelBeds, Duffel, Places): a child playbook per provider vs inlining, the hop cost (cite Ch. 7.2, not new numbers), and the drift a second copy creates.
+5. 33.4 the itinerary planner: state across turns and threads; 33.5 the `qa/regression` suite as a test harness for a playbook family.
+6. Meets [CH-ALL](#ch-all).
+
+Sources: `noetl/travel` playbooks/, qa/regression/; server orchestrate-core (`orchestrator.rs`, `state.rs`); tools `src/tools/python.rs`; gateway `src/authorization.rs`
+
+### CH-34
+
+**Case Study: Authentication and Authorization** · Badge **PARTIAL** · Phase **P5** · Issue [#96](https://github.com/noetl/book/issues/96) · Outlined 2026-11-17 (book#99)
+
+Files: `src/ch34-*.md`
+
+Acceptance criteria:
+
+1. REAL at gateway v3.22.1: two roles (`admin`, regular user), deny by default, the user-playbook allowlist (`GATEWAY_USER_PLAYBOOKS`), execution ownership, guest mode; sign-in validated by a playbook unless `NOETL_AUTH_SYNC`.
+2. Labelled as in flight until a tagged release carries them: role grants (`grant_role`), verified-email role inheritance, admin-only register / catalog get beyond what deny-by-default already implies (see Clarifications 2026-11-17).
+3. Builds on Ch. 10.1 and Ch. 31 without repeating them; no tenant, client or user identifiers.
+4. Meets [CH-ALL](#ch-all).
+
+Sources: gateway `src/authorization.rs`, `src/auth/`; e2e `fixtures/playbooks/api_integration/auth0/`; ops and e2e "two roles only" (2026-10-16)
+
+### CH-35
+
+**Case Study: A Quantum Compilation Pipeline on the Local Runtime** · Badge **REAL** · Phase **P5** · Issue [#97](https://github.com/noetl/book/issues/97) · Outlined 2026-11-17 (book#99); 35.2 written
+
+Files: `src/ch35-*.md`
+
+Acceptance criteria:
+
+1. Project level only: `noetl/quantum` at a named commit (outline: `9208fa2`). No competition data, scores, circuits or third-party hub content.
+2. 35.1 the pipeline and its honest defaults (no data → no circuit, `leaderboard_score: null`); 35.2 validating against the public DSL API with a pinned digest, and why the local fallback never counts as acceptance; 35.3 long-running compute under wall-clock and transform budgets; 35.4 `kind: shell` as the local runtime's escape hatch.
+3. The "NoETL 5.3.2" runtime is identified before a claim depends on it (Clarifications 2026-11-17).
+4. Meets [CH-ALL](#ch-all).
+
+Sources: `noetl/quantum` playbooks/, vqcc/dsl_validate.py, scripts/validate_playbooks.py, docs/; server `src/handlers/dsl.rs`; the public endpoint, read with a date
+
+### CH-36
+
+**Case Study: Standing Up the Platform** · Badge **PARTIAL** · Phase **P5** · Issue [#98](https://github.com/noetl/book/issues/98) · Outlined 2026-11-17 (book#99)
+
+Files: `src/ch36-*.md`
+
+Acceptance criteria:
+
+1. What `noetl/ops` commits at a named commit: the fresh-stack provisioning playbook (itself a NoETL playbook on the local runtime), Cloud Build image definitions, KEDA ScaledObjects, Secrets Store CSI classes, the EHDB platform playbook.
+2. Says which of those match the current topology and which are stale, and that committed is not live (ai-meta#267).
+3. No project ids, registry paths with project ids, cluster names, contexts or hostnames. Builds on Ch. 10.4 and 27–31 without repeating them.
+4. Meets [CH-ALL](#ch-all).
+
+Sources: `noetl/ops` automation/gcp_gke/, automation/ehdb/, ci/manifests/keda/, ci/manifests/noetl/; ai-meta dated public record
 
 ## Appendices
 

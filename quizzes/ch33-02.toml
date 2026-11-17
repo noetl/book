@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The read arc (`ok and read_only`) and the save arc (`ok`) in an exclusive set are swapped. What happens on sign-in?"""
+prompt.distractors = [
+  "Nothing changes: exclusive arcs are evaluated together.",
+  "The run fails with a routing error.",
+  "The read arc is taken because it is more specific.",
+]
+answer.answer = "Every sign-in writes again: a valid read also matches `ok`, and the first match wins."
+context = """An exclusive set takes the first arc, in written order, whose `when` is true. The playbook comments that order is load-bearing for this reason."""
+id = "847d3967-d8da-46a9-bc1d-e198178d1cd0"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why does the profile playbook route reads through a no-op `begin_read` instead of straight to `load_profile`?"""
+prompt.distractors = [
+  "`noop` steps are faster than direct arcs.",
+  "`load_profile` cannot be reached from two steps.",
+  "The gateway forbids direct reads.",
+]
+answer.answer = "If `load_profile` were a target of that exclusive set, a save would mark it skipped, and the later arc from `save_profile` would be ignored."
+context = """Skipped counts as done (`is_step_done`), and an arc to a done step is ignored unless it is a loop back-edge. The run stalls and never finishes."""
+id = "2f7f532f-5d13-41d7-b321-4e5626662845"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A `kind: python` step's code calls `workload.get('uid')`. What happens?"""
+prompt.distractors = [
+  "It returns the workload value.",
+  "It returns `None`.",
+  "The server renders it before the step runs.",
+]
+answer.answer = "It fails with `NameError`: `code:` sees only its `input:` keys (plus `input_data`, `args`, `variables`, `execution_id`, `step`)."
+context = """Bind the value through `input:` with a template, e.g. `uid: "{{ workload.uid }}"`."""
+id = "7ff859bb-caf7-48f2-a1a7-43072ab677ce"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Why does the playbook read the profile back after saving it, instead of echoing the request?"""
+prompt.distractors = [
+  "Firestore requires a read after every write.",
+  "Echoing would leak the uid.",
+  "The gateway drops write responses.",
+]
+answer.answer = "The read-back shows what the store actually holds, including fields it changed or refused."
+context = """Echoing is free and reports success for fields that may not have been stored."""
+id = "6ba1cb7d-ce13-487a-a249-e4fc7641141f"

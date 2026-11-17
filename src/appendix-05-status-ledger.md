@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**78 pages written, 56 not yet written** (of 134 in `SUMMARY.md`).
+**80 pages written, 76 not yet written** (of 156 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -149,6 +149,28 @@ this table is stale.
 | [Observability and Alerting](ch30-00-observability.md) | **REAL** | written | server v3.161.2, worker v6.15.0, gateway v3.22.1, CLI v6.4.1; noetl/ops `3f63656`; dated record ai-meta#471 | 2026-11-15 |
 | [Credentials and Secrets](ch31-00-credentials.md) | **REAL** | written | server v3.161.2, worker v6.15.0; noetl/ops `6c55cbe` manifests; dated record (ai-meta wiki Umbrella-Secrets-Wallet, 2026-08-28) | 2026-11-15 |
 | Representation Drift: Keeping What You Know True | REAL | not written | | |
+| Case Study: The Travel Playbooks | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;From Screen to Playbook to Firestore | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[The Profile Flow: Read, Save, Read Back](ch33-02-profile-flow.md) | **REAL** | written | noetl/travel `cd210d7` playbooks/profile.yaml; server v3.161.2 orchestrate-core (state.rs, orchestrator.rs, commands.rs); tools v4.6.0 python.rs; gateway v3.22.1 authorization.rs | 2026-11-17 (#99) |
+| &nbsp;&nbsp;&nbsp;&nbsp;Provider Calls: Inline or Child Playbook | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;The Itinerary Planner: State Across Turns | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Regression-Testing a Playbook Family | REAL | not written | | |
+| Case Study: Authentication and Authorization | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Sign-In Is a Playbook | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Deny by Default: Two Roles and an Allowlist | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Who Owns an Execution | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Granting Roles and Verified Email | PARTIAL | not written | | |
+| Case Study: A Quantum Compilation Pipeline on the Local Runtime | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;The Pipeline and Its Honest Defaults | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Validate Before You Run](ch35-02-validate.md) | **REAL** | written | noetl/quantum `9208fa2`; server v3.161.2 src/handlers/dsl.rs, src/services/catalog.rs (schema_drift also at v3.165.1); public endpoint read 2026-11-17 (server 3.165.1) | 2026-11-17 (#99) |
+| &nbsp;&nbsp;&nbsp;&nbsp;Long-Running Compute: Budgets and Deadlines | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Shell as the Escape Hatch | REAL | not written | | |
+| Case Study: Standing Up the Platform | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;NoETL Provisions NoETL | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Images: Cloud Build and the Release Pipeline | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Worker Pools and KEDA | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Secrets and the EHDB Substrate | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;What the Recipe Declares vs What Runs | PARTIAL | not written | | |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |
 | [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1 | 2026-11-13 (#57, #63) |
 | [Appendix C: Feature Flags and Environment Variables](appendix-03-flags.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57), 2026-11-15 (#81: cited runtime flags) |

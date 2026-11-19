@@ -151,7 +151,9 @@ myths openly; Appendix F lists them.
 
 ### 2.8 Case studies: real projects, read at a commit
 
-Part X reads four real projects from the ecosystem. Unlike a project
+Four chapters read real projects from the ecosystem: Ch. 26 in Part
+VIII (it needs only the local runtime) and Ch. 33–35 in Part X (they
+build on the distributed runtime and operations). Unlike a project
 chapter, the reader does not build anything; they read playbooks that
 run (or ran) for real and learn why each is shaped as it is. Every
 defensive pattern is tied to the runtime rule that forces it, and that
@@ -169,11 +171,11 @@ target section is written, so nothing points at a stub:
 | 4.4 keychain · 18.1 `kind: mcp` | 33.3 provider calls through MCP playbooks | planned |
 | 10.1 gateway | 34.2 deny by default, two roles, the allowlist | planned |
 | 31 credentials | 34.1 sign-in as a playbook | planned |
-| 4.0 validation · 8 local runtime | 35.2 validate before you run | 35.2 written |
-| 6.5 timeouts · 21 resource model | 35.3 wall-clock and transform budgets | planned |
-| 8.2 local kinds | 35.4 `kind: shell` as the escape hatch | planned |
-| 10.4 slots and KEDA · 27 deployment | 36.3 worker pools and KEDA | planned |
-| 27–31 operations · 32 drift | 36.5 what the playbook declares vs what runs | planned |
+| 4.0 validation · 8 local runtime | 26.2 validate before you run | 26.2 written |
+| 6.5 timeouts · 21 resource model | 26.3 wall-clock and transform budgets | planned |
+| 8.2 local kinds | 26.4 `kind: shell` as the escape hatch | planned |
+| 10.4 slots and KEDA · 27 deployment | 35.3 worker pools and KEDA | planned |
+| 27–31 operations · 32 drift | 35.5 what the playbook declares vs what runs | planned |
 
 Publishing rules: only what the public repos contain, and less: no
 project ids, real user or document ids, execution ids, hostnames or
@@ -300,7 +302,7 @@ diagrams (D) and runnable examples (▶).
 | Ch. | Goal | Status | Key content | Interactive |
 |---|---|---|---|---|
 | 25 Bot fleets | compare running agent/bot fleets on NoETL against one shared VM per account, honestly | PARTIAL (RFC #556 open) | Isolation: **NoETL cannot claim a per-bot security boundary today.** Shared worker processes; subprocesses inherit the worker environment; named credentials resolve for any caller; the auth gate runs in shadow. What it can claim: execution-scoped declared credentials, a WASM sandbox for pure logic, a pod boundary for `container`, and a better audit trail. Cost: idle cost scales with work, not accounts (a 0.5 vCPU pool floor vs ~8 vCPU per account VM, GIVEN). Concurrency: fan-out spreads across pods, but there is no throttle, waiting parents can deadlock a small pool, and new nodes take 60–90 s. Proposed stages: an env allowlist + auth enforce first, then sandbox tiers, overhead collapse, scale-to-zero, session sandboxes. | Q: trade-off scenarios |
-| 26 Quantum-readiness case study | see a real multi-stage orchestrator built on the **local** runtime | PARTIAL (built, not deployed) | init → discover → select → collect → normalize → classify → score → report as sub-playbooks; iteration via set-based SQL or shell because local mode has no `loop:`; crypto-surface classification (Shor-vulnerable / Grover-weakened / quantum-safe); a signed pull-update channel with canary and rollback. ⚠ The source repo is private: details need owner sign-off (§9). | T; Q |
+| 26 Quantum pipeline (replaced the private quantum-readiness study, 2026-11-17) | run long compute on the local runtime, validated against the live grammar | REAL (26.2 written) | `noetl/quantum` at `9208fa2`, project level only: honest defaults (no data, no score); validate with a pinned digest, fallback never counts as acceptance; seven-hour wall clock split per task, transform budget, hard deadline; `kind: shell` cmds | Q |
 
 ### Part IX — Operations
 
@@ -319,8 +321,7 @@ diagrams (D) and runnable examples (▶).
 |---|---|---|---|---|
 | 33 Travel playbooks | read a real playbook family and see why each step is shaped as it is | REAL (33.2 written) | `noetl/travel` at `cd210d7`: contract shape; profile flow (validate → read \| save → read back → best-effort suggestions; `merge: true`; arc order; skip semantics; python bindings); providers inline vs child (cite 7.2); itinerary planner state; `qa/regression` | Q; T (a recorded profile run, once T-05 exists) |
 | 34 Auth | see access control enforced by the gateway and by playbooks | PARTIAL | gateway v3.22.1 `authorization.rs`: two roles, deny by default, `GATEWAY_USER_PLAYBOOKS`, ownership, guest; Auth0 validation playbook vs `NOETL_AUTH_SYNC`. In flight, labelled: `grant_role`, verified-email role inheritance | Q |
-| 35 Quantum pipeline | run long compute on the local runtime, validated against the live grammar | REAL (35.2 written) | `noetl/quantum` at `9208fa2`, project level only: honest defaults (no data, no score); validate with a pinned digest, fallback never counts as acceptance; seven-hour wall clock split per task, transform budget, hard deadline; `kind: shell` cmds | Q |
-| 36 Platform | stand the platform up and know which parts of the recipe are current | PARTIAL | `noetl/ops`: fresh-stack playbook (a NoETL playbook provisioning NoETL), Cloud Build, KEDA ScaledObjects, CSI secrets, EHDB platform playbook; stale vs current; committed ≠ live (#267) | Q |
+| 35 Platform | stand the platform up and know which parts of the recipe are current | PARTIAL | `noetl/ops`: fresh-stack playbook (a NoETL playbook provisioning NoETL), Cloud Build, KEDA ScaledObjects, CSI secrets, EHDB platform playbook; stale vs current; committed ≠ live (#267) | Q |
 
 ### Appendices
 
@@ -358,9 +359,9 @@ feature lands.
 | **2 Getting started + local** | Ch. 1, 2, 8, 7, 9, 11, then the Introduction | The tutorial track's first leg; local mode needs no cluster | Ch. 2 runs end to end in CI |
 | **3 Distributed + the trace visualizer** | Build `mdbook-noetl-trace`; Ch. 10, 12 | Ch. 10.5 is the book's flagship visualization | One recorded execution steps through correctly, folded by orchestrate-core |
 | **4 Substrate and resources** | Ch. 13, 21, 22 (measurements), 30, 27–29, 31 | REAL internals and operations; resource model numbers already labelled | Appendices C and D generated |
-| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today); case studies Ch. 33–36, each after the concept chapters it cites | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
+| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today); case studies Ch. 26 and 33–35, each after the concept chapters it cites | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
 | **6 Edge** | Build `mdbook-noetl-play`; Ch. 23, 24 | Needs the WASM runner; the kuksin.us proof is real | One ▶ example runs in the browser |
-| **7 TARGET and applied** | Ch. 14, 20, 22.3, 25, 26, 32 | In-flight designs: write them last, short, and tied to their RFCs | Each page states what exists today first |
+| **7 TARGET and applied** | Ch. 14, 20, 22.3, 25, 32 | In-flight designs: write them last, short, and tied to their RFCs | Each page states what exists today first |
 | **Continuous** | Status ledger, myths, regenerated appendices | §8 | |
 
 **First concrete deliverables** (the next PRs after this one):
@@ -419,8 +420,10 @@ For the owner:
    for code and examples).
 3. **Quiz telemetry**: none (default), or anonymous telemetry to
    improve questions, as Brown's edition did?
-4. **Quantum-readiness case study (Ch. 26)**: its source repo is
+4. ~~**Quantum-readiness case study (Ch. 26)**: its source repo is
    private. Publish a sanitized version, or swap in a different case
-   study?
+   study?~~ **Decided 2026-11-17 (owner): swapped.** Ch. 26 is now the
+   public `noetl/quantum` case study (REAL, project level only); the
+   private study is retired (#36).
 5. **Edge runner scope**: should the in-browser runner (Ch. 23) get a
    browser host for `http` so more examples are runnable?

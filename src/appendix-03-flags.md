@@ -73,7 +73,7 @@ Variables the server, worker, gateway or CLI read that the DSL artifacts do not 
 | `NOETL_COMMAND_BUS_ACK_WAIT_SECS` | worker (writer) | 30 | seconds before an unacked command is redelivered | worker v6.15.0 src/command_bus.rs:191 | [10.3](ch10-03-bus-and-pools.md) |
 | `NOETL_COMMAND_BUS_HOST` | worker | false | run this worker process as the command-bus writer (the cmdbus-writer) | worker v6.15.0 src/command_bus.rs:178 (env_bool), src/worker.rs:159-204 | [10.3](ch10-03-bus-and-pools.md), [13.4](ch13-04-two-buses.md) |
 | `NOETL_DISABLE_METRICS` | server | false | remove the unauthenticated `/metrics` route | server v3.161.2 src/config/app.rs:38-40, src/main.rs:100-104 | [30.0](ch30-00-observability.md) |
-| `NOETL_DSL_KB` | server | false | mount the DSL knowledge-base routes | server v3.161.2 src/main.rs:1064 | [4.0](ch04-00-anatomy-of-a-playbook.md), [35.2](ch35-02-validate.md) |
+| `NOETL_DSL_KB` | server | false | mount the DSL knowledge-base routes | server v3.161.2 src/main.rs:1064 | [4.0](ch04-00-anatomy-of-a-playbook.md), [26.2](ch26-02-validate.md) |
 | `NOETL_EHDB_ELECTION` | worker (writer) | off | run the shard writer election (Kubernetes Lease `ehdb-shard-<shard>`) | worker v6.15.0 src/ehdb/lease_store.rs:162-166 | [13.5](ch13-05-election-and-fencing.md) |
 | `NOETL_EHDB_ELECTION_LEASE_SECS` | worker (writer) | 15 | lease duration | worker v6.15.0 src/ehdb/election.rs:95; ehdb v0.15.1 crates/ehdb-reference/src/election.rs:53 | [13.5](ch13-05-election-and-fencing.md) |
 | `NOETL_EHDB_ELECTION_RENEW_SECS` | worker (writer) | 5 | lease renew interval | worker v6.15.0 src/ehdb/election.rs; ehdb v0.15.1 crates/ehdb-reference/src/election.rs:55 | [13.5](ch13-05-election-and-fencing.md) |

@@ -144,10 +144,11 @@
     - [Isolation and Scoped Credentials](ch25-02-isolation.md)
     - [Cost and Concurrency](ch25-03-cost-and-concurrency.md)
     - [The Architecture to Win](ch25-04-architecture.md)
-- [Case Study: A Quantum-Readiness Orchestrator](ch26-00-quantum-readiness.md)
-    - [A Pipeline of Sub-Playbooks on the Local Runtime](ch26-01-pipeline.md)
-    - [Classifying a Crypto Surface](ch26-02-crypto-surface.md)
-    - [Signed Self-Update and Rollback](ch26-03-self-update.md)
+- [Case Study: A Quantum Compilation Pipeline on the Local Runtime](ch26-00-quantum.md)
+    - [The Pipeline and Its Honest Defaults](ch26-01-pipeline.md)
+    - [Validate Before You Run](ch26-02-validate.md)
+    - [Long-Running Compute: Budgets and Deadlines](ch26-03-budgets.md)
+    - [Shell as the Escape Hatch](ch26-04-shell.md)
 
 # Part IX — Operations
 
@@ -174,17 +175,12 @@
     - [Deny by Default: Two Roles and an Allowlist](ch34-02-deny-by-default.md)
     - [Who Owns an Execution](ch34-03-ownership.md)
     - [Granting Roles and Verified Email](ch34-04-roles-in-flight.md)
-- [Case Study: A Quantum Compilation Pipeline on the Local Runtime](ch35-00-quantum.md)
-    - [The Pipeline and Its Honest Defaults](ch35-01-pipeline.md)
-    - [Validate Before You Run](ch35-02-validate.md)
-    - [Long-Running Compute: Budgets and Deadlines](ch35-03-budgets.md)
-    - [Shell as the Escape Hatch](ch35-04-shell.md)
-- [Case Study: Standing Up the Platform](ch36-00-platform.md)
-    - [NoETL Provisions NoETL](ch36-01-fresh-stack.md)
-    - [Images: Cloud Build and the Release Pipeline](ch36-02-images.md)
-    - [Worker Pools and KEDA](ch36-03-pools.md)
-    - [Secrets and the EHDB Substrate](ch36-04-secrets-and-ehdb.md)
-    - [What the Recipe Declares vs What Runs](ch36-05-declared-vs-running.md)
+- [Case Study: Standing Up the Platform](ch35-00-platform.md)
+    - [NoETL Provisions NoETL](ch35-01-fresh-stack.md)
+    - [Images: Cloud Build and the Release Pipeline](ch35-02-images.md)
+    - [Worker Pools and KEDA](ch35-03-pools.md)
+    - [Secrets and the EHDB Substrate](ch35-04-secrets-and-ehdb.md)
+    - [What the Recipe Declares vs What Runs](ch35-05-declared-vs-running.md)
 
 ---
 

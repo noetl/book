@@ -56,9 +56,9 @@ is a stub today.
 | V Distribution | 16–17 | PARTIAL | P5 |
 | VI Interop and Concurrency | 18–20 | REAL / REAL / TARGET | P5, P7 |
 | VII Resources and Performance | 21–24 | REAL / PARTIAL / PARTIAL / PARTIAL | P4, P6 |
-| VIII Applied | 25–26 | PARTIAL | P7 |
+| VIII Applied | 25–26 | PARTIAL / REAL | P7 / P5 |
 | IX Operations | 27–32 | REAL | P4 (Ch. 32 P7) |
-| X In Practice: Case Studies | 33–36 | REAL / PARTIAL / REAL / PARTIAL | P5 |
+| X In Practice: Case Studies | 33–35 | REAL / PARTIAL / PARTIAL | P5 |
 | Appendices | A–H | REAL (generated / living) | P0–P4, continuous |
 
 ---
@@ -262,8 +262,8 @@ sub-playbook, compile it, verify parity, deploy it to a Worker.
 
 ## Part VIII — Applied
 
-*Design studies that combine everything earlier. Analysis first, and
-the pages state clearly what NoETL cannot claim yet.*
+*Design studies and one case study that combine everything earlier.
+Analysis first, and the pages state clearly what NoETL cannot claim yet.*
 
 **Ch. 25 Agent and Bot Fleets on NoETL** · PARTIAL · P7. NoETL compared
 honestly with one shared VM per account (RFC #556): isolation (no
@@ -271,11 +271,14 @@ per-bot security boundary yet), scoped credentials, cost (idle cost
 scales with work, not accounts), concurrency and its failure modes, and
 the staged architecture to win. It is written after the RFC settles.
 
-**Ch. 26 Case Study: A Quantum-Readiness Orchestrator** · PARTIAL · P7.
-A real multi-stage orchestrator on the **local** runtime: a pipeline of
-sub-playbooks, crypto-surface classification, signed self-update and
-rollback. It shows local mode at production scale. ⚠ The source repo
-is private, so this chapter needs the owner's sign-off before writing.
+**Ch. 26 Case Study: A Quantum Compilation Pipeline on the Local
+Runtime** · REAL · P5 · 26.2 written 2026-11-17. `noetl/quantum`, project
+level only: a pipeline that refuses to invent a score, validation
+against the public DSL API with a pinned schema digest, long-running
+compute under wall-clock and transform budgets, and `kind: shell` as
+the escape hatch. It shows local mode on hours-long work. It replaced a
+private quantum-readiness study by owner decision on 2026-11-17 (#51 Q4;
+#36 retired), and is read the way Part X's case studies are (BOOK-PLAN §2.8).
 
 ## Part IX — Operations
 
@@ -341,14 +344,7 @@ who owns an execution; sign-in as a playbook (Auth0) and the
 synchronous path. Role grants and verified-email role inheritance are
 in flight and labelled until a release carries them.
 
-**Ch. 35 Case Study: A Quantum Compilation Pipeline on the Local
-Runtime** · REAL · P5 · 35.2 written 2026-11-17. `noetl/quantum`, project
-level only: a pipeline that refuses to invent a score, validation
-against the public DSL API with a pinned schema digest, long-running
-compute under wall-clock and transform budgets, and `kind: shell` as
-the escape hatch. Not the same project as Ch. 26 (see #51 Q4).
-
-**Ch. 36 Case Study: Standing Up the Platform** · PARTIAL · P5. NoETL
+**Ch. 35 Case Study: Standing Up the Platform** · PARTIAL · P5. NoETL
 provisioning NoETL: the fresh-stack playbook, Cloud Build images, KEDA
 worker pools, CSI-mounted secrets and the EHDB substrate, as `noetl/ops`
 commits them, with what is stale and why committed is not live.

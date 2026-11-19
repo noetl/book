@@ -63,8 +63,8 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 - [ ] CH-19 [P] Project: Expose a Playbook as an MCP Tool and Call It from an Agent — [#29](https://github.com/noetl/book/issues/29) · `src/ch19-00-project-mcp-agent.md`
 - [ ] CH-33 [P] Case Study: The Travel Playbooks — [#95](https://github.com/noetl/book/issues/95) · `src/ch33-*.md` (33.2 written in #99)
 - [ ] CH-34 [P] Case Study: Authentication and Authorization — [#96](https://github.com/noetl/book/issues/96) · `src/ch34-*.md`
-- [ ] CH-35 [P] Case Study: A Quantum Compilation Pipeline on the Local Runtime — [#97](https://github.com/noetl/book/issues/97) · `src/ch35-*.md` (35.2 written in #99)
-- [ ] CH-36 [P] Case Study: Standing Up the Platform — [#98](https://github.com/noetl/book/issues/98) · `src/ch36-*.md`
+- [ ] CH-26 [P] Case Study: A Quantum Compilation Pipeline on the Local Runtime — [#97](https://github.com/noetl/book/issues/97) · `src/ch26-*.md` (26.2 written in #99; replaced the private study, #36 retired)
+- [ ] CH-35 [P] Case Study: Standing Up the Platform — [#98](https://github.com/noetl/book/issues/98) · `src/ch35-*.md`
 
 ## Phase P6
 
@@ -77,9 +77,8 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 - [ ] CH-14 [P] EHDB as the State Substrate — [#24](https://github.com/noetl/book/issues/24) · `src/ch14-*.md`
 - [ ] CH-20 [P] Coroutines and Structured Concurrency — [#30](https://github.com/noetl/book/issues/30) · `src/ch20-*.md`
 - [ ] CH-25 [P] Agent and Bot Fleets on NoETL — [#35](https://github.com/noetl/book/issues/35) · `src/ch25-*.md`
-- [ ] CH-26 [P] Case Study: A Quantum-Readiness Orchestrator — [#36](https://github.com/noetl/book/issues/36) · `src/ch26-*.md`
 - [ ] CH-32 [P] Representation Drift: Keeping What You Know True — [#42](https://github.com/noetl/book/issues/42) · `src/ch32-00-representation-drift.md`
 
 ## Owner decisions
 
-- [ ] OD-01 Hosting, license, quiz telemetry, Ch. 26 source, edge runner scope — [#51](https://github.com/noetl/book/issues/51)
+- [ ] OD-01 Hosting, license, quiz telemetry, Ch. 26 source (decided 2026-11-17: swapped for the public quantum study), edge runner scope — [#51](https://github.com/noetl/book/issues/51)

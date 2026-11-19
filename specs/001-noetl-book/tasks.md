@@ -65,6 +65,10 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 - [ ] CH-34 [P] Case Study: Authentication and Authorization — [#96](https://github.com/noetl/book/issues/96) · `src/ch34-*.md`
 - [ ] CH-26 [P] Case Study: A Quantum Compilation Pipeline on the Local Runtime — [#97](https://github.com/noetl/book/issues/97) · `src/ch26-*.md` (26.2 written in #99; replaced the private study, #36 retired)
 - [ ] CH-35 [P] Case Study: Standing Up the Platform — [#98](https://github.com/noetl/book/issues/98) · `src/ch35-*.md`
+- [ ] CH-11 (11.1–11.7) [P] When Not to Use NoETL — [#102](https://github.com/noetl/book/issues/102) · `src/ch11-0[1-7]-*.md` (11.2 written in #106)
+- [ ] CH-36 [P] Data Lineage on NoETL — [#103](https://github.com/noetl/book/issues/103) · `src/ch36-*.md` (36.1 written in #106)
+- [ ] CH-37 [P] Data Governance on NoETL — [#104](https://github.com/noetl/book/issues/104) · `src/ch37-*.md`
+- [ ] CH-38 [P] NoETL and Data Mesh — [#105](https://github.com/noetl/book/issues/105) · `src/ch38-*.md`
 
 ## Phase P6
 

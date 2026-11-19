@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """From one event row, how do you recover the exact playbook text that ran?"""
+prompt.distractors = [
+  "Read the step's `node_name`.",
+  "Ask the gateway for the latest version of the path.",
+  "It cannot be recovered; only the path is stored.",
+]
+answer.answer = "Follow its `catalog_id` to `noetl.catalog`, which holds the path, version and content."
+context = """Each `(path, version)` is its own catalog row with its content."""
+id = "00a4a395-4949-4ba0-9417-e737ed8b047e"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A `postgres` step reads `orders` and writes `daily_revenue`. What does NoETL record about those tables as lineage?"""
+prompt.distractors = [
+  "An OpenLineage event for each table.",
+  "A `dataset.read` and `dataset.write` event.",
+  "Column-level lineage in the registry.",
+]
+answer.answer = "Nothing structured: it does not parse the SQL into dataset names."
+context = """Execution lineage is automatic; data lineage is yours to declare. No lineage emitter exists at the searched releases."""
+id = "46ff61d2-c98a-40c9-9f6b-6748d8de10cf"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """`GET /api/executions/{id}` on a run with 50,000 events returns what?"""
+prompt.distractors = [
+  "All 50,000 events.",
+  "The first 2,000 events.",
+  "An error asking you to paginate.",
+]
+answer.answer = "At most the 2,000 most recent events."
+context = """`MAX_EVENTS_RETURNED` caps the load after a full read exhausted server memory. Read older steps from the log."""
+id = "686a1815-6fd9-4895-b217-b99212e09f17"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A result over 100 KiB is moved to the result store. How can you still tell which run produced it?"""
+prompt.distractors = [
+  "You cannot; the reference is a random id.",
+  "The result store keeps a separate lineage table.",
+  "Only if `NOETL_REGISTRY_ENABLED` is on.",
+]
+answer.answer = "Its reference is a `noetl://` URI that names the producing execution."
+context = """The worker also stamps a canonical per-step URI; the server does not consume it yet (`NOETL_RESULT_URI_ACCEPT`, off)."""
+id = "40aa71e5-28f7-4980-9d74-2ae7bbe52bdb"

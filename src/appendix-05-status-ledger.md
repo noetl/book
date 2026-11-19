@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**80 pages written, 72 not yet written** (of 152 in `SUMMARY.md`).
+**82 pages written, 93 not yet written** (of 175 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -71,7 +71,14 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;[The Command Bus and Worker Pools](ch10-03-bus-and-pools.md) | **REAL** | written | server v3.161.2 (`983e36e`), worker v6.15.0, gateway v3.22.1 | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Slots, Pools and KEDA Autoscaling](ch10-04-slots-and-keda.md) | **REAL** | written | worker v6.15.0; resource model DEPLOYED as of 2026-11-11 (server v3.161.2) | 2026-11-15 (#77) |
 | &nbsp;&nbsp;&nbsp;&nbsp;Following One Execution End to End | REAL | not written | | |
-| [Choosing a Runtime](ch11-00-choosing-a-runtime.md) | **REAL** | written | Ch. 3–9 (as cited per cell); resource model @ server v3.161.2 | 2026-11-14 (#20) |
+| [Choosing a Runtime, and When Not to Use NoETL](ch11-00-choosing-a-runtime.md) | **REAL** | written | Ch. 3–9 (as cited per cell); resource model @ server v3.161.2 | 2026-11-14 (#20) |
+| &nbsp;&nbsp;&nbsp;&nbsp;What NoETL Is Good At | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[When a Program Is Better](ch11-02-program.md) | **REAL** | written | resource model at server v3.161.2; ai-meta wiki Sessions-Log 2026-11-14/15/16 (dated measurements); book measurement 2026-11-19 (CLI 6.4.1, n=10) | 2026-11-19 (#106) |
+| &nbsp;&nbsp;&nbsp;&nbsp;When an Existing Tool Is Better | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;NoETL and AI Agents | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;NoETL and MCP Servers | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;NoETL and Microservices | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;A Decision Guide | REAL | not written | | |
 | Project: Taking Your Playbook Distributed | REAL | not written | | |
 | [EHDB: The Event Horizon Database](ch13-00-ehdb.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Why NATS Was Replaced](ch13-01-why-replace-nats.md) | **REAL** | written | ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record | 2026-11-15 (#83) |
@@ -167,6 +174,22 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Worker Pools and KEDA | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Secrets and the EHDB Substrate | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;What the Recipe Declares vs What Runs | PARTIAL | not written | | |
+| Data Lineage on NoETL | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[What the Event Log Records About a Run](ch36-01-event-log-record.md) | **REAL** | written | server v3.161.2 src/db/queries/event.rs, src/services/execution.rs, db/ddl/postgres/schema_ddl.sql, src/config/app.rs; emitter search at newest tags 2026-11-19 | 2026-11-19 (#106) |
+| &nbsp;&nbsp;&nbsp;&nbsp;References That Name Their Producer | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Declared Lineage: the Registry | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Recording Dataset Lineage Yourself | REAL | not written | | |
+| Data Governance on NoETL | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Access Control | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Audit and Reproducibility | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Secrets and Personal Data | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Retention and the Right to Erasure | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Policy in Playbooks | PARTIAL | not written | | |
+| NoETL and Data Mesh | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Domain Ownership | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Data as a Product | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;The Self-Serve Platform | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Federated Governance | PARTIAL | not written | | |
 | [Appendix A: DSL Reference](appendix-01-dsl-reference.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57, #62) |
 | [Appendix B: Tool Kinds Reference](appendix-02-tool-kinds.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`); local: CLI v6.4.1 | 2026-11-13 (#57, #63) |
 | [Appendix C: Feature Flags and Environment Variables](appendix-03-flags.md) | **REAL** | written | generated, server v3.161.2 (`983e36e`) | 2026-11-13 (#57), 2026-11-15 (#81: cited runtime flags) |

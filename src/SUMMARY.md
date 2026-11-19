@@ -64,7 +64,14 @@
     - [The Command Bus and Worker Pools](ch10-03-bus-and-pools.md)
     - [Slots, Pools and KEDA Autoscaling](ch10-04-slots-and-keda.md)
     - [Following One Execution End to End](ch10-05-one-execution.md)
-- [Choosing a Runtime](ch11-00-choosing-a-runtime.md)
+- [Choosing a Runtime, and When Not to Use NoETL](ch11-00-choosing-a-runtime.md)
+    - [What NoETL Is Good At](ch11-01-good-at.md)
+    - [When a Program Is Better](ch11-02-program.md)
+    - [When an Existing Tool Is Better](ch11-03-tools.md)
+    - [NoETL and AI Agents](ch11-04-agents.md)
+    - [NoETL and MCP Servers](ch11-05-mcp.md)
+    - [NoETL and Microservices](ch11-06-microservices.md)
+    - [A Decision Guide](ch11-07-decision-guide.md)
 - [Project: Taking Your Playbook Distributed](ch12-00-project-distributed.md)
 
 # Part IV — EHDB: The Substrate
@@ -181,6 +188,25 @@
     - [Worker Pools and KEDA](ch35-03-pools.md)
     - [Secrets and the EHDB Substrate](ch35-04-secrets-and-ehdb.md)
     - [What the Recipe Declares vs What Runs](ch35-05-declared-vs-running.md)
+
+# Part XI — Data Pipelines: Lineage, Governance and Mesh
+
+- [Data Lineage on NoETL](ch36-00-lineage.md)
+    - [What the Event Log Records About a Run](ch36-01-event-log-record.md)
+    - [References That Name Their Producer](ch36-02-references.md)
+    - [Declared Lineage: the Registry](ch36-03-declared-lineage.md)
+    - [Recording Dataset Lineage Yourself](ch36-04-dataset-lineage.md)
+- [Data Governance on NoETL](ch37-00-governance.md)
+    - [Access Control](ch37-01-access.md)
+    - [Audit and Reproducibility](ch37-02-audit.md)
+    - [Secrets and Personal Data](ch37-03-secrets-pii.md)
+    - [Retention and the Right to Erasure](ch37-04-retention.md)
+    - [Policy in Playbooks](ch37-05-policy.md)
+- [NoETL and Data Mesh](ch38-00-data-mesh.md)
+    - [Domain Ownership](ch38-01-ownership.md)
+    - [Data as a Product](ch38-02-data-product.md)
+    - [The Self-Serve Platform](ch38-03-self-serve.md)
+    - [Federated Governance](ch38-04-federated-governance.md)
 
 ---
 

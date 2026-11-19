@@ -1,10 +1,13 @@
-# Choosing a Runtime
+# Choosing a Runtime, and When Not to Use NoETL
 
 <span class="status status-real">REAL</span>
 
 The same playbook grammar runs in three places. They are not
 interchangeable. This page puts them side by side, with each cell tied
-to the chapter or source it comes from. Versions: **CLI v6.4.1**,
+to the chapter or source it comes from. Sections 11.1–11.7 then ask
+the earlier question: whether NoETL is the right tool at all, compared
+with a program, an existing tool, an AI agent, an MCP server or a
+microservice. Versions: **CLI v6.4.1**,
 **server v3.161.2** (resource model `as_of` 2026-11-11), worker
 v6.15.0.
 

@@ -215,6 +215,10 @@
     "landed": "2026-11-14 (#20)",
     "verified": "Ch. 3\u20139 (as cited per cell); resource model @ server v3.161.2"
   },
+  "ch11-02-program.md": {
+    "landed": "2026-11-19 (#106)",
+    "verified": "resource model at server v3.161.2; ai-meta wiki Sessions-Log 2026-11-14/15/16 (dated measurements); book measurement 2026-11-19 (CLI 6.4.1, n=10)"
+  },
   "ch13-00-ehdb.md": {
     "landed": "2026-11-15 (#83)",
     "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
@@ -314,6 +318,10 @@
   "ch33-02-profile-flow.md": {
     "landed": "2026-11-17 (#99)",
     "verified": "noetl/travel `cd210d7` playbooks/profile.yaml; server v3.161.2 orchestrate-core (state.rs, orchestrator.rs, commands.rs); tools v4.6.0 python.rs; gateway v3.22.1 authorization.rs"
+  },
+  "ch36-01-event-log-record.md": {
+    "landed": "2026-11-19 (#106)",
+    "verified": "server v3.161.2 src/db/queries/event.rs, src/services/execution.rs, db/ddl/postgres/schema_ddl.sql, src/config/app.rs; emitter search at newest tags 2026-11-19"
   },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",

@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Your job sums a million numbers once a night. What shape fits best?"""
+prompt.distractors = [
+  "A distributed `loop:` with one item per number, so it runs in parallel.",
+  "A chain of `rhai` steps, one per thousand numbers.",
+  "An MCP server, so a model can call it.",
+]
+answer.answer = "A program, run as one step if you want it recorded: one step per number would pay the per-step overhead a million times."
+context = """NoETL charges per step (~217 ms p50 of orchestration per step on prod, 2026-11-15). Put the hot loop inside one step."""
+id = "3647011e-4d3e-4205-8a2f-35cd2acaa24b"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """In the book's 2026-11-19 local measurement (CLI 6.4.1, n=10), roughly what did a trivial `shell` step and a trivial `rhai` step cost?"""
+prompt.distractors = [
+  "~259 ms and ~3.3 ms",
+  "both ~3 ms",
+  "both ~250 ms",
+]
+answer.answer = "~3.3 ms and ~259 ms"
+context = """Local cost depends on the tool kind. The `rhai` figure is a measurement whose cause the book has not traced."""
+id = "621e08ab-ced1-48e2-b30b-c348f7f98b19"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """You wrap a flaky script in a `shell` step. What do you gain automatically?"""
+prompt.distractors = [
+  "Automatic retries on failure.",
+  "A timeout enforced by the worker.",
+  "A resume point after a crash on the local runtime.",
+]
+answer.answer = "A record of each run: which playbook version ran it, with what inputs and result."
+context = """At these releases a failed step fails (6.5), the worker sets no per-command timeout, and the local runtime keeps no resume point."""
+id = "cf31cc3b-cf7f-4c27-adb7-c5b64108cdb4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Which condition alone is enough reason to prefer NoETL over a plain script?"""
+prompt.distractors = [
+  "The task is a single tight loop.",
+  "Each call must answer in under 10 ms.",
+  "The task runs thousands of times a second.",
+]
+answer.answer = "Someone will later need to know which inputs and playbook version produced an output."
+context = """The other three are reasons to use a program."""
+id = "253c9d39-9f83-42c1-9e05-e3d96fb45c11"

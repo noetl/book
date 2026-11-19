@@ -125,4 +125,4 @@ gives you less than no validator, because you believe it.
 
 ## Check your understanding
 
-{{#quiz ../quizzes/ch35-02.toml}}
+{{#quiz ../quizzes/ch26-02.toml}}

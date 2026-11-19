@@ -145,10 +145,10 @@ supervision beyond review.
 
 The owner asked for a worked-examples track built from real ecosystem projects (book#99). Answers by the authoring agent, each checked as cited.
 
-- Q: Where do the case studies go? → A: A new **Part X — In Practice: Case Studies** after Part IX (Ch. 33–36). After, because two of them (auth, platform) build on Ch. 10 and Ch. 27–31. Concept chapters link to the matching case-study section ("In practice: …") only when that section is written, so no link points at a stub. The placement map is BOOK-PLAN §2.8.
+- Q: Where do the case studies go? → A: A new **Part X — In Practice: Case Studies** after Part IX (Ch. 33–35; the quantum study is Ch. 26, see below). After, because two of them (auth, platform) build on Ch. 10 and Ch. 27–31. Concept chapters link to the matching case-study section ("In practice: …") only when that section is written, so no link points at a stub. The placement map is BOOK-PLAN §2.8.
 - Q: Is a case study a tutorial? → A: No. The project chapters (2, 12, 19, 24) are things the reader builds. A case study reads a real project's playbooks at a named commit and explains why each one is shaped as it is, tying every defensive pattern to the runtime rule that forces it, verified in code. Readers do not need the project's credentials or data to follow it.
 - Q: What may be published from those repos? → A: Only what the public repos contain, and less: no project ids, real user or document ids, execution ids, hostnames, or third-party data, even where a source file carries them. For `noetl/quantum`: project level only, no competition data, scores, circuits or third-party hub content. All four repos were confirmed public without credentials on 2026-11-17.
-- Q: How does Ch. 35 (public VQCC project) relate to Ch. 26 (private quantum-readiness source, #36)? → A: They are different projects. Ch. 35 is written from a public repo and needs no sign-off. Whether Ch. 26 stays, or #51 Q4 is answered by swapping it for Ch. 35, is the owner's decision; until then both remain in the outline.
+- Q: How does the public VQCC study relate to Ch. 26 (private quantum-readiness source, #36)? → A: **Owner decision, 2026-11-17: it replaces it.** The private study is retired (#36 closed as not planned; #51 Q4 answered "swap"). The VQCC study takes slot **26** in Part VIII, REAL, project level only; it needs only the local runtime, so it does not wait for Part IX. Part X closes up to Ch. 33–35 (the platform study moves from 36 to 35). Chapters 27–32 keep their numbers.
 - Q: Are the auth features the owner listed shipped? → A: Partly. At gateway v3.22.1 the two-role, deny-by-default model with a user-playbook allowlist and execution ownership is REAL (`src/authorization.rs`), and sign-in is validated by a playbook unless `NOETL_AUTH_SYNC` is on. A `grant_role` playbook, verified-email role inheritance, and admin-only rules on register / catalog get beyond the gateway's deny-by-default were not found on `main` of server, gateway, e2e or ops on 2026-11-17 (only on branches). Ch. 34 is PARTIAL and labels them until a tagged release carries them.
 - Q: The quantum repo says its playbooks were checked on "NoETL 5.3.2". Which binary is that? → A: Unresolved. `noetl/noetl` has a `pypi-v5.3.2` tag (2026-10-17) whose `pyproject.toml` says it is not a distribution; the CLI the book pins is v6.4.1. Ch. 35 resolves this before any claim depends on the runtime version; sample 35.2 depends only on the server's validate API.
 - Q: Does the public validate endpoint behave as the server code says? → A: Mostly. On 2026-11-17 `https://noetl.ai/api/dsl/version` reported server 3.165.1, and `POST /api/dsl/validate` returned the documented fields. But a mismatched `x-noetl-schema-digest` header produced no `schema_drift` field, although the server code adds one (v3.161.2 and v3.165.1, `src/handlers/dsl.rs`); something in front of the server drops the header. 35.2 says so and teaches comparing digests on the client.
@@ -686,16 +686,18 @@ Sources: ai-meta PR #556 docs/rfc/bot-fleets-vs-shared-account-vm.md
 
 ### CH-26
 
-**Case Study: A Quantum-Readiness Orchestrator** · Badge **PARTIAL** · Phase **P7** · Issue [#36](https://github.com/noetl/book/issues/36) · Draft (stub; refine with /speckit-clarify before starting)
+**Case Study: A Quantum Compilation Pipeline on the Local Runtime** · Badge **REAL** · Phase **P5** · Issue [#97](https://github.com/noetl/book/issues/97) · Outlined 2026-11-17 (book#99); 26.2 written; replaced the private quantum-readiness study (owner, 2026-11-17)
 
 Files: `src/ch26-*.md`
 
 Acceptance criteria:
 
-1. Owner sign-off obtained before any detail from the private source repo is written.
-2. Meets [CH-ALL](#ch-all).
+1. Project level only: `noetl/quantum` at a named commit (outline: `9208fa2`). No competition data, scores, circuits or third-party hub content.
+2. 26.1 the pipeline and its honest defaults (no data → no circuit, `leaderboard_score: null`); 26.2 validating against the public DSL API with a pinned digest, and why the local fallback never counts as acceptance; 26.3 long-running compute under wall-clock and transform budgets; 26.4 `kind: shell` as the local runtime's escape hatch.
+3. The "NoETL 5.3.2" runtime is identified before a claim depends on it (Clarifications 2026-11-17).
+4. Meets [CH-ALL](#ch-all).
 
-Sources: private repo — owner
+Sources: `noetl/quantum` playbooks/, vqcc/dsl_validate.py, scripts/validate_playbooks.py, docs/; server `src/handlers/dsl.rs`; the public endpoint, read with a date
 
 ## Part IX — Operations
 
@@ -800,7 +802,7 @@ Sources: ai-meta agents/rules/representation-drift.md
 
 ## Part X — In Practice: Case Studies
 
-Real projects from the NoETL ecosystem, read at a named commit. Each chapter explains why the project's playbooks are shaped as they are and points back to the concept chapter that states each rule. Placement map: BOOK-PLAN §2.8.
+Real projects from the NoETL ecosystem, read at a named commit (a fourth, the quantum pipeline, is Ch. 26 in Part VIII). Each chapter explains why the project's playbooks are shaped as they are and points back to the concept chapter that states each rule. Placement map: BOOK-PLAN §2.8.
 
 ### CH-33
 
@@ -836,24 +838,9 @@ Sources: gateway `src/authorization.rs`, `src/auth/`; e2e `fixtures/playbooks/ap
 
 ### CH-35
 
-**Case Study: A Quantum Compilation Pipeline on the Local Runtime** · Badge **REAL** · Phase **P5** · Issue [#97](https://github.com/noetl/book/issues/97) · Outlined 2026-11-17 (book#99); 35.2 written
-
-Files: `src/ch35-*.md`
-
-Acceptance criteria:
-
-1. Project level only: `noetl/quantum` at a named commit (outline: `9208fa2`). No competition data, scores, circuits or third-party hub content.
-2. 35.1 the pipeline and its honest defaults (no data → no circuit, `leaderboard_score: null`); 35.2 validating against the public DSL API with a pinned digest, and why the local fallback never counts as acceptance; 35.3 long-running compute under wall-clock and transform budgets; 35.4 `kind: shell` as the local runtime's escape hatch.
-3. The "NoETL 5.3.2" runtime is identified before a claim depends on it (Clarifications 2026-11-17).
-4. Meets [CH-ALL](#ch-all).
-
-Sources: `noetl/quantum` playbooks/, vqcc/dsl_validate.py, scripts/validate_playbooks.py, docs/; server `src/handlers/dsl.rs`; the public endpoint, read with a date
-
-### CH-36
-
 **Case Study: Standing Up the Platform** · Badge **PARTIAL** · Phase **P5** · Issue [#98](https://github.com/noetl/book/issues/98) · Outlined 2026-11-17 (book#99)
 
-Files: `src/ch36-*.md`
+Files: `src/ch35-*.md`
 
 Acceptance criteria:
 
@@ -989,4 +976,4 @@ Sources: CONTRIBUTING.md; BOOK-PLAN §2.3
 - The reference CLI and server versions are pinned per chapter and recorded in Appendix E. Prod facts are stamped, not assumed current.
 - Quiz telemetry is **off** unless the owner decides otherwise ([#51](https://github.com/noetl/book/issues/51)).
 - Hosting and license are pending ([#51](https://github.com/noetl/book/issues/51)) and do not block writing.
-- The Ch. 26 source is private and blocked on owner sign-off ([#51](https://github.com/noetl/book/issues/51)).
+- Ch. 26 is the public `noetl/quantum` case study; the private quantum-readiness source is retired (owner decision 2026-11-17, [#51](https://github.com/noetl/book/issues/51) Q4).

@@ -275,6 +275,10 @@
     "landed": "2026-11-15 (#79)",
     "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
   },
+  "ch26-02-validate.md": {
+    "landed": "2026-11-17 (#99)",
+    "verified": "noetl/quantum `9208fa2`; server v3.161.2 src/handlers/dsl.rs, src/services/catalog.rs (schema_drift also at v3.165.1); public endpoint read 2026-11-17 (server 3.165.1)"
+  },
   "ch27-00-deployment.md": {
     "landed": "2026-11-15",
     "verified": "noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08)"
@@ -310,10 +314,6 @@
   "ch33-02-profile-flow.md": {
     "landed": "2026-11-17 (#99)",
     "verified": "noetl/travel `cd210d7` playbooks/profile.yaml; server v3.161.2 orchestrate-core (state.rs, orchestrator.rs, commands.rs); tools v4.6.0 python.rs; gateway v3.22.1 authorization.rs"
-  },
-  "ch35-02-validate.md": {
-    "landed": "2026-11-17 (#99)",
-    "verified": "noetl/quantum `9208fa2`; server v3.161.2 src/handlers/dsl.rs, src/services/catalog.rs (schema_drift also at v3.165.1); public endpoint read 2026-11-17 (server 3.165.1)"
   },
   "title-page.md": {
     "landed": "2026-11-13 (#1)",

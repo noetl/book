@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**80 pages written, 76 not yet written** (of 156 in `SUMMARY.md`).
+**80 pages written, 72 not yet written** (of 152 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -136,10 +136,11 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Isolation and Scoped Credentials | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Cost and Concurrency | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;The Architecture to Win | PARTIAL | not written | | |
-| Case Study: A Quantum-Readiness Orchestrator | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;A Pipeline of Sub-Playbooks on the Local Runtime | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Classifying a Crypto Surface | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Signed Self-Update and Rollback | PARTIAL | not written | | |
+| Case Study: A Quantum Compilation Pipeline on the Local Runtime | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;The Pipeline and Its Honest Defaults | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Validate Before You Run](ch26-02-validate.md) | **REAL** | written | noetl/quantum `9208fa2`; server v3.161.2 src/handlers/dsl.rs, src/services/catalog.rs (schema_drift also at v3.165.1); public endpoint read 2026-11-17 (server 3.165.1) | 2026-11-17 (#99) |
+| &nbsp;&nbsp;&nbsp;&nbsp;Long-Running Compute: Budgets and Deadlines | REAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Shell as the Escape Hatch | REAL | not written | | |
 | [Deployment Modes](ch27-00-deployment.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Local kind First](ch27-01-kind.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
 | &nbsp;&nbsp;&nbsp;&nbsp;[Production on GKE](ch27-02-gke.md) | **REAL** | written | noetl/ops `6c55cbe`; ai-meta playbooks `0e835fd`; dated record (ai-meta#267, #323, wiki Sessions-Log 2026-09-08) | 2026-11-15 |
@@ -160,11 +161,6 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;Deny by Default: Two Roles and an Allowlist | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Who Owns an Execution | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Granting Roles and Verified Email | PARTIAL | not written | | |
-| Case Study: A Quantum Compilation Pipeline on the Local Runtime | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;The Pipeline and Its Honest Defaults | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;[Validate Before You Run](ch35-02-validate.md) | **REAL** | written | noetl/quantum `9208fa2`; server v3.161.2 src/handlers/dsl.rs, src/services/catalog.rs (schema_drift also at v3.165.1); public endpoint read 2026-11-17 (server 3.165.1) | 2026-11-17 (#99) |
-| &nbsp;&nbsp;&nbsp;&nbsp;Long-Running Compute: Budgets and Deadlines | REAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Shell as the Escape Hatch | REAL | not written | | |
 | Case Study: Standing Up the Platform | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;NoETL Provisions NoETL | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Images: Cloud Build and the Release Pipeline | PARTIAL | not written | | |

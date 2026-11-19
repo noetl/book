@@ -1,6 +1,5 @@
-# A Pipeline of Sub-Playbooks on the Local Runtime
+# The Pipeline and Its Honest Defaults
 
-<span class="status status-partial">PARTIAL</span> <span class="status status-stub">STUB</span>
+<span class="status status-real">REAL</span> <span class="status status-stub">STUB</span>
 
-> Not yet written. Goals, sources and the quiz plan for this section are in
-> [`docs/BOOK-PLAN.md`](https://github.com/noetl/book/blob/main/docs/BOOK-PLAN.md).
+> Not yet written. Planned: the baseline and optimize playbooks; with no data the pipeline writes no circuit and records no score rather than inventing one.

@@ -1,6 +1,6 @@
 # The NoETL Book — Roadmap
 
-**Updated 2026-11-13.** This page shows the whole book at once: every
+**Updated 2026-11-17.** This page shows the whole book at once: every
 Part and chapter, what it covers and why it is there, how true it is
 today, and when it gets written.
 
@@ -40,7 +40,7 @@ is a stub today.
 | **P2** | Getting started, first project, local runtime, daemon | **now** |
 | **P3** | Distributed runtime + the trace visualizer | now (needs P0 CI, and a kind cluster on tagged release images for the trace and Ch. 12) |
 | **P4** | EHDB, resources, measured overhead, operations | now |
-| **P5** | Interop and distribution (released, mostly behind flags) | now, with care over flag states |
+| **P5** | Interop and distribution (released, mostly behind flags); the case studies of Part X | now, with care over flag states |
 | **P6** | Edge / WASM + the in-browser runner | after the runner exists |
 | **P7** | TARGET designs and applied studies | later; rewrite when features land |
 
@@ -58,6 +58,7 @@ is a stub today.
 | VII Resources and Performance | 21–24 | REAL / PARTIAL / PARTIAL / PARTIAL | P4, P6 |
 | VIII Applied | 25–26 | PARTIAL | P7 |
 | IX Operations | 27–32 | REAL | P4 (Ch. 32 P7) |
+| X In Practice: Case Studies | 33–36 | REAL / PARTIAL / REAL / PARTIAL | P5 |
 | Appendices | A–H | REAL (generated / living) | P0–P4, continuous |
 
 ---
@@ -317,6 +318,40 @@ a convention; bootstrap secrets as CSI files; features that ship inert
 Every copy (doc, dashboard, memory, this book) is true only while
 something forces it to agree with the source. Worked examples. It
 closes the book because it explains how the book itself stays honest.
+
+## Part X — In Practice: Case Studies
+
+*Real projects from the NoETL ecosystem, read at a named commit. A
+project chapter is something you build; a case study is something you
+read: why each playbook is shaped the way it is, tied back to the rule
+in the concept chapter that forces it. Concept chapters link forward to
+the matching section once it is written (BOOK-PLAN §2.8). Outlined
+2026-11-17 in book#99.*
+
+**Ch. 33 Case Study: The Travel Playbooks** · REAL · P5 · 33.2 written
+2026-11-17. `noetl/travel`: the SPA → playbook → Firestore contract, the
+profile read/save flow (validate, merge, read back, best-effort
+suggestions), provider calls and the inline-vs-child-playbook trade,
+the itinerary planner's state across turns, and a regression suite for
+a playbook family.
+
+**Ch. 34 Case Study: Authentication and Authorization** · PARTIAL · P5.
+Deny by default with exactly two roles and a user-playbook allowlist;
+who owns an execution; sign-in as a playbook (Auth0) and the
+synchronous path. Role grants and verified-email role inheritance are
+in flight and labelled until a release carries them.
+
+**Ch. 35 Case Study: A Quantum Compilation Pipeline on the Local
+Runtime** · REAL · P5 · 35.2 written 2026-11-17. `noetl/quantum`, project
+level only: a pipeline that refuses to invent a score, validation
+against the public DSL API with a pinned schema digest, long-running
+compute under wall-clock and transform budgets, and `kind: shell` as
+the escape hatch. Not the same project as Ch. 26 (see #51 Q4).
+
+**Ch. 36 Case Study: Standing Up the Platform** · PARTIAL · P5. NoETL
+provisioning NoETL: the fresh-stack playbook, Cloud Build images, KEDA
+worker pools, CSI-mounted secrets and the EHDB substrate, as `noetl/ops`
+commits them, with what is stale and why committed is not live.
 
 ## Appendices
 

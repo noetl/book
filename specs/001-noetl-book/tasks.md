@@ -61,6 +61,10 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 - [ ] CH-17 [P] Cross-Instance Execution: Run It on B — [#27](https://github.com/noetl/book/issues/27) · `src/ch17-*.md`
 - [ ] CH-18 [P] MCP and Agents — [#28](https://github.com/noetl/book/issues/28) · `src/ch18-*.md`
 - [ ] CH-19 [P] Project: Expose a Playbook as an MCP Tool and Call It from an Agent — [#29](https://github.com/noetl/book/issues/29) · `src/ch19-00-project-mcp-agent.md`
+- [ ] CH-33 [P] Case Study: The Travel Playbooks — [#95](https://github.com/noetl/book/issues/95) · `src/ch33-*.md` (33.2 written in #99)
+- [ ] CH-34 [P] Case Study: Authentication and Authorization — [#96](https://github.com/noetl/book/issues/96) · `src/ch34-*.md`
+- [ ] CH-35 [P] Case Study: A Quantum Compilation Pipeline on the Local Runtime — [#97](https://github.com/noetl/book/issues/97) · `src/ch35-*.md` (35.2 written in #99)
+- [ ] CH-36 [P] Case Study: Standing Up the Platform — [#98](https://github.com/noetl/book/issues/98) · `src/ch36-*.md`
 
 ## Phase P6
 

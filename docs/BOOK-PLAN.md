@@ -149,6 +149,37 @@ Every number carries a label (§3). A chapter about a TARGET feature
 says what exists today before it says what is planned. The book corrects
 myths openly; Appendix F lists them.
 
+### 2.8 Case studies: real projects, read at a commit
+
+Part X reads four real projects from the ecosystem. Unlike a project
+chapter, the reader does not build anything; they read playbooks that
+run (or ran) for real and learn why each is shaped as it is. Every
+defensive pattern is tied to the runtime rule that forces it, and that
+rule is verified in code, not taken from the project's comments.
+
+Concept chapters link forward ("In practice: …") to the section that
+shows their rule in a real project. A link is added only when the
+target section is written, so nothing points at a stub:
+
+| Concept | In practice | Status |
+|---|---|---|
+| 4.2 `workload`, templating · 5.1 `kind: python` | 33.2 a python step sees only its `input:` names | 33.2 written |
+| 6.1 `next`, exclusive arcs | 33.2 arc order is load-bearing; a losing sibling is skipped for good | 33.2 written |
+| 7.2 what a hop costs | 33.3 inline vs child playbook per provider | planned |
+| 4.4 keychain · 18.1 `kind: mcp` | 33.3 provider calls through MCP playbooks | planned |
+| 10.1 gateway | 34.2 deny by default, two roles, the allowlist | planned |
+| 31 credentials | 34.1 sign-in as a playbook | planned |
+| 4.0 validation · 8 local runtime | 35.2 validate before you run | 35.2 written |
+| 6.5 timeouts · 21 resource model | 35.3 wall-clock and transform budgets | planned |
+| 8.2 local kinds | 35.4 `kind: shell` as the escape hatch | planned |
+| 10.4 slots and KEDA · 27 deployment | 36.3 worker pools and KEDA | planned |
+| 27–31 operations · 32 drift | 36.5 what the playbook declares vs what runs | planned |
+
+Publishing rules: only what the public repos contain, and less: no
+project ids, real user or document ids, execution ids, hostnames or
+third-party data, even where a source file carries them. For
+`noetl/quantum`, project level only.
+
 ## 3. Keeping the book true: status discipline
 
 The book describes a moving system, so it borrows the rule ai-meta
@@ -282,6 +313,15 @@ diagrams (D) and runnable examples (▶).
 | 31 Credentials | use credentials without leaking them | REAL | Storage: envelope encryption, fail-closed key, optional KMS; delivery: `include_data` fetch, route gate default shadow, sealed delivery and mTLS opt-in; event log: deferred `keychain.*`, drive guard (worker v5.70.3), result scrubbing and its limit; worker env a convention (`NOETL_KEYCHAIN_ENV_VARS`); bootstrap secrets as CSI files; inert features (audit has no writer, residency off) | Q |
 | 32 Representation drift | keep docs, dashboards and memory true | REAL | "What forces this copy to agree, and how would anyone find out if it disagreed?" Worked examples from NoETL's own history, chosen for being instructive and safe to publish. | Q |
 
+### Part X — In Practice: Case Studies
+
+| Ch. | Goal | Status | Key content | Interactive |
+|---|---|---|---|---|
+| 33 Travel playbooks | read a real playbook family and see why each step is shaped as it is | REAL (33.2 written) | `noetl/travel` at `cd210d7`: contract shape; profile flow (validate → read \| save → read back → best-effort suggestions; `merge: true`; arc order; skip semantics; python bindings); providers inline vs child (cite 7.2); itinerary planner state; `qa/regression` | Q; T (a recorded profile run, once T-05 exists) |
+| 34 Auth | see access control enforced by the gateway and by playbooks | PARTIAL | gateway v3.22.1 `authorization.rs`: two roles, deny by default, `GATEWAY_USER_PLAYBOOKS`, ownership, guest; Auth0 validation playbook vs `NOETL_AUTH_SYNC`. In flight, labelled: `grant_role`, verified-email role inheritance | Q |
+| 35 Quantum pipeline | run long compute on the local runtime, validated against the live grammar | REAL (35.2 written) | `noetl/quantum` at `9208fa2`, project level only: honest defaults (no data, no score); validate with a pinned digest, fallback never counts as acceptance; seven-hour wall clock split per task, transform budget, hard deadline; `kind: shell` cmds | Q |
+| 36 Platform | stand the platform up and know which parts of the recipe are current | PARTIAL | `noetl/ops`: fresh-stack playbook (a NoETL playbook provisioning NoETL), Cloud Build, KEDA ScaledObjects, CSI secrets, EHDB platform playbook; stale vs current; committed ≠ live (#267) | Q |
+
 ### Appendices
 
 A DSL reference, B tool kinds, C flags and env vars, D the resource model
@@ -318,7 +358,7 @@ feature lands.
 | **2 Getting started + local** | Ch. 1, 2, 8, 7, 9, 11, then the Introduction | The tutorial track's first leg; local mode needs no cluster | Ch. 2 runs end to end in CI |
 | **3 Distributed + the trace visualizer** | Build `mdbook-noetl-trace`; Ch. 10, 12 | Ch. 10.5 is the book's flagship visualization | One recorded execution steps through correctly, folded by orchestrate-core |
 | **4 Substrate and resources** | Ch. 13, 21, 22 (measurements), 30, 27–29, 31 | REAL internals and operations; resource model numbers already labelled | Appendices C and D generated |
-| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today) | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
+| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today); case studies Ch. 33–36, each after the concept chapters it cites | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
 | **6 Edge** | Build `mdbook-noetl-play`; Ch. 23, 24 | Needs the WASM runner; the kuksin.us proof is real | One ▶ example runs in the browser |
 | **7 TARGET and applied** | Ch. 14, 20, 22.3, 25, 26, 32 | In-flight designs: write them last, short, and tied to their RFCs | Each page states what exists today first |
 | **Continuous** | Status ledger, myths, regenerated appendices | §8 | |

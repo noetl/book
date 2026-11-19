@@ -161,6 +161,31 @@
 - [Credentials and Secrets](ch31-00-credentials.md)
 - [Representation Drift: Keeping What You Know True](ch32-00-representation-drift.md)
 
+# Part X — In Practice: Case Studies
+
+- [Case Study: The Travel Playbooks](ch33-00-travel.md)
+    - [From Screen to Playbook to Firestore](ch33-01-contract.md)
+    - [The Profile Flow: Read, Save, Read Back](ch33-02-profile-flow.md)
+    - [Provider Calls: Inline or Child Playbook](ch33-03-providers.md)
+    - [The Itinerary Planner: State Across Turns](ch33-04-planner.md)
+    - [Regression-Testing a Playbook Family](ch33-05-regression.md)
+- [Case Study: Authentication and Authorization](ch34-00-auth.md)
+    - [Sign-In Is a Playbook](ch34-01-sign-in.md)
+    - [Deny by Default: Two Roles and an Allowlist](ch34-02-deny-by-default.md)
+    - [Who Owns an Execution](ch34-03-ownership.md)
+    - [Granting Roles and Verified Email](ch34-04-roles-in-flight.md)
+- [Case Study: A Quantum Compilation Pipeline on the Local Runtime](ch35-00-quantum.md)
+    - [The Pipeline and Its Honest Defaults](ch35-01-pipeline.md)
+    - [Validate Before You Run](ch35-02-validate.md)
+    - [Long-Running Compute: Budgets and Deadlines](ch35-03-budgets.md)
+    - [Shell as the Escape Hatch](ch35-04-shell.md)
+- [Case Study: Standing Up the Platform](ch36-00-platform.md)
+    - [NoETL Provisions NoETL](ch36-01-fresh-stack.md)
+    - [Images: Cloud Build and the Release Pipeline](ch36-02-images.md)
+    - [Worker Pools and KEDA](ch36-03-pools.md)
+    - [Secrets and the EHDB Substrate](ch36-04-secrets-and-ehdb.md)
+    - [What the Recipe Declares vs What Runs](ch36-05-declared-vs-running.md)
+
 ---
 
 [Appendix A: DSL Reference](appendix-01-dsl-reference.md)

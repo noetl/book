@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """A playbook gets `register_verdict: accept` and `execute_verdict: reject`. What does that mean?"""
+prompt.distractors = [
+  "It is valid but slow.",
+  "It is registered but disabled.",
+  "The server is out of date.",
+]
+answer.answer = "The catalog would accept it, but it would fail when run: the parser rejects it."
+context = """Registration does not run the playbook parser; the validator runs both."""
+id = "29054375-a9fe-4d5d-a6c5-51730f5a6e5b"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """The validator reports one finding, and you fix it. What next?"""
+prompt.distractors = [
+  "Nothing: findings list every problem.",
+  "Register it: one finding means one problem.",
+  "Run it locally to find the rest.",
+]
+answer.answer = "Validate again: the parser stops at its first error, so there may be more."
+context = """Registration checks each add their own findings, but the parser reports only the first rule it breaks."""
+id = "b7078d38-b9bd-44c7-88e2-36934e1c8999"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """On 2026-11-17 the public endpoint returned no `schema_drift` for a mismatched digest header. What should a client do?"""
+prompt.distractors = [
+  "Assume the pin is current.",
+  "Stop sending the header.",
+  "Validate twice.",
+]
+answer.answer = "Compare digests itself: fetch `GET /api/dsl/version` and check `schema_digest` against its pin."
+context = """The server code adds `schema_drift`, but something in front of the server dropped the header."""
+id = "2490867f-d2de-4249-9f2c-6da5131b92f7"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """`noetl.ai` cannot be reached, and the local fallback check passes. Is the playbook accepted?"""
+prompt.distractors = [
+  "Yes, the local check has the same rules.",
+  "Yes, if the digest is unchanged.",
+  "Only on the local runtime.",
+]
+answer.answer = "No. Only a remote `valid: true` counts; the CI script exits 1 when the API was not reached."
+context = """A fallback reported as a pass is worse than no validator, because people trust it."""
+id = "7367ea89-ba3b-47da-83da-e812cf7d136d"

@@ -153,6 +153,19 @@ The owner asked for a worked-examples track built from real ecosystem projects (
 - Q: The quantum repo says its playbooks were checked on "NoETL 5.3.2". Which binary is that? → A: Unresolved. `noetl/noetl` has a `pypi-v5.3.2` tag (2026-10-17) whose `pyproject.toml` says it is not a distribution; the CLI the book pins is v6.4.1. Ch. 35 resolves this before any claim depends on the runtime version; sample 35.2 depends only on the server's validate API.
 - Q: Does the public validate endpoint behave as the server code says? → A: Mostly. On 2026-11-17 `https://noetl.ai/api/dsl/version` reported server 3.165.1, and `POST /api/dsl/validate` returned the documented fields. But a mismatched `x-noetl-schema-digest` header produced no `schema_drift` field, although the server code adds one (v3.161.2 and v3.165.1, `src/handlers/dsl.rs`); something in front of the server drops the header. 35.2 says so and teaches comparing digests on the client.
 
+### Session 2026-11-19
+
+The owner asked for two honest threads (book#106): "what noetl can do and what it can't", against programs, tools, AI agents, MCP servers and microservices; and how NoETL addresses data lineage, data governance and data mesh. Answers by the authoring agent, each checked as cited.
+
+- Q: Where does "when not to use NoETL" go? → A: In **Ch. 11**, which becomes "Choosing a Runtime, and When Not to Use NoETL" with sections 11.1–11.7 (#102). Ch. 11 already compares costs across runtimes, and by then the reader has the step and hop costs (Ch. 7.2) and the runtimes (Ch. 8–10). A new chapter in Part II would renumber every later chapter, including merged ones.
+- Q: May Thread 1 read as marketing? → A: No. Each alternative gets "use it instead when…" criteria that are true, and each NoETL advantage is tied to the chapter that proves it. Costs are labelled, dated measurements with n where the source gives it; a figure without n says so.
+- Q: Which overhead figures does 11.2 use? → A: The resource model (server v3.161.2), the dated records in the ai-meta wiki Sessions-Log (kind harness 2026-11-14; prod 2026-11-15 and 2026-11-16), and the book's own local measurement on 2026-11-19 (CLI 6.4.1, checksum-verified release; Apple M1 Max; n = 10, interleaved). That run found a trivial local `rhai` step costs ~259 ms while a `shell` step costs ~3.3 ms; the cause is not traced, and the page reports it as a measurement only.
+- Q: Where do lineage, governance and data mesh go? → A: A new **Part XI — Data Pipelines: Lineage, Governance and Mesh** (Ch. 36–38; #103–#105), after Part X, because governance builds on Ch. 31 and Ch. 34.
+- Q: What lineage does NoETL record by itself? → A: Execution lineage: every `noetl.event` row carries `catalog_id` (one `(path, version)` row of `noetl.catalog`, with its content) and `parent_execution_id`, plus the step, result and time (server v3.161.2 `src/db/queries/event.rs`, `db/ddl/postgres/schema_ddl.sql`). Data lineage (datasets, columns) is not recorded, and no lineage emitter (OpenLineage or any other) exists in server, worker, tools, CLI or gateway at their newest tags on 2026-11-19. The typed registry with declared `lineage` exists behind `NOETL_REGISTRY_ENABLED` (default off), and the canonical result URI's server consumption behind `NOETL_RESULT_URI_ACCEPT` (default off): both PARTIAL.
+- Q: The owner's brief mentions "reference-by-URN state" and role grants. Are they built? → A: Result references are URNs today (`noetl://execution/<eid>/result/…`); the canonical per-step URI is stamped by the worker but not yet consumed by the server. Role grants are not on `main` (see 2026-11-17). Both are labelled where they appear.
+- Q: Is the never-purged event log a governance strength or a gap? → A: Both, and Ch. 37 says so: it is an audit trail, and it conflicts with erasure requests, so personal data must be kept out of results and events by design. The book does not offer a deletion path that does not exist.
+- Q: Does NoETL claim to be a data-mesh platform? → A: No. Ch. 38 maps the four principles to what exists (paths and labels as an ownership convention, playbooks as product interfaces, one grammar from laptop to cluster) and states what is absent (owner/domain metadata, data contracts, SLOs, a policy engine).
+
 ## Book-wide chapter criteria
 
 ### CH-ALL
@@ -466,15 +479,16 @@ Sources: server, worker and gateway at the tags above; noetl.ai/dsl/resource-mod
 
 ### CH-11
 
-**Choosing a Runtime** · Badge **REAL** · Phase **P2** · Issue [#20](https://github.com/noetl/book/issues/20) · Specified
+**Choosing a Runtime, and When Not to Use NoETL** · Badge **REAL** · Phase **P2** (11.0), **P5** (11.1–11.7) · Issues [#20](https://github.com/noetl/book/issues/20), [#102](https://github.com/noetl/book/issues/102) · Specified; extended 2026-11-19
 
-Files: `src/ch11-00-choosing-a-runtime.md`
+Files: `src/ch11-*.md`
 
 Acceptance criteria:
 
 1. A comparison table across local / daemon / distributed: supported kinds, concurrency, durability, cost, what each refuses — every cell traceable to Ch. 8–10 or a named source.
 2. Scenario quiz (5+ questions) mapping workloads to runtimes.
-3. Meets [CH-ALL](#ch-all).
+3. **Added 2026-11-19 ([#102](https://github.com/noetl/book/issues/102)):** sections 11.1–11.7 on when not to use NoETL: what it is good at (each claim tied to its proving chapter), and "reach for X instead when…" for a program, an existing tool, an AI agent, an MCP server and a microservice, ending in a decision guide. Costs are labelled, dated measurements; nothing behind a flag is presented as default. 11.2 written in book#106.
+4. Meets [CH-ALL](#ch-all).
 
 Sources: `noetl/cli` src/playbook_runner.rs, executor/src/playbook.rs, README, cli wiki; noetl.ai/dsl/resource-model.json (= server orchestrate-core/schema/resource-model.json); ai-meta agents/rules/execution-model.md (⚠ its KEDA/NATS line is stale)
 
@@ -850,6 +864,55 @@ Acceptance criteria:
 4. Meets [CH-ALL](#ch-all).
 
 Sources: `noetl/ops` automation/gcp_gke/, automation/ehdb/, ci/manifests/keda/, ci/manifests/noetl/; ai-meta dated public record
+
+## Part XI — Data Pipelines: Lineage, Governance and Mesh
+
+NoETL used for data-processing pipelines, judged on lineage, governance and data mesh. Each chapter separates what NoETL records or enforces by itself, what is built but off by default, and what the author must do. Outline: book#106.
+
+### CH-36
+
+**Data Lineage on NoETL** · Badge **PARTIAL** · Phase **P5** · Issue [#103](https://github.com/noetl/book/issues/103) · Outlined 2026-11-19; 36.1 written
+
+Files: `src/ch36-*.md`
+
+Acceptance criteria:
+
+1. Automatic vs declared, stated separately. Automatic (REAL): `catalog_id` → `(path, version, content)`, workload, `parent_execution_id`, step events and results, result references that name their producer; the execution API's 2,000-event window.
+2. Built and off by default (PARTIAL): the registry with declared `lineage` (`NOETL_REGISTRY_ENABLED`) and the canonical result URI's server consumption (`NOETL_RESULT_URI_ACCEPT`).
+3. Not done (stated plainly): dataset and column lineage; any lineage-standard emitter (searched with a date); external code versions. Shows how a playbook can record dataset lineage today.
+4. Meets [CH-ALL](#ch-all).
+
+Sources: server v3.161.2 `src/db/queries/event.rs`, `src/services/execution.rs`, `db/ddl/postgres/schema_ddl.sql`, `src/db/queries/registry.rs`, `src/services/registry.rs`, `src/config/app.rs`; book Ch. 3.2, 5.3
+
+### CH-37
+
+**Data Governance on NoETL** · Badge **PARTIAL** · Phase **P5** · Issue [#104](https://github.com/noetl/book/issues/104) · Outlined 2026-11-19
+
+Files: `src/ch37-*.md`
+
+Acceptance criteria:
+
+1. Access control (gateway deny-by-default, two roles, allowlist, ownership; role grants labelled in flight), audit and reproducibility (event log, catalog versions; replay vs re-run), secrets and personal data (shape-matching scrubber; no PII classifier), policy at registration (inline-secret scan, tool-kind gates).
+2. Gaps stated first-class: `noetl.secret_audit` has no writer at v3.161.2; the credential-route gate defaults to shadow; no policy-as-code engine; the never-purged event log versus erasure requests.
+3. Builds on Ch. 31 and Ch. 34 without repeating them; names no deployment's state.
+4. Meets [CH-ALL](#ch-all).
+
+Sources: server v3.161.2 (`auth_gate.rs`, `services/secret_material.rs`, `services/secret_audit.rs`), worker v6.15.0 `src/scrub.rs`, gateway v3.22.1 `src/authorization.rs`
+
+### CH-38
+
+**NoETL and Data Mesh** · Badge **PARTIAL** · Phase **P5** · Issue [#105](https://github.com/noetl/book/issues/105) · Outlined 2026-11-19
+
+Files: `src/ch38-*.md`
+
+Acceptance criteria:
+
+1. The four principles (domain ownership, data as a product, self-serve platform, federated computational governance) mapped to what exists, each with its badge.
+2. Conventions are called conventions: `metadata` has `name`, `path`, `description`, `labels` and nothing else typed (orchestrate-core `playbook.rs` `Metadata`), so ownership is a path/label convention; no data contracts, SLOs or product registry.
+3. No claim that NoETL is a data-mesh platform; federation material from Part V is labelled with its flags.
+4. Meets [CH-ALL](#ch-all).
+
+Sources: server v3.161.2 `orchestrate-core/src/playbook.rs`; book Ch. 3.4; Part V chapters
 
 ## Appendices
 

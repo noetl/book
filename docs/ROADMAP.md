@@ -40,7 +40,7 @@ is a stub today.
 | **P2** | Getting started, first project, local runtime, daemon | **now** |
 | **P3** | Distributed runtime + the trace visualizer | now (needs P0 CI, and a kind cluster on tagged release images for the trace and Ch. 12) |
 | **P4** | EHDB, resources, measured overhead, operations | now |
-| **P5** | Interop and distribution (released, mostly behind flags); the case studies of Part X | now, with care over flag states |
+| **P5** | Interop and distribution (released, mostly behind flags); the case studies; when not to use NoETL (11.1–11.7); Part XI | now, with care over flag states |
 | **P6** | Edge / WASM + the in-browser runner | after the runner exists |
 | **P7** | TARGET designs and applied studies | later; rewrite when features land |
 
@@ -59,6 +59,7 @@ is a stub today.
 | VIII Applied | 25–26 | PARTIAL / REAL | P7 / P5 |
 | IX Operations | 27–32 | REAL | P4 (Ch. 32 P7) |
 | X In Practice: Case Studies | 33–35 | REAL / PARTIAL / PARTIAL | P5 |
+| XI Data Pipelines: Lineage, Governance and Mesh | 36–38 | PARTIAL | P5 |
 | Appendices | A–H | REAL (generated / living) | P0–P4, continuous |
 
 ---
@@ -157,10 +158,13 @@ flagship visualization, the first `noetl-trace` step-through. Sections
 10.0–10.4 can land first; 10.5 waits for that tool and a trace captured
 from a stack running tagged releases.
 
-**Ch. 11 Choosing a Runtime** · REAL · P2. A comparison of supported
-kinds, concurrency, durability, cost and refusals across the three
-runtimes, with scenario quizzes. It is a decision aid that consolidates
-Ch. 8–10.
+**Ch. 11 Choosing a Runtime, and When Not to Use NoETL** · REAL · P2
+(11.0), P5 (11.1–11.7). A comparison of supported kinds, concurrency,
+durability, cost and refusals across the three runtimes, with scenario
+quizzes. Then the earlier question, answered even-handedly: what NoETL is
+good at, and when a program, an existing tool, an AI agent, an MCP server
+or a microservice is the better choice, ending in a decision guide with
+labelled, dated costs (#102; 11.2 written 2026-11-19).
 
 **Ch. 12 Project: Taking Your Playbook Distributed** · REAL · P3. The
 Ch. 2 playbook on a kind cluster, adding a parallel `loop:`, a
@@ -348,6 +352,32 @@ in flight and labelled until a release carries them.
 provisioning NoETL: the fresh-stack playbook, Cloud Build images, KEDA
 worker pools, CSI-mounted secrets and the EHDB substrate, as `noetl/ops`
 commits them, with what is stale and why committed is not live.
+
+## Part XI — Data Pipelines: Lineage, Governance and Mesh
+
+*NoETL for data-processing pipelines, judged on the three questions data
+teams ask first. Each chapter separates what NoETL does by itself, what
+is built but off by default, and what the author must do. Outlined
+2026-11-19 in book#106.*
+
+**Ch. 36 Data Lineage on NoETL** · PARTIAL · P5 · 36.1 written
+2026-11-19. Execution lineage for free (playbook version and text,
+inputs, steps, results, parent runs, references that name their
+producer); a declared-lineage registry that is built and off by
+default; and no dataset or column lineage, nor any lineage-standard
+emitter, which the author records today.
+
+**Ch. 37 Data Governance on NoETL** · PARTIAL · P5. Access control
+(deny by default, two roles), audit and reproducibility, secrets and
+personal data, policy at registration, with the gaps stated first: no
+secret-audit writer, a shadow-default credential gate, no policy
+engine, and a never-purged log that personal data must stay out of.
+
+**Ch. 38 NoETL and Data Mesh** · PARTIAL · P5. The four data-mesh
+principles against what exists: ownership by path and label convention,
+playbooks as product interfaces, one grammar from laptop to cluster,
+and federation that is Part V material behind flags. NoETL does not
+claim to be a data-mesh platform.
 
 ## Appendices
 

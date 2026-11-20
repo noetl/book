@@ -385,6 +385,13 @@
       "default": "empty",
       "what": "allow-list of environment variables copied into every command's secrets",
       "source": "worker v6.15.0 src/executor/command.rs:55-63"
+    },
+    {
+      "var": "NOETL_RESULT_URI_ACCEPT",
+      "read_by": "server",
+      "default": "false",
+      "what": "accept and validate the worker-stamped canonical result URI (shadow; not yet resolved by)",
+      "source": "server v3.161.2 src/config/app.rs:442-470"
     }
   ]
 }

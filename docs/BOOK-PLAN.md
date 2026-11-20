@@ -182,6 +182,26 @@ project ids, real user or document ids, execution ids, hostnames or
 third-party data, even where a source file carries them. For
 `noetl/quantum`, project level only.
 
+### 2.9 Honest positioning: what NoETL is not for
+
+The owner's brief, verbatim: "what noetl can do and what it can't. When
+it is benefit and when it's better to use old way of computation -
+programs, tools, AI agents, MCP servers, or even microservices." The
+book answers in Ch. 11.1–11.7 and, for data teams, in Part XI.
+
+Rules for these pages:
+
+- **Costs before benefits.** Every comparison starts with what NoETL
+  charges (per-step and per-hop overhead, operational weight), as
+  labelled, dated measurements with n where the source gives it.
+- **"Reach for X instead when…" must be true.** Each alternative gets
+  criteria a reader could act on, not a straw man.
+- **Composition is the usual answer.** Most real systems put a program,
+  tool, agent or service *inside* a step, or call a playbook *from* a
+  service. Say where the boundary goes.
+- **Built ≠ on.** Anything behind an off-by-default flag, on a branch, or
+  only designed is labelled PARTIAL or TARGET where it appears.
+
 ## 3. Keeping the book true: status discipline
 
 The book describes a moving system, so it borrows the rule ai-meta
@@ -262,7 +282,7 @@ diagrams (D) and runnable examples (▶).
 | 8 Local runtime | run anything locally and know exactly what is not supported | REAL | `noetl run <ref> -r local\|distributed\|auto` (flag → context → default local). Everything runs in one in-process Rust interpreter. **Local kinds:** shell, http, playbook, duckdb, auth, sink, rhai, provider, agent, noop. ⚠ **No `python`, no `postgres` locally** (rejected up front: "run it on a cluster instead"). ⚠ **`loop:` is parsed but not executed locally.** Iterate with a back-edge arc plus `when`, set-based DuckDB SQL inside one step, or rhai. The local Feather event buffer can be replayed with `noetl push`. | Q: "which of these runs locally?"; ▶ a back-edge loop |
 | 9 Daemon | run a playbook per message with `noetl subscribe`; serve MCP and agents with `noetl serve` / `subscribe --serve` | REAL | A standalone `kind: Subscription` listener over NATS, Pub/Sub or Kafka. No Kubernetes, no server. It has a local disk spool and a JSONL event trail, can `--dispatch server`, and keeps durable tasks in `--task-db`. It is not a general-purpose daemon. | D; Q |
 | 10 Distributed runtime | trace one execution through gateway → server → EHDB command bus → worker pools, and reason about slots | REAL | The gateway is a gatekeeper only (auth, SSE, push ingress). The server drive is orchestrate-core running as WASM on the system pool. Pools claim `commands.<pool>.>`. A slot is held from claim until the tool returns; capacity = replicas × slots. KEDA scales on `ehdb_feed_subject_lag` (`replicas ≈ ceil(lag/2)`), **not** on NATS consumer lag (NATS is removed). Pool sizes as DEPLOYED in the resource model, with a date. | **T: the flagship trace, one execution end to end**; D: topology; Q |
-| 11 Choosing a runtime | pick local, daemon or distributed for a workload | REAL | Comparison table: kinds supported, concurrency, durability, cost, what each runtime refuses | Q: scenario questions |
+| 11 Choosing a runtime, and when not to use NoETL | pick local, daemon or distributed for a workload; and decide whether NoETL fits at all | REAL (11.4, 11.5 PARTIAL) | Comparison table: kinds supported, concurrency, durability, cost, what each runtime refuses. 11.1–11.7 (§2.9): good at; a program (11.2 written: per-step cost table, a hot loop as one step vs many); an existing tool; AI agents; MCP servers; microservices; a decision guide | Q: scenario questions |
 | 12 Project: distributed | move the Ch. 2 playbook to kind, add a parallel loop, a postgres step and a sub-playbook, and read the event log | REAL | | T, Q |
 
 ### Part IV — EHDB
@@ -323,6 +343,14 @@ diagrams (D) and runnable examples (▶).
 | 34 Auth | see access control enforced by the gateway and by playbooks | PARTIAL | gateway v3.22.1 `authorization.rs`: two roles, deny by default, `GATEWAY_USER_PLAYBOOKS`, ownership, guest; Auth0 validation playbook vs `NOETL_AUTH_SYNC`. In flight, labelled: `grant_role`, verified-email role inheritance | Q |
 | 35 Platform | stand the platform up and know which parts of the recipe are current | PARTIAL | `noetl/ops`: fresh-stack playbook (a NoETL playbook provisioning NoETL), Cloud Build, KEDA ScaledObjects, CSI secrets, EHDB platform playbook; stale vs current; committed ≠ live (#267) | Q |
 
+### Part XI — Data Pipelines: Lineage, Governance and Mesh
+
+| Ch. | Goal | Status | Key content | Interactive |
+|---|---|---|---|---|
+| 36 Data lineage | know which lineage NoETL records and which you must declare | PARTIAL (36.1 written, REAL) | Automatic execution lineage: `catalog_id` → `(path, version, content)`, workload, `parent_execution_id`, step events and results, producer-naming result references; the API's 2,000-event window. Built, off: the registry with declared `lineage` (`NOETL_REGISTRY_ENABLED`), canonical result URI consumption (`NOETL_RESULT_URI_ACCEPT`). Not done: dataset/column lineage, any lineage-standard emitter | Q; T (a recorded run's lineage, once T-05 exists) |
+| 37 Data governance | govern pipelines on NoETL and know the gaps | PARTIAL | Access control (Ch. 34), audit and reproducibility (replay vs re-run), secrets and PII (scrubber limits), policy at registration; gaps first: no secret-audit writer, shadow-default gate, no policy engine, never-purged log vs erasure | Q |
+| 38 Data mesh | see which data-mesh principles NoETL can serve | PARTIAL | Ownership by path/label convention (no owner field), playbooks as product interfaces (no contracts/SLOs), self-serve from laptop to cluster, federation behind Part V flags; no platform claim | Q |
+
 ### Appendices
 
 A DSL reference, B tool kinds, C flags and env vars, D the resource model
@@ -359,7 +387,7 @@ feature lands.
 | **2 Getting started + local** | Ch. 1, 2, 8, 7, 9, 11, then the Introduction | The tutorial track's first leg; local mode needs no cluster | Ch. 2 runs end to end in CI |
 | **3 Distributed + the trace visualizer** | Build `mdbook-noetl-trace`; Ch. 10, 12 | Ch. 10.5 is the book's flagship visualization | One recorded execution steps through correctly, folded by orchestrate-core |
 | **4 Substrate and resources** | Ch. 13, 21, 22 (measurements), 30, 27–29, 31 | REAL internals and operations; resource model numbers already labelled | Appendices C and D generated |
-| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today); case studies Ch. 26 and 33–35, each after the concept chapters it cites | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
+| **5 Interop and distribution** | Ch. 18, 19, 16, 17, 15, and 20.1 (concurrency today); case studies Ch. 26 and 33–35, each after the concept chapters it cites; Ch. 11.1–11.7 and Part XI (§2.9) | Released (some flags off); write "what is on where" carefully | Every flag named with its default |
 | **6 Edge** | Build `mdbook-noetl-play`; Ch. 23, 24 | Needs the WASM runner; the kuksin.us proof is real | One ▶ example runs in the browser |
 | **7 TARGET and applied** | Ch. 14, 20, 22.3, 25, 32 | In-flight designs: write them last, short, and tied to their RFCs | Each page states what exists today first |
 | **Continuous** | Status ledger, myths, regenerated appendices | §8 | |

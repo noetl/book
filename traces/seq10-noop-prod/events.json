@@ -1,0 +1,1136 @@
+[
+ {
+  "event_id": 380575470824988672,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "playbook_started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:02.995087Z",
+  "node_name": "bench/seq10_noop"
+ },
+ {
+  "event_id": 380575475598106624,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "execution.catalog_snapshot",
+  "status": "RECORDED",
+  "timestamp": "2026-11-16T04:31:04.133880Z",
+  "node_name": "bench/seq10_noop"
+ },
+ {
+  "event_id": 380575475644243968,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:04.144689Z",
+  "node_name": "start"
+ },
+ {
+  "event_id": 380575476051091456,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:04.241482Z",
+  "node_name": "start",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:start:380575475644243968",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575476103942144,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:04.253171Z",
+  "node_name": "start",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:start:380575475644243968"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575476158468096,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:04.266777Z",
+  "node_name": "start",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:start:380575475644243968",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 0
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575476212994048,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:04.279411Z",
+  "node_name": "start",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:start:380575475644243968",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575476512464896,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:04.351203Z",
+  "node_name": "s01",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575476529242112,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:04.355566Z",
+  "node_name": "s01"
+ },
+ {
+  "event_id": 380575476910923776,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:04.446307Z",
+  "node_name": "s01",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s01:380575476529242112",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575476951191552,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:04.455171Z",
+  "node_name": "s01",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s01:380575476529242112"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575477014106112,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:04.470309Z",
+  "node_name": "s01",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s01:380575476529242112",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 1
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575477064437760,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:04.482331Z",
+  "node_name": "s01",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s01:380575476529242112",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575477175164928,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:04.509335Z",
+  "node_name": "s02",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575477191942144,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:04.513273Z",
+  "node_name": "s02"
+ },
+ {
+  "event_id": 380575477611372544,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:04.613077Z",
+  "node_name": "s02",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s02:380575477191942144",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575477651640320,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:04.622040Z",
+  "node_name": "s02",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s02:380575477191942144"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575477701971968,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:04.634767Z",
+  "node_name": "s02",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s02:380575477191942144",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 2
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575477756497920,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:04.647036Z",
+  "node_name": "s02",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s02:380575477191942144",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575478093717504,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:04.728501Z",
+  "node_name": "s03",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575478114689024,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:04.733496Z",
+  "node_name": "s03"
+ },
+ {
+  "event_id": 380575478508953600,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:04.827838Z",
+  "node_name": "s03",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s03:380575478114689024",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575478549221376,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:04.836008Z",
+  "node_name": "s03",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s03:380575478114689024"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575478603747328,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:04.849190Z",
+  "node_name": "s03",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s03:380575478114689024",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 3
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575478654078976,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:04.861500Z",
+  "node_name": "s03",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s03:380575478114689024",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575478785777664,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:04.893839Z",
+  "node_name": "s04",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575478806749184,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:04.898580Z",
+  "node_name": "s04"
+ },
+ {
+  "event_id": 380575479427506176,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:05.046301Z",
+  "node_name": "s04",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s04:380575478806749184",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575479471968256,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:05.056552Z",
+  "node_name": "s04",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s04:380575478806749184"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575479534882816,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:05.071089Z",
+  "node_name": "s04",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s04:380575478806749184",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 4
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575479585214464,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:05.083846Z",
+  "node_name": "s04",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s04:380575478806749184",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575479725301760,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:05.117125Z",
+  "node_name": "s05",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575479742078976,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:05.121670Z",
+  "node_name": "s05"
+ },
+ {
+  "event_id": 380575480408973312,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:05.280830Z",
+  "node_name": "s05",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s05:380575479742078976",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575480453435392,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:05.290106Z",
+  "node_name": "s05",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s05:380575479742078976"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575480516349952,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:05.305034Z",
+  "node_name": "s05",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s05:380575479742078976",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 5
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575480575070208,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:05.319142Z",
+  "node_name": "s05",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s05:380575479742078976",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575480698380288,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:05.349512Z",
+  "node_name": "s06",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575480719351808,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:05.354160Z",
+  "node_name": "s06"
+ },
+ {
+  "event_id": 380575481142976512,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:05.455149Z",
+  "node_name": "s06",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s06:380575480719351808",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575481187438592,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:05.465180Z",
+  "node_name": "s06",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s06:380575480719351808"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575481237770240,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:05.477831Z",
+  "node_name": "s06",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s06:380575480719351808",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 6
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575481296490496,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:05.491592Z",
+  "node_name": "s06",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s06:380575480719351808",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575481440772096,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:05.526218Z",
+  "node_name": "s07",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575481457549312,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:05.530870Z",
+  "node_name": "s07"
+ },
+ {
+  "event_id": 380575482501931008,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:05.779723Z",
+  "node_name": "s07",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s07:380575481457549312",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575482856771584,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:05.863848Z",
+  "node_name": "s07",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s07:380575481457549312"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575483372670976,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:05.986046Z",
+  "node_name": "s07",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s07:380575481457549312",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 7
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575483423002624,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:05.998779Z",
+  "node_name": "s07",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s07:380575481457549312",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575483579867136,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:06.036192Z",
+  "node_name": "s08",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575483600838656,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:06.041185Z",
+  "node_name": "s08"
+ },
+ {
+  "event_id": 380575484729106432,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:06.310502Z",
+  "node_name": "s08",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s08:380575483600838656",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575485394325504,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:06.468811Z",
+  "node_name": "s08",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s08:380575483600838656"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575485465628672,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:06.485935Z",
+  "node_name": "s08",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s08:380575483600838656",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 8
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575485524348928,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:06.499344Z",
+  "node_name": "s08",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s08:380575483600838656",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575485706379264,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:06.543268Z",
+  "node_name": "s09",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575486427799552,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:06.715026Z",
+  "node_name": "s09"
+ },
+ {
+  "event_id": 380575486868201472,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:06.821015Z",
+  "node_name": "s09",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s09:380575486427799552",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575486921052160,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:06.832465Z",
+  "node_name": "s09",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s09:380575486427799552"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575486979772416,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:06.846366Z",
+  "node_name": "s09",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s09:380575486427799552",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 9
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575487030104064,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:06.858929Z",
+  "node_name": "s09",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s09:380575486427799552",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575487203745792,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:06.900366Z",
+  "node_name": "s10",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575487220523008,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:06.904858Z",
+  "node_name": "s10"
+ },
+ {
+  "event_id": 380575487635759104,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:07.003277Z",
+  "node_name": "s10",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s10:380575487220523008",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575487684415488,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:07.014965Z",
+  "node_name": "s10",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s10:380575487220523008"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575487747330048,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:07.029788Z",
+  "node_name": "s10",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:s10:380575487220523008",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 10
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575487801856000,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:07.042460Z",
+  "node_name": "s10",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:s10:380575487220523008",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575487983886336,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "step.enter",
+  "status": "ENTERED",
+  "timestamp": "2026-11-16T04:31:07.086846Z",
+  "node_name": "end",
+  "result": {
+   "status": "ENTERED"
+  }
+ },
+ {
+  "event_id": 380575488004857856,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.issued",
+  "status": "PENDING",
+  "timestamp": "2026-11-16T04:31:07.091223Z",
+  "node_name": "end"
+ },
+ {
+  "event_id": 380575488407511040,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.claimed",
+  "status": "RUNNING",
+  "timestamp": "2026-11-16T04:31:07.187056Z",
+  "node_name": "end",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:end:380575488004857856",
+    "worker_id": "worker-1"
+   },
+   "status": "RUNNING"
+  }
+ },
+ {
+  "event_id": 380575488451973120,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.started",
+  "status": "STARTED",
+  "timestamp": "2026-11-16T04:31:07.197652Z",
+  "node_name": "end",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:end:380575488004857856"
+   },
+   "status": "STARTED"
+  }
+ },
+ {
+  "event_id": 380575488510693376,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "call.done",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:07.211055Z",
+  "node_name": "end",
+  "result": {
+   "context": {
+    "call_index": 0,
+    "command_id": "380575470791434240:end:380575488004857856",
+    "result": {
+     "context": {
+      "data": {
+       "hop": 11
+      },
+      "status": "success"
+     },
+     "status": "success"
+    }
+   },
+   "status": "COMPLETED"
+  }
+ },
+ {
+  "event_id": 380575488565219328,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "command.completed",
+  "status": "success",
+  "timestamp": "2026-11-16T04:31:07.224275Z",
+  "node_name": "end",
+  "result": {
+   "context": {
+    "command_id": "380575470791434240:end:380575488004857856",
+    "status": "success"
+   },
+   "status": "success"
+  }
+ },
+ {
+  "event_id": 380575488738861056,
+  "execution_id": 380575470791434240,
+  "catalog_id": 760526957359399354,
+  "event_type": "playbook.completed",
+  "status": "COMPLETED",
+  "timestamp": "2026-11-16T04:31:07.266225Z",
+  "node_name": "playbook",
+  "result": {
+   "status": "COMPLETED"
+  }
+ }
+]

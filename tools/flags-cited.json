@@ -392,6 +392,20 @@
       "default": "false",
       "what": "accept and validate the worker-stamped canonical result URI (shadow; not yet resolved by)",
       "source": "server v3.161.2 src/config/app.rs:442-470"
+    },
+    {
+      "var": "NOETL_EHGRAPH_EMBEDDED",
+      "read_by": "server",
+      "default": "false",
+      "what": "open the embedded ehgraph `noetl-cluster` graph and mount it under /ehgraph/noetl-cluster",
+      "source": "server v3.161.2 src/ehgraph_embedded.rs:77, Cargo.toml:233-235"
+    },
+    {
+      "var": "NOETL_EHGRAPH_TOPOLOGY_WRITER",
+      "read_by": "server",
+      "default": "off (must be exactly `true`)",
+      "what": "project the instance registry into the embedded graph; also needs a token file with a write grant",
+      "source": "server v3.161.2 src/instances/graph.rs:28-33, 42"
     }
   ]
 }

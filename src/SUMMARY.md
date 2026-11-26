@@ -74,7 +74,7 @@
     - [A Decision Guide](ch11-07-decision-guide.md)
 - [Project: Taking Your Playbook Distributed](ch12-00-project-distributed.md)
 
-# Part IV — EHDB: The Substrate
+# Part IV — The Substrate: EHDB and ehgraph
 
 - [EHDB: The Event Horizon Database](ch13-00-ehdb.md)
     - [Why NATS Was Replaced](ch13-01-why-replace-nats.md)
@@ -89,9 +89,13 @@
     - [The Execution-Partitioned Event Store (RFC #355)](ch14-02-partitioned-event-store.md)
     - [What Retiring Reconcile and Re-Drive Buys](ch14-03-retiring-reconcile.md)
 - [ehgraph: A Graph Database for Topology](ch15-00-ehgraph.md)
-    - [Model, Change Log, Snapshots](ch15-01-model.md)
-    - [openCypher, Query API v2 and Bolt](ch15-02-query.md)
-    - [ehgraph Inside the Server](ch15-03-embedded.md)
+    - [Three Stores, Three Jobs](ch15-01-three-stores.md)
+    - [The Model: a Labeled Property Graph with History](ch15-02-model.md)
+    - [Querying: openCypher, Query API v2 and Bolt](ch15-03-query.md)
+    - [Transactions](ch15-04-transactions.md)
+    - [ehgraph Inside the Server](ch15-05-embedded.md)
+    - [Operations: Backup, Compaction and Budgets](ch15-06-operations.md)
+    - [Where It Is Heading: a Read Model for Runtime Topology](ch15-07-where-next.md)
 
 # Part V — Distribution: Catalog and Instances
 

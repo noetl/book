@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """At server v3.161.2, which store is the system of record for an execution's events?"""
+prompt.distractors = [
+  "EHDB, because the buses run on it.",
+  "ehgraph, because it keeps history.",
+  "Whichever store answered last.",
+]
+answer.answer = "Postgres: every event is an `INSERT INTO noetl.event`."
+context = """EHDB carries the buses and mirrors the log; making it the state store is TARGET (Ch. 14)."""
+id = "244d960a-2d64-4bbb-9d92-526f0fb51c27"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """Does ehgraph keep its graphs in EHDB?"""
+prompt.distractors = [
+  "Yes, in an EHDB dataset per namespace.",
+  "Only its snapshots.",
+  "Only when embedded in the server.",
+]
+answer.answer = "No. It borrows EHDB's change-log design but does not link it or store data in it."
+context = """So the two stores fail, back up and restore independently."""
+id = "8c1aaec7-17f7-467c-be50-52ccfea16553"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """On 2026-11-22 the prod write counter for the embedded graph read 0. What does that tell you?"""
+prompt.distractors = [
+  "The writer is broken.",
+  "The graph is disabled.",
+  "The counter is not scraped.",
+]
+answer.answer = "Nothing was written in the window since the pod started (about three days), not that the writer cannot write."
+context = """A counter is a reading over a window. Also, nothing in the server reads the graph yet."""
+id = "a7b29012-aec8-4bb4-a04e-ab2030556456"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What role do the designs (RFC #586, the cells RFC) give ehgraph?"""
+prompt.distractors = [
+  "The new system of record for executions.",
+  "A replacement for the catalog.",
+  "The command bus.",
+]
+answer.answer = "A read model of topology, never authoritative."
+context = """These are designs (TARGET), not built."""
+id = "e2bcab39-8eb2-450b-b3c3-588e9e3fc693"

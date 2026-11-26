@@ -77,6 +77,11 @@ which the book does not have yet. The event sequence it will show is
 already listed in [10.2](ch10-02-server.md#the-events-of-a-one-step-execution).
 ```
 
+```admonish note title="Where the runtime's records live"
+Postgres holds the event log of record, EHDB carries the buses, and ehgraph (embedded, off by
+default) holds topology as a read model. [15.1](ch15-01-three-stores.md) puts the three side by side.
+```
+
 ## Check your understanding
 
 {{#quiz ../quizzes/ch10-00.toml}}

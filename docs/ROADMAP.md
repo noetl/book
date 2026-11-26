@@ -52,7 +52,7 @@ is a stub today.
 | I Getting Started | 1–2 | REAL | P2 |
 | II The Model | 3–7 | REAL | P1 (Ch. 7 P2) |
 | III The Three Runtimes | 8–12 | REAL | P2–P3 |
-| IV EHDB | 13–15 | REAL / TARGET / PARTIAL | P4, P5, P7 |
+| IV The Substrate: EHDB and ehgraph | 13–15 | REAL / TARGET / PARTIAL | P4, P5, P7 |
 | V Distribution | 16–17 | PARTIAL | P5 |
 | VI Interop and Concurrency | 18–20 | REAL / REAL / TARGET | P5, P7 |
 | VII Resources and Performance | 21–24 | REAL / PARTIAL / PARTIAL / PARTIAL | P4, P6 |
@@ -171,7 +171,7 @@ Ch. 2 playbook on a kind cluster, adding a parallel `loop:`, a
 `postgres` step and a sub-playbook, then reading the event log. It
 proves the Part III claims with the reader's own trace.
 
-## Part IV — EHDB: The Substrate
+## Part IV — The Substrate: EHDB and ehgraph
 
 *What sits under the distributed runtime, and where it is heading.*
 
@@ -190,10 +190,16 @@ event store (RFC #355) that would retire reconcile/re-drive. It is
 written last because it is design-only today. It links to the
 overhead fixes in Ch. 22.
 
-**Ch. 15 ehgraph** · PARTIAL · P5. A property-graph database for
-topology: change log, snapshots, openCypher, Query API v2, opt-in Bolt,
-and its embedding in the server. It stores no graph data in EHDB, and
-the chapter says so. It completes the storage picture.
+**Ch. 15 ehgraph** · PARTIAL · P5 · outlined 2026-11-26; 15.1 and 15.3
+written. The ecosystem's labeled-property graph database for topology,
+at git `f200516` (no release tag; embedded in the server behind a
+default-off switch). 15.1 sets out the three stores' roles: Postgres the
+system of record, EHDB the buses, ehgraph a read model that stores
+nothing in EHDB. Then the model, the openCypher subset (TCK 2024.3: 84.1%
+of in-model scenarios, the main gap being unlabeled nodes), Query API v2,
+standalone opt-in Bolt, transactions, the embedded instance (on prod:
+embedded and idle, 2026-11-22; nothing reads it), backup and compaction,
+and the designs that would make it the runtime-topology read model.
 
 ## Part V — Distribution: Catalog and Instances
 

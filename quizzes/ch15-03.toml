@@ -1,0 +1,47 @@
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """`CREATE (n)` with no label is sent to ehgraph. What happens?"""
+prompt.distractors = [
+  "It creates an untyped node.",
+  "It creates a node labelled `Node`.",
+  "It is accepted but not stored.",
+]
+answer.answer = "It is refused: every ehgraph node has exactly one label, its type."
+context = """This one rule causes 391 of the 434 TCK failures."""
+id = "66037141-2fac-49cc-b60c-daffddccb536"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """How should ehgraph's TCK result be quoted?"""
+prompt.distractors = [
+  "84% of the openCypher TCK.",
+  "98.2% conformance.",
+  "Full openCypher support.",
+]
+answer.answer = "TCK 2024.3, 2026-11-10: 84.1% of in-model scenarios, 58.8% of all 3,896."
+context = """98.2% is what in-model would be without the unlabeled-node failures, which ehgraph deliberately counts."""
+id = "80937e9c-ba80-40f4-8551-40dd5deec5d4"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """You want to query the server's embedded graph with a Neo4j driver over `bolt://`. Will it work?"""
+prompt.distractors = [
+  "Yes, on port 7687.",
+  "Yes, but only with TLS.",
+  "Only with `neo4j://` routing.",
+]
+answer.answer = "No: the embedded instance opens no Bolt listener; use the HTTP or MCP routes under `/ehgraph/noetl-cluster`."
+context = """Bolt is in the standalone server, off unless configured, without TLS."""
+id = "e9fec666-45ed-42c5-980e-b8eaf8c77e0c"
+
+[[questions]]
+type = "MultipleChoice"
+prompt.prompt = """What does `DELETE n` do in ehgraph?"""
+prompt.distractors = [
+  "It removes the node and its history.",
+  "It is unsupported.",
+  "It only marks the node for a later compaction.",
+]
+answer.answer = "It soft-deactivates the node; its history and versions are kept."
+context = """`MATCH` sees active elements unless the request asks for inactive ones."""
+id = "8ceba3bf-41aa-47a2-bf9d-049a24c15f81"

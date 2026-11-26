@@ -56,7 +56,7 @@ Each task is one GitHub issue, and the issue tracks its status. A box here is ti
 
 ## Phase P5
 
-- [ ] CH-15 [P] ehgraph: A Graph Database for Topology — [#25](https://github.com/noetl/book/issues/25) · `src/ch15-*.md`
+- [ ] CH-15 [P] ehgraph: A Graph Database for Topology — [#25](https://github.com/noetl/book/issues/25) · `src/ch15-*.md` (outlined 2026-11-26; 15.1, 15.3 written)
 - [ ] CH-16 [P] The Distributed Playbook Catalog — [#26](https://github.com/noetl/book/issues/26) · `src/ch16-*.md`
 - [ ] CH-17 [P] Cross-Instance Execution: Run It on B — [#27](https://github.com/noetl/book/issues/27) · `src/ch17-*.md`
 - [ ] CH-18 [P] MCP and Agents — [#28](https://github.com/noetl/book/issues/28) · `src/ch18-*.md`

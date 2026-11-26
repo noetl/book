@@ -40,6 +40,12 @@ no age-based seal trigger, but `crates/ehdb-l0/src/part.rs:530-536`
 seals on age. This chapter follows the code and says where it does.
 ```
 
+```admonish note title="EHDB's sibling store"
+ehgraph, the graph database for topology, shares EHDB's change-log design but none of its code or
+data. [15.1](ch15-01-three-stores.md) sets out which of Postgres, EHDB and ehgraph is authoritative
+for what.
+```
+
 ## Check your understanding
 
 {{#quiz ../quizzes/ch13-00.toml}}

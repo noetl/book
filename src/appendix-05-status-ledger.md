@@ -19,7 +19,7 @@ this table is stale.
 
 <!-- ledger:start -->
 
-**82 pages written, 93 not yet written** (of 175 in `SUMMARY.md`).
+**84 pages written, 95 not yet written** (of 179 in `SUMMARY.md`).
 
 | Page | Badge | Status | Verified against | Landed |
 |---|---|---|---|---|
@@ -93,9 +93,13 @@ this table is stale.
 | &nbsp;&nbsp;&nbsp;&nbsp;The Execution-Partitioned Event Store (RFC #355) | TARGET | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;What Retiring Reconcile and Re-Drive Buys | TARGET | not written | | |
 | ehgraph: A Graph Database for Topology | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;Model, Change Log, Snapshots | PARTIAL | not written | | |
-| &nbsp;&nbsp;&nbsp;&nbsp;openCypher, Query API v2 and Bolt | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Three Stores, Three Jobs](ch15-01-three-stores.md) | **REAL** | written | server v3.161.2 (Cargo.toml:248-250, src/db/queries/event.rs, src/ehgraph_embedded.rs, src/instances/graph.rs); ehgraph `f200516` README; ai-meta RFC interstate-runtime-bus §5; ai-meta wiki Sessions-Log 2026-11-22 | 2026-11-26 |
+| &nbsp;&nbsp;&nbsp;&nbsp;The Model: a Labeled Property Graph with History | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;[Querying: openCypher, Query API v2 and Bolt](ch15-03-query.md) | **PARTIAL** | written | ehgraph `f200516` docs/wiki/Cypher.md, crates/ehgraph-cypher/src/exec.rs, crates/ehgraph-server/src/lib.rs; tck-results.json recounted; server v3.161.2 (no Bolt code; src/ehgraph_embedded.rs:90) | 2026-11-26 |
+| &nbsp;&nbsp;&nbsp;&nbsp;Transactions | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;ehgraph Inside the Server | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Operations: Backup, Compaction and Budgets | PARTIAL | not written | | |
+| &nbsp;&nbsp;&nbsp;&nbsp;Where It Is Heading: a Read Model for Runtime Topology | TARGET | not written | | |
 | The Distributed Playbook Catalog | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Content Addressing and Digest Identity | PARTIAL | not written | | |
 | &nbsp;&nbsp;&nbsp;&nbsp;Resolvers: `noetl://`, `s3://`, `gs://`, `db://`, `ehdb://`… | PARTIAL | not written | | |

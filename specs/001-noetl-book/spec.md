@@ -166,6 +166,18 @@ The owner asked for two honest threads (book#106): "what noetl can do and what i
 - Q: Is the never-purged event log a governance strength or a gap? → A: Both, and Ch. 37 says so: it is an audit trail, and it conflicts with erasure requests, so personal data must be kept out of results and events by design. The book does not offer a deletion path that does not exist.
 - Q: Does NoETL claim to be a data-mesh platform? → A: No. Ch. 38 maps the four principles to what exists (paths and labels as an ownership convention, playbooks as product interfaces, one grammar from laptop to cluster) and states what is absent (owner/domain metadata, data contracts, SLOs, a policy engine).
 
+### Session 2026-11-26
+
+The owner asked for ehgraph coverage (outline issue in this PR). Answers by the authoring agent, each checked as cited.
+
+- Q: Where does ehgraph go? → A: Its existing slot, **Ch. 15** in Part IV (#25), which grows from three stub sections to seven. Part IV is renamed **"The Substrate: EHDB and ehgraph"**. Ch. 10 and Ch. 13 gain one cross-reference each to 15.1. No chapter is renumbered.
+- Q: Which ehgraph is described? → A: git `f200516` (2026-11-10), the rev server v3.161.2 pins (`Cargo.toml:250`, `Cargo.lock`) and, per the dated record of 2026-11-22, the rev prod server v3.165.2 embeds. ehgraph has no release tags. That, and the server's default-off switch (`NOETL_EHGRAPH_EMBEDDED`), make the chapter PARTIAL.
+- Q: What are the three stores' roles? → A: Postgres is the system of record (event log, catalog, credentials, commands); EHDB carries the buses and mirrors the event log but is not yet the state store (Ch. 14, TARGET); ehgraph is a read model of topology, "never authoritative" (RFC #586 §5). ehgraph does not link or store data in EHDB (README; server `Cargo.toml:248`).
+- Q: Does ehgraph write and serve topology on prod? → A: It is embedded with the topology writer switched on, but on 2026-11-22 `noetl_instance_total{outcome="graph_written"}` read 0 since the pod start of 2026-11-19 and the backup loop had shipped nothing: "wired, idle" (ai-meta wiki Sessions-Log). No server code reads the graph. RFC #586's "written on prod" is therefore stated with that reading beside it.
+- Q: How is the conformance number stated? → A: openCypher TCK 2024.3, 2026-11-10: 2,292 pass / 434 fail / 1,170 out of model of 3,896, i.e. 58.8% of all and 84.1% of in-model scenarios. The book recounted these, and the 391 unlabeled-node failures, from `docs/wiki/tck-results.json`.
+- Q: The ehgraph Roadmap lists compaction and "an S3 or GCS client" as not in this release. → A: The code at `f200516` has both: GCS backup (`crates/ehgraph-backup/src/gcs.rs`, ehgraph#12) and crash-safe compaction (off by default, ehgraph#15). The book follows the code and `docs/wiki/Operations.md`, and reports the stale Roadmap lines.
+- Q: Is Bolt available on the embedded graph? → A: No. The server has no Bolt code at v3.161.2. Bolt is a standalone-server listener, off unless configured, without TLS (TARGET).
+
 ## Book-wide chapter criteria
 
 ### CH-ALL
@@ -510,7 +522,7 @@ Blocked until a release-image stack and T-05 are available.
 
 Sources: `noetl/ops` automation/development; `noetl/cli` src/playbook_runner.rs, executor/src/playbook.rs, README, cli wiki
 
-## Part IV — EHDB
+## Part IV — The Substrate: EHDB and ehgraph
 
 ### CH-13
 
@@ -545,16 +557,20 @@ Sources: ai-meta docs/rfc/ehdb-embedded-state.md; ai-meta PR #355
 
 ### CH-15
 
-**ehgraph: A Graph Database for Topology** · Badge **PARTIAL** · Phase **P5** · Issue [#25](https://github.com/noetl/book/issues/25) · Draft (stub; refine with /speckit-clarify before starting)
+**ehgraph: A Graph Database for Topology** · Badge **PARTIAL** · Phase **P5** · Issue [#25](https://github.com/noetl/book/issues/25) · Specified 2026-11-26 (outline); 15.1 and 15.3 written
 
 Files: `src/ch15-*.md`
 
 Acceptance criteria:
 
-1. Stores no graph data in EHDB (say so); embedded in server since v3.156.x at `/ehgraph/<graph>`; TCK rate MEASURED with date.
-2. Meets [CH-ALL](#ch-all).
+1. Facts at ehgraph git `f200516` (the rev server v3.161.2 pins) and the dated public record; ehgraph has no release tags, and the chapter says so.
+2. 15.1 the three stores' roles: Postgres the system of record, EHDB the buses and a mirror (not yet the state store), ehgraph a topology read model; ehgraph stores nothing in EHDB; embedded and idle on prod (2026-11-22), nothing reads it.
+3. 15.2 the model (one label per node, soft deactivation, versions, change log, snapshots, sessions); 15.3 the openCypher subset with its gap table, Query API v2, Bolt (standalone, opt-in, no TLS), and the TCK 2024.3 result recounted with its date and denominators; 15.4 transactions; 15.5 the embedded instance and its switches; 15.6 backup to GCS, compaction (off by default), budgets.
+4. 15.7 the designs that fold ehgraph in (RFC #586 runtime topology, cells, catalog peers) labelled TARGET; read replicas labelled not built.
+5. Cross-referenced from Ch. 10 and Ch. 13.
+6. Meets [CH-ALL](#ch-all).
 
-Sources: `noetl/ehgraph` README
+Sources: `noetl/ehgraph` `f200516` (README, `docs/wiki/Cypher.md`, `Transactions.md`, `Embedding.md`, `Operations.md`, `Roadmap.md`, `tck-results.json`, crates); server v3.161.2 `Cargo.toml`, `src/ehgraph_embedded.rs`, `src/instances/graph.rs`; ai-meta RFCs `interstate-runtime-bus.md`, `firecracker-cells-worker-pool.md`, `distributed-playbook-catalog.md`; ai-meta wiki Sessions-Log 2026-11-10, 2026-11-22
 
 ## Part V — Distribution
 

@@ -251,6 +251,14 @@
     "landed": "2026-11-15 (#83)",
     "verified": "ehdb v0.15.1, server v3.161.2, worker v6.15.0; deployment facts from the dated ai-meta wiki record"
   },
+  "ch15-01-three-stores.md": {
+    "landed": "2026-11-26",
+    "verified": "server v3.161.2 (Cargo.toml:248-250, src/db/queries/event.rs, src/ehgraph_embedded.rs, src/instances/graph.rs); ehgraph `f200516` README; ai-meta RFC interstate-runtime-bus \u00a75; ai-meta wiki Sessions-Log 2026-11-22"
+  },
+  "ch15-03-query.md": {
+    "landed": "2026-11-26",
+    "verified": "ehgraph `f200516` docs/wiki/Cypher.md, crates/ehgraph-cypher/src/exec.rs, crates/ehgraph-server/src/lib.rs; tck-results.json recounted; server v3.161.2 (no Bolt code; src/ehgraph_embedded.rs:90)"
+  },
   "ch21-00-resource-model.md": {
     "landed": "2026-11-15 (#79)",
     "verified": "resource model at server v3.161.2 (as_of 2026-11-11); code checks worker v6.15.0, tools v4.6.0"
